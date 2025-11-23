@@ -6,8 +6,9 @@ export async function GET() {
     const result = await query("SELECT version()");
     return NextResponse.json({ success: true, version: result.rows[0] });
   } catch (error) {
+    console.error("Database query failed:", error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: "Internal server error" },
       { status: 500 }
     );
   }
