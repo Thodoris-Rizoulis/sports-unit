@@ -1,50 +1,87 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report
+Version change: 1.0.0 → 1.1.0
+List of modified principles: Dependencies (expanded to allow extra dependencies when justified)
+Added sections: None
+Removed sections: None
+Templates requiring updates: .specify/templates/plan-template.md (✅ updated) / README.md (✅ updated)
+Follow-up TODOs: None
+-->
+
+# Sports Unit Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### Code Quality
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+- Project must use TypeScript with `strict` mode enabled.
+- Avoid `any` type; always use explicit interfaces.
+- Code must be clean, readable, and consistent with naming conventions.
+- No duplicated logic; all reusable code must be extracted into `/lib` or `/components`.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### Testing
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+- No unit tests or e2e tests for pre-MVP.
+- Testing may be added in future iterations.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### Performance / UX
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+- Optimize data fetching; use server-side fetching in `app/api` endpoints.
+- Lazy-load components and routes where applicable.
+- Exception handling must be implemented everywhere to prevent crashes.
+- User-facing errors must be meaningful and safe.
+- Do not implement caching for pre-MVP.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### Project Structure
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+- `/lib` → Shared utilities, database connections (e.g., `/lib/db.ts`), and helper functions.
+- `/repositories` → All database queries organized by domain; no queries in API routes.
+- `/services` → Business logic layer that calls repositories; API routes in `/app/api` call services, not repositories directly.
+- `/app/api` → API endpoints; each endpoint is thin, calls services, and handles request/response validation.
+- `/components` → Reusable UI components, using installed shadcn components and Tailwind for styling.
+- `/ui` → Optional subfolder for shared design primitives.
+- `/types` → Global TypeScript interfaces and types.
+- `/styles/global.css` → All color definitions and shared Tailwind utilities.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### Reusability
+
+- All utilities, services, and components must be reusable.
+- Avoid duplicating code across endpoints or components.
+- Reuse shadcn components whenever possible.
+
+### Error Handling
+
+- All functions, services, and API endpoints must implement proper exception handling.
+- Use try/catch in services and API endpoints.
+- Return structured, meaningful errors to users.
+
+### Dependencies
+
+- Keep dependencies minimal; prefer native TypeScript/JavaScript features.
+- Allowed dependencies: Tailwind CSS, shadcn components, Zod (for schema validation and request validation).
+- Extra dependencies may be allowed when justified.
+
+### Design / Responsiveness
+
+- Mobile-first responsive design is required.
+- All colors and design tokens must come from `global.css`.
+- Components must adapt to all screen sizes.
+
+### Extensibility / Maintainability
+
+- Constitution may be extended in future iterations.
+- Code must remain modular, organized, and maintainable.
+- Repository and service patterns must be followed for scalability.
+- Zod must be used for request validation in `/app/api` endpoints.
+
+## Additional Constraints
+
+## Development Workflow
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+Constitution supersedes all other practices; Amendments require documentation, approval, migration plan
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+All PRs/reviews must verify compliance; Complexity must be justified;
+
+**Version**: 1.1.0 | **Ratified**: TODO(RATIFICATION_DATE): Original adoption date unknown | **Last Amended**: 2025-11-23

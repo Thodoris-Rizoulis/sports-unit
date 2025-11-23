@@ -29,9 +29,17 @@
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-[Gates determined based on constitution file]
+- **Code Quality**: Ensure TypeScript with strict mode enabled, avoid `any` type, use explicit interfaces, clean and readable code, consistent naming, no duplicated logic extracted to `/lib` or `/components`.
+- **Testing**: No unit or e2e tests for pre-MVP; testing may be added later.
+- **Performance / UX**: Optimize data fetching with server-side in `app/api`, lazy-load components/routes, implement exception handling everywhere, provide meaningful and safe user errors, no caching.
+- **Project Structure**: Follow specified folder structure (`/lib`, `/repositories`, `/services`, `/app/api`, `/components`, `/ui`, `/types`, `/styles/global.css`).
+- **Reusability**: All utilities, services, components must be reusable; avoid code duplication; reuse shadcn components.
+- **Error Handling**: Implement proper exception handling in all functions, services, API endpoints; use try/catch; return structured, meaningful errors.
+- **Dependencies**: Keep minimal; prefer native TS/JS; allowed: Tailwind CSS, shadcn, Zod; extra dependencies may be allowed when justified.
+- **Design / Responsiveness**: Mobile-first responsive; colors/design tokens from `global.css`; components adapt to all screen sizes.
+- **Extensibility / Maintainability**: Constitution extensible; code modular, organized, maintainable; follow repository/service patterns; use Zod for API validation.
 
 ## Project Structure
 
@@ -48,6 +56,7 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
+
 <!--
   ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
   for this feature. Delete unused options and expand the chosen structure with
@@ -98,7 +107,7 @@ directories captured above]
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| Violation                  | Why Needed         | Simpler Alternative Rejected Because |
+| -------------------------- | ------------------ | ------------------------------------ |
+| [e.g., 4th project]        | [current need]     | [why 3 projects insufficient]        |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient]  |
