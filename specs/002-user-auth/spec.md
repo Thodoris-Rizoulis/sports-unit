@@ -67,7 +67,7 @@ As a platform administrator, I want to ensure users complete onboarding before a
 ### Functional Requirements
 
 - **FR-001**: System MUST use NextAuth.js for authentication backend
-- **FR-002**: System MUST support email/password and Google OAuth login
+- **FR-002**: System MUST support email/password login
 - **FR-003**: System MUST display login/register modal when "Get Started" button is clicked
 - **FR-004**: System MUST collect email, password, username, and role during registration
 - **FR-005**: System MUST dynamically fetch role options from `profile_roles` table
@@ -105,7 +105,6 @@ As a platform administrator, I want to ensure users complete onboarding before a
 ## Assumptions _(optional)_
 
 - NextAuth.js configuration will use standard providers
-- Google OAuth credentials will be provided via environment variables
 - Database connection is already configured
 - Password hashing will use bcrypt or similar secure method
 - Session management follows NextAuth defaults
@@ -119,14 +118,14 @@ As a platform administrator, I want to ensure users complete onboarding before a
 - NextAuth backend integration
 - Database table creation
 - Basic access control
-- Email/password and Google auth
+- Email/password auth
 
 **Out of Scope**:
 
 - Password reset functionality
 - Email verification
 - Advanced onboarding flow
-- Social media auth beyond Google
+- Social media auth
 - Admin user management
 
 ## Dependencies _(optional)_
@@ -134,7 +133,6 @@ As a platform administrator, I want to ensure users complete onboarding before a
 - Landing page "Get Started" button (from 001-landing-page)
 - Database setup and connection
 - NextAuth.js library installation
-- Google OAuth app credentials
 
 ## Notes _(optional)_
 

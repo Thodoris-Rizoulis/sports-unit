@@ -7,7 +7,7 @@
 
 ## Executive Summary
 
-Implement a complete authentication system for the Sports Unit platform, enabling user registration and login with role-based access control. The system will support email/password and Google OAuth authentication, with modal-based UI and database-backed user management.
+Implement a complete authentication system for the Sports Unit platform, enabling user registration and login with role-based access control. The system will support email/password authentication, with modal-based UI and database-backed user management.
 
 **Key Deliverables**:
 
@@ -19,7 +19,7 @@ Implement a complete authentication system for the Sports Unit platform, enablin
 
 **Timeline Estimate**: 2-3 days for full implementation  
 **Risk Level**: Medium (authentication security critical)  
-**Dependencies**: Database connection, Google OAuth credentials, landing page button
+**Dependencies**: Database connection, landing page button
 
 ## Phase 1: Infrastructure Setup (Prerequisites)
 
@@ -29,8 +29,7 @@ Implement a complete authentication system for the Sports Unit platform, enablin
 
 ### Task 1.1: Install Dependencies
 
-- Install NextAuth.js v5 with required adapters
-- Install @auth/prisma-adapter (assuming Prisma ORM)
+- Install NextAuth.js v5
 - Install bcryptjs for password hashing
 - Install @types/bcryptjs
 - Install zod (if not already installed)
@@ -39,14 +38,13 @@ Implement a complete authentication system for the Sports Unit platform, enablin
 ### Task 1.2: Environment Setup
 
 - Add NEXTAUTH_SECRET to .env.local
-- Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
-- Add DATABASE_URL (verify connection)
+- Add DB_HOST,DB_PORT,DB_USER,DB_PASS,DB_NAME (verify connection)
 - Test database connectivity with simple query
 
 ### Task 1.3: Basic NextAuth Configuration
 
 - Create /app/api/auth/[...nextauth].ts
-- Configure basic providers (Credentials, Google)
+- Configure basic providers (Credentials)
 - Set up session callbacks
 - Validate basic auth flow without database
 
@@ -86,9 +84,8 @@ Implement a complete authentication system for the Sports Unit platform, enablin
 ### Task 3.1: NextAuth Configuration
 
 - Configure CredentialsProvider for email/password
-- Configure GoogleProvider for OAuth
-- Set up database adapter (PrismaAdapter)
-- Implement authorize function for credentials
+- Implement authorize function with direct PostgreSQL queries
+- Set up session callbacks
 
 ### Task 3.2: User Registration Logic
 
@@ -143,7 +140,6 @@ Implement a complete authentication system for the Sports Unit platform, enablin
 
 - Add email and password fields
 - Include "Forgot Password" placeholder (out of scope)
-- Add Google OAuth button
 - Maintain consistent styling
 
 ### Task 4.4: Form Validation Integration
@@ -211,7 +207,6 @@ Implement a complete authentication system for the Sports Unit platform, enablin
 
 - Validate login with existing user
 - Verify session restoration
-- Test Google OAuth flow
 - Confirm dashboard redirect for complete users
 
 ### Task 6.3: Error Scenarios Validation
@@ -280,7 +275,6 @@ Implement a complete authentication system for the Sports Unit platform, enablin
 
 **External Dependencies**:
 
-- Google OAuth app credentials
 - Database server running
 - Environment variables configured
 
@@ -292,7 +286,7 @@ Implement a complete authentication system for the Sports Unit platform, enablin
 
 **Assumptions**:
 
-- Prisma ORM is configured (based on adapter choice)
+- PostgreSQL database is configured with direct queries (no ORM)
 - Onboarding page exists (redirect target)
 - Dashboard page exists (success redirect)
 
