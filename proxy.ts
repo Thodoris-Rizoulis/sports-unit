@@ -27,6 +27,11 @@ export default withAuth(
       return Response.redirect(new URL("/onboarding", req.url));
     }
 
+    // Rule 3: Authenticated and onboarded users cannot access onboarding
+    if (isAuth && isOnboardingComplete && pathname === "/onboarding") {
+      return Response.redirect(new URL("/dashboard", req.url));
+    }
+
     // Allow access for all other cases
   },
   {

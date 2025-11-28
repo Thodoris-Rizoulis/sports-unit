@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BasicProfile } from "@/components/onboarding/BasicProfile";
 import { SportsDetails } from "@/components/onboarding/SportsDetails";
-import { OnboardingInput } from "@/types/validation";
+import { OnboardingInput } from "@/types/onboarding";
+import SessionGuard from "@/components/SessionGuard";
 
 export default function ProfileEditPage() {
   const router = useRouter();
@@ -24,7 +25,7 @@ export default function ProfileEditPage() {
           // Convert to OnboardingInput format
           setProfile({
             username: "current", // From session
-            role: "athlete", // From DB
+            roleId: data.role_id || 1, // From DB
             basicProfile: {
               firstName: data.first_name,
               lastName: data.last_name,
@@ -92,48 +93,52 @@ export default function ProfileEditPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Edit Profile</h1>
-        <p className="text-muted-foreground">Update your profile information</p>
+    <SessionGuard>
+      <div className="max-w-2xl mx-auto space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold">Edit Profile</h1>
+          <p className="text-muted-foreground">
+            Update your profile information
+          </p>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Basic Information</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <BasicProfile
+              value={profile.basicProfile}
+              onChange={(basicProfile) =>
+                setProfile({ ...profile, basicProfile })
+              }
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Sports Details</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SportsDetails
+              value={profile.sportsDetails}
+              onChange={(sportsDetails) =>
+                setProfile({ ...profile, sportsDetails })
+              }
+            />
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-end space-x-4">
+          <Button variant="outline" onClick={() => router.back()}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave} disabled={saving}>
+            {saving ? "Saving..." : "Save Changes"}
+          </Button>
+        </div>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Basic Information</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <BasicProfile
-            value={profile.basicProfile}
-            onChange={(basicProfile) =>
-              setProfile({ ...profile, basicProfile })
-            }
-          />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Sports Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <SportsDetails
-            value={profile.sportsDetails}
-            onChange={(sportsDetails) =>
-              setProfile({ ...profile, sportsDetails })
-            }
-          />
-        </CardContent>
-      </Card>
-
-      <div className="flex justify-end space-x-4">
-        <Button variant="outline" onClick={() => router.back()}>
-          Cancel
-        </Button>
-        <Button onClick={handleSave} disabled={saving}>
-          {saving ? "Saving..." : "Save Changes"}
-        </Button>
-      </div>
-    </div>
+    </SessionGuard>
   );
 }

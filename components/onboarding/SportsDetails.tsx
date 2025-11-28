@@ -13,14 +13,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import { VALIDATION_CONSTANTS } from "@/lib/constants";
-import { SportsDetailsInput } from "@/types/validation";
-import { Sport, Position, Team } from "@/types/database";
-
-interface SportsDetailsProps {
-  value: SportsDetailsInput;
-  onChange: (data: SportsDetailsInput) => void;
-  errors?: Partial<Record<keyof SportsDetailsInput, string>>;
-}
+import { SportsDetailsInput, Sport, Position, Team } from "@/types/sports";
+import { SportsDetailsProps } from "@/types/components";
 
 export function SportsDetails({ value, onChange, errors }: SportsDetailsProps) {
   const [sports, setSports] = useState<Sport[]>([]);

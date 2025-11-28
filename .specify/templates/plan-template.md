@@ -31,15 +31,19 @@
 
 _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-- **Code Quality**: Ensure TypeScript with strict mode enabled, avoid `any` type, use explicit interfaces, clean and readable code, consistent naming, no duplicated logic extracted to `/lib` or `/components`.
-- **Testing**: No unit or e2e tests for pre-MVP; testing may be added later.
-- **Performance / UX**: Optimize data fetching with server-side in `app/api`, lazy-load components/routes, implement exception handling everywhere, provide meaningful and safe user errors, no caching.
-- **Project Structure**: Follow specified folder structure (`/lib`, `/repositories`, `/services`, `/app/api`, `/components`, `/ui`, `/types`, `/styles/global.css`).
-- **Reusability**: All utilities, services, components must be reusable; avoid code duplication; reuse shadcn components.
-- **Error Handling**: Implement proper exception handling in all functions, services, API endpoints; use try/catch; return structured, meaningful errors.
-- **Dependencies**: Keep minimal; prefer native TS/JS; allowed: Tailwind CSS, shadcn, Zod; extra dependencies may be allowed when justified.
-- **Design / Responsiveness**: Mobile-first responsive; colors/design tokens from `global.css`; components adapt to all screen sizes.
-- **Extensibility / Maintainability**: Constitution extensible; code modular, organized, maintainable; follow repository/service patterns; use Zod for API validation.
+- **Code Quality**: Ensure TypeScript with strict mode enabled, prefer `type` over `interface`, avoid `any` type, follow DRY principle, clean and readable code, consistent naming, no duplicated logic.
+- **TypeScript & Type Safety**: Use Zod for validation, centralize types in `/types`, no types outside `/types`, use reusable fields from `common.ts`.
+- **Project Structure**: Use Next.js App Router, maintain folder organization (`/app`, `/components`, `/types`, `/services`, `/lib`), use barrel exports.
+- **API & Data Layer**: Use `api-utils` for responses, business logic in `/services`, validate inputs with Zod, proper error handling.
+- **Component Development**: Use Server Components by default, proper prop types from `types/components.ts`, use shadcn/ui.
+- **Styling & Theming**: Use Tailwind with theme variables in `globals.css`, semantic color tokens.
+- **Validation & Best Practices**: All inputs validated with Zod, use established naming conventions, remove unused exports.
+- **Performance & Optimization**: Use `next/image`, proper code splitting, `React.memo` when appropriate.
+- **Error Handling**: Implement exception handling everywhere, use try/catch, meaningful user errors.
+- **Reusability**: All code reusable, avoid duplication, use existing common fields.
+- **Dependencies**: Keep minimal; allowed: Tailwind CSS, shadcn, Zod, NextAuth.js, React Hook Form.
+- **Design / Responsiveness**: Mobile-first responsive; colors from `globals.css`; components adapt to all screen sizes.
+- **Extensibility / Maintainability**: Code modular and maintainable; follow service → API → component pattern; update types first.
 
 ## Project Structure
 
@@ -65,39 +69,35 @@ specs/[###-feature]/
 -->
 
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+# Option 1: Next.js App Router (DEFAULT for this project)
+app/
+├── api/                 # API routes
+├── dashboard/           # App routes
+├── onboarding/
+└── profile/
 
-tests/
-├── contract/
-├── integration/
-└── unit/
+components/
+├── landing/
+├── onboarding/
+├── profile/
+└── ui/                  # shadcn components
 
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
+types/
+├── auth.ts
+├── common.ts
+├── components.ts
+├── profile.ts
+└── sports.ts
 
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
+services/
+├── auth.ts
+├── profile.ts
+└── sports.ts
 
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+lib/
+├── api-utils.ts
+├── constants.ts
+└── db-connection.ts
 ```
 
 **Structure Decision**: [Document the selected structure and reference the real

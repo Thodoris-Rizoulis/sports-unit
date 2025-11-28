@@ -4,24 +4,21 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { OnboardingInput } from "@/types/validation";
-import { Sport, Position, Team } from "@/types/database";
-
-interface ReviewSubmitProps {
-  data: OnboardingInput;
-  error?: string;
-}
+import { OnboardingInput } from "@/types/onboarding";
+import { Sport, Position, Team, Role } from "@/types/sports";
+import { ReviewSubmitProps } from "@/types/components";
 
 export function ReviewSubmit({ data, error }: ReviewSubmitProps) {
   const [sports, setSports] = useState<Sport[]>([]);
   const [positions, setPositions] = useState<Position[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
+  const [role, setRole] = useState<Role | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
       try {
         // Fetch sports data
-        const [sportsResponse, positionsResponse, teamsResponse] =
+        const [sportsResponse, positionsResponse, teamsResponse, roleResponse] =
           await Promise.all([
             fetch("/api/sports"),
             data.sportsDetails.positionIds.length > 0
@@ -29,6 +26,9 @@ export function ReviewSubmit({ data, error }: ReviewSubmitProps) {
               : Promise.resolve(null),
             data.sportsDetails.teamId
               ? fetch(`/api/teams?sportId=${data.sportsDetails.sportId}`)
+              : Promise.resolve(null),
+            data.roleId
+              ? fetch(`/api/roles/${data.roleId}`)
               : Promise.resolve(null),
           ]);
 
@@ -39,10 +39,13 @@ export function ReviewSubmit({ data, error }: ReviewSubmitProps) {
             : [];
         const teamsData =
           teamsResponse && teamsResponse.ok ? await teamsResponse.json() : [];
+        const roleData =
+          roleResponse && roleResponse.ok ? await roleResponse.json() : null;
 
         setSports(sportsData);
         setPositions(positionsData);
         setTeams(teamsData);
+        setRole(roleData);
       } catch (error) {
         console.error("Failed to load review data:", error);
       }
@@ -106,7 +109,9 @@ export function ReviewSubmit({ data, error }: ReviewSubmitProps) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <span className="font-medium">Role:</span>{" "}
-                  <Badge variant="secondary">{data.role}</Badge>
+                  <Badge variant="secondary">
+                    {role?.role_name || "Unknown Role"}
+                  </Badge>
                 </div>
                 <div>
                   <span className="font-medium">Username:</span> {data.username}

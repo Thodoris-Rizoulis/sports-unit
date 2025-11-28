@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { LoginRegisterModal } from "@/components/LoginRegisterModal";
+import { LoginRegisterModal } from "@/components/landing/LoginRegisterModal";
 
 export function Hero() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -12,13 +12,18 @@ export function Hero() {
     <>
       <section className="bg-linear-to-br from-background to-muted/20 py-24 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <Image
-            src="/logo.png"
-            alt="Sports Unit Logo"
-            width={150}
-            height={60}
+          <div
+            style={{ width: 200, height: 80, position: "relative" }}
             className="mx-auto mb-8"
-          />
+          >
+            <Image
+              src="/logo.png"
+              alt="Sports Unit Logo"
+              fill
+              sizes="200px"
+              style={{ objectFit: "contain" }}
+            />
+          </div>
           <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight">
             Sports Unit
           </h1>

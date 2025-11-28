@@ -4,13 +4,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { VALIDATION_CONSTANTS } from "@/lib/constants";
-
-interface UsernameInputProps {
-  value?: string;
-  onChange: (username: string) => void;
-  error?: string;
-  disabled?: boolean;
-}
+import { UsernameInputProps } from "@/types/components";
 
 export function UsernameInput({
   value = "",

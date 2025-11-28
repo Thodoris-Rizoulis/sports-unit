@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -24,44 +25,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-
-const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(1, "Password is required"),
-});
-
-const registerSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
-      "Password must contain uppercase, lowercase, number and special character"
-    ),
-  username: z
-    .string()
-    .min(3, "Username must be at least 3 characters")
-    .max(20, "Username must be at most 20 characters")
-    .regex(
-      /^[a-zA-Z0-9_]+$/,
-      "Username can only contain letters, numbers and underscores"
-    ),
-  roleId: z.string().min(1, "Please select a role"),
-});
-
-type LoginForm = z.infer<typeof loginSchema>;
-type RegisterForm = z.infer<typeof registerSchema>;
-
-interface Role {
-  id: number;
-  role_name: string;
-}
-
-interface LoginRegisterModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+import { Role } from "@/types/sports";
+import { LoginRegisterModalProps } from "@/types/components";
+import {
+  loginFormSchema,
+  registerSchema,
+  LoginForm,
+  RegisterInput,
+} from "@/types/auth";
 
 export function LoginRegisterModal({
   isOpen,
@@ -74,10 +45,10 @@ export function LoginRegisterModal({
   const router = useRouter();
 
   const loginForm = useForm<LoginForm>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(loginFormSchema),
   });
 
-  const registerForm = useForm<RegisterForm>({
+  const registerForm = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
   });
 
@@ -118,7 +89,7 @@ export function LoginRegisterModal({
     }
   };
 
-  const handleRegister = async (data: RegisterForm) => {
+  const handleRegister = async (data: RegisterInput) => {
     setIsLoading(true);
     setError(null);
 
@@ -130,7 +101,7 @@ export function LoginRegisterModal({
           email: data.email,
           password: data.password,
           username: data.username,
-          roleId: parseInt(data.roleId),
+          roleId: data.roleId,
         }),
       });
 
@@ -167,6 +138,9 @@ export function LoginRegisterModal({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Welcome to Sports Unit</DialogTitle>
+          <DialogDescription>
+            Sign in to your account or create a new one to get started.
+          </DialogDescription>
         </DialogHeader>
 
         <Tabs
@@ -231,7 +205,7 @@ export function LoginRegisterModal({
                 <Label htmlFor="register-role">Role</Label>
                 <Select
                   onValueChange={(value) =>
-                    registerForm.setValue("roleId", value)
+                    registerForm.setValue("roleId", parseInt(value, 10))
                   }
                 >
                   <SelectTrigger>

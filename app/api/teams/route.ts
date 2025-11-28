@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getTeamsBySport } from "@/lib/db";
+import { NextRequest } from "next/server";
+import { TeamsService } from "@/services/teams";
+import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
 
 export async function GET(request: NextRequest) {
   try {
@@ -7,19 +8,13 @@ export async function GET(request: NextRequest) {
     const sportId = parseInt(searchParams.get("sportId") || "0");
 
     if (!sportId || sportId <= 0) {
-      return NextResponse.json(
-        { error: "Valid sportId is required" },
-        { status: 400 }
-      );
+      return createErrorResponse("Valid sportId is required", 400);
     }
 
-    const teams = await getTeamsBySport(sportId);
-    return NextResponse.json(teams);
+    const teams = await TeamsService.getTeamsBySport(sportId);
+    return createSuccessResponse(teams);
   } catch (error) {
     console.error("Failed to fetch teams:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch teams" },
-      { status: 500 }
-    );
+    return createErrorResponse("Failed to fetch teams", 500);
   }
 }

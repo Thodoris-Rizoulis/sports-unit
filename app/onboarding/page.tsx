@@ -2,35 +2,16 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
-import { OnboardingInput } from "@/types/validation";
+import { OnboardingInput } from "@/types/onboarding";
+import SessionGuard from "@/components/SessionGuard";
 
 export default function Onboarding() {
-  const { data: session, status, update } = useSession();
+  const { data: session, update } = useSession();
   const router = useRouter();
 
-  useEffect(() => {
-    if (status === "loading") return;
-
-    if (!session) {
-      router.push("/");
-    }
-
-    if (session && session.user.onboardingComplete) {
-      router.push("/dashboard");
-    }
-  }, [session, status, router]);
-
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
-
-  if (!session) {
-    return <div>Redirecting...</div>;
-  }
-
   const handleComplete = async (data: OnboardingInput) => {
+    console.log("handleComplete started");
     try {
       const response = await fetch("/api/onboarding", {
         method: "POST",
@@ -38,12 +19,17 @@ export default function Onboarding() {
         body: JSON.stringify(data),
       });
 
+      console.log("API response:", response.ok);
       if (response.ok) {
-        // Update session
+        // Update session first to refresh the token for proxy
+        console.log("Updating session first");
         await update();
-        // Redirect to user profile
+        console.log("Session updated, now redirecting");
+
+        // Then redirect to user profile
         const username = session?.user?.name;
-        router.push(`/profile/${username}`);
+        console.log("Redirecting to profile:", `/profile/${username}`);
+        router.replace(`/profile/${username}`);
       } else {
         console.error("Onboarding failed");
       }
@@ -53,12 +39,14 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <OnboardingWizard
-        initialRole={session.user.roleId ? "athlete" : undefined}
-        initialUsername={session.user.name || undefined}
-        onComplete={handleComplete}
-      />
-    </div>
+    <SessionGuard>
+      <div className="min-h-screen bg-background">
+        <OnboardingWizard
+          initialRoleId={session?.user?.roleId}
+          initialUsername={session?.user?.name || undefined}
+          onComplete={handleComplete}
+        />
+      </div>
+    </SessionGuard>
   );
 }

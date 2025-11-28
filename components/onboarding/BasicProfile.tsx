@@ -4,13 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { VALIDATION_CONSTANTS } from "@/lib/constants";
-import { BasicProfileInput } from "@/types/validation";
-
-interface BasicProfileProps {
-  value: BasicProfileInput;
-  onChange: (data: BasicProfileInput) => void;
-  errors?: Partial<Record<keyof BasicProfileInput, string>>;
-}
+import { BasicProfileInput } from "@/types/profile";
+import { BasicProfileProps } from "@/types/components";
 
 export function BasicProfile({ value, onChange, errors }: BasicProfileProps) {
   const updateField = <K extends keyof BasicProfileInput>(

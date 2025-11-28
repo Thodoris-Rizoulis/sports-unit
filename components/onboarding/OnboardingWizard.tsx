@@ -10,15 +10,8 @@ import { UsernameInput } from "./UsernameInput";
 import { BasicProfile } from "./BasicProfile";
 import { SportsDetails } from "./SportsDetails";
 import { ReviewSubmit } from "./ReviewSubmit";
-import { UserRole } from "@/lib/constants";
-import { onboardingSchema, OnboardingInput } from "@/types/validation";
-
-interface OnboardingWizardProps {
-  initialRole?: UserRole;
-  initialUsername?: string;
-  onComplete: (data: OnboardingInput) => Promise<void>;
-  isSubmitting?: boolean;
-}
+import { OnboardingInput, onboardingSchema } from "@/types/onboarding";
+import { OnboardingWizardProps } from "@/types/components";
 
 const STEPS = [
   { id: "role-username", title: "Role & Username", required: true },
@@ -28,7 +21,7 @@ const STEPS = [
 ];
 
 export function OnboardingWizard({
-  initialRole,
+  initialRoleId,
   initialUsername,
   onComplete,
   isSubmitting = false,
@@ -38,14 +31,24 @@ export function OnboardingWizard({
     const saved = localStorage.getItem("onboarding-data");
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // Convert dateOfBirth back to Date if it's a string
+        if (
+          parsed.basicProfile?.dateOfBirth &&
+          typeof parsed.basicProfile.dateOfBirth === "string"
+        ) {
+          parsed.basicProfile.dateOfBirth = new Date(
+            parsed.basicProfile.dateOfBirth
+          );
+        }
+        return parsed;
       } catch (error) {
         console.error("Failed to load saved onboarding data:", error);
       }
     }
     // Default data if no saved data or parsing failed
     return {
-      role: initialRole,
+      roleId: initialRoleId,
       username: initialUsername,
       basicProfile: {
         firstName: "",
@@ -67,8 +70,8 @@ export function OnboardingWizard({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Skip role/username step if role is already set
-  const effectiveSteps = initialRole ? STEPS.slice(1) : STEPS;
-  const showRoleStep = !initialRole;
+  const effectiveSteps = initialRoleId ? STEPS.slice(1) : STEPS;
+  const showRoleStep = !initialRoleId;
 
   useEffect(() => {
     localStorage.setItem("onboarding-data", JSON.stringify(data));
@@ -86,8 +89,8 @@ export function OnboardingWizard({
 
       if (currentStep === 0 && showRoleStep) {
         // Validate role and username
-        if (!stepData.role) {
-          setErrors({ role: "Please select a role" });
+        if (!stepData.roleId) {
+          setErrors({ roleId: "Please select a role" });
           return false;
         }
         if (!stepData.username) {
@@ -167,9 +170,9 @@ export function OnboardingWizard({
         return (
           <div className="space-y-6">
             <RoleSelection
-              value={data.role}
-              onChange={(role) => updateData({ role })}
-              error={errors.role}
+              value={data.roleId}
+              onChange={(roleId) => updateData({ roleId })}
+              error={errors.roleId}
             />
             <UsernameInput
               value={data.username}

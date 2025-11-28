@@ -1,7 +1,9 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { z } from "zod";
+import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { uploadRequestSchema } from "@/types/media";
 
 // Cloudflare R2 configuration
 const s3Client = new S3Client({
@@ -13,20 +15,14 @@ const s3Client = new S3Client({
   },
 });
 
-// Validation schema for upload request
-const uploadRequestSchema = z.object({
-  fileName: z.string().min(1),
-  fileType: z.string().regex(/^image\/(jpeg|png|webp)$/),
-  fileSize: z.number().max(10 * 1024 * 1024), // 10MB max
-});
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { fileName, fileType, fileSize } = uploadRequestSchema.parse(body);
+    const { fileName, fileType, fileSize, userId } =
+      uploadRequestSchema.parse(body);
 
     // Generate unique key
-    const key = `uploads/${Date.now()}-${fileName}`;
+    const key = `profiles/${userId}/${Date.now()}-${fileName}`;
 
     // Create put object command
     const command = new PutObjectCommand({
@@ -43,9 +39,9 @@ export async function POST(request: NextRequest) {
     });
 
     // Return the presigned URL and the public URL
-    const publicUrl = `https://${process.env.CLOUDFLARE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${process.env.CLOUDFLARE_R2_BUCKET_NAME}/${key}`;
+    const publicUrl = `${process.env.CLOUDFLARE_R2_PUBLIC_URL}/${key}`;
 
-    return NextResponse.json({
+    return createSuccessResponse({
       uploadUrl: signedUrl,
       publicUrl,
       key,
@@ -54,15 +50,9 @@ export async function POST(request: NextRequest) {
     console.error("Upload URL generation failed:", error);
 
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: "Invalid request data", details: error.issues },
-        { status: 400 }
-      );
+      return createErrorResponse("Invalid request data", 400, error.issues);
     }
 
-    return NextResponse.json(
-      { error: "Failed to generate upload URL" },
-      { status: 500 }
-    );
+    return createErrorResponse("Failed to generate upload URL", 500);
   }
 }

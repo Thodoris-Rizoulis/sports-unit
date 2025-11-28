@@ -1,88 +1,62 @@
-import { NextRequest, NextResponse } from "next/server";
-import { query } from "@/lib/db";
+import { NextRequest } from "next/server";
+import { AuthService } from "@/services/auth";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
-
-const registerSchema = z.object({
-  email: z.string().email(),
-  password: z
-    .string()
-    .min(8)
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/),
-  username: z
-    .string()
-    .min(3)
-    .max(20)
-    .regex(/^[a-zA-Z0-9_]+$/),
-  roleId: z.number().int().positive(),
-});
+import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { SECURITY_CONSTANTS } from "@/lib/constants";
+import { registerSchema } from "@/types/auth";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password, username, roleId } = registerSchema.parse(body);
+    const validatedData = registerSchema.parse(body);
+    const { email, password, username, roleId } = validatedData;
 
     // Check if email already exists
-    const existingEmail = await query("SELECT id FROM users WHERE email = $1", [
-      email,
-    ]);
-    if (existingEmail.rows.length > 0) {
-      return NextResponse.json(
-        { error: "Email already registered" },
-        { status: 400 }
-      );
+    const existingUser = await AuthService.getUserByEmail(email);
+    if (existingUser) {
+      return createErrorResponse("Email already registered", 400);
     }
 
     // Check if username already exists
-    const existingUsername = await query(
-      "SELECT id FROM users WHERE username = $1",
-      [username]
-    );
-    if (existingUsername.rows.length > 0) {
-      return NextResponse.json(
-        { error: "Username already taken" },
-        { status: 400 }
-      );
+    const usernameExists = await AuthService.checkUsernameExists(username);
+    if (usernameExists) {
+      return createErrorResponse("Username already taken", 400);
     }
 
     // Check if role exists
-    const role = await query("SELECT id FROM profile_roles WHERE id = $1", [
-      roleId,
-    ]);
-    if (role.rows.length === 0) {
-      return NextResponse.json({ error: "Invalid role" }, { status: 400 });
+    const roleExists = await AuthService.checkRoleExists(roleId);
+    if (!roleExists) {
+      return createErrorResponse("Invalid role", 400);
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12);
-
-    // Create user
-    const result = await query(
-      "INSERT INTO users (email, password, username, role_id) VALUES ($1, $2, $3, $4) RETURNING id, email, username, role_id, is_onboarding_complete",
-      [email, hashedPassword, username, roleId]
+    const hashedPassword = await bcrypt.hash(
+      password,
+      SECURITY_CONSTANTS.BCRYPT_ROUNDS
     );
 
-    const user = result.rows[0];
+    // Create user
+    const user = await AuthService.registerUser(
+      email,
+      hashedPassword,
+      username,
+      roleId
+    );
 
-    return NextResponse.json({
+    return createSuccessResponse({
       user: {
         id: user.id,
         email: user.email,
-        username: user.username,
-        roleId: user.role_id,
-        onboardingComplete: user.is_onboarding_complete,
+        name: user.name,
+        roleId: user.roleId,
+        onboardingComplete: user.onboardingComplete,
       },
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: "Invalid input", details: error.issues },
-        { status: 400 }
-      );
+      return createErrorResponse("Invalid input", 400, error.issues);
     }
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return createErrorResponse("Internal server error", 500);
   }
 }

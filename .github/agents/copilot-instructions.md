@@ -3,6 +3,8 @@
 Auto-generated from all feature plans. Last updated: 2025-11-23
 
 ## Active Technologies
+- [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION] (004-user-profile)
+- [if applicable, e.g., PostgreSQL, CoreData, files or N/A] (004-user-profile)
 
 - TypeScript (Next.js) + Tailwind CSS, shadcn components, Heroicons (001-landing-page)
 
@@ -23,6 +25,8 @@ tests/
 TypeScript (Next.js): Follow standard conventions
 
 ## Recent Changes
+- 004-user-profile: Added [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
+- 004-user-profile: Added [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
 
 - 001-landing-page: Added TypeScript (Next.js) + Tailwind CSS, shadcn components, Heroicons
 

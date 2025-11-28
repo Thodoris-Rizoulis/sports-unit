@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import {
@@ -9,30 +10,39 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { UserRole } from "@/lib/constants";
-
-interface RoleSelectionProps {
-  value?: UserRole;
-  onChange: (role: UserRole) => void;
-  error?: string;
-}
-
-const roleOptions = [
-  {
-    value: "athlete" as const,
-    title: "Athlete",
-    description:
-      "I play sports and want to connect with coaches, scouts, and other athletes.",
-  },
-  {
-    value: "coach" as const,
-    title: "Coach",
-    description:
-      "I coach sports teams and want to find talented athletes and connect with other coaches.",
-  },
-];
+import { RoleSelectionProps, RoleOption } from "@/types/components";
 
 export function RoleSelection({ value, onChange, error }: RoleSelectionProps) {
+  const [roleOptions, setRoleOptions] = useState<RoleOption[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const response = await fetch("/api/roles");
+        if (response.ok) {
+          const roles = await response.json();
+          const options = roles.map((role: any) => ({
+            value: role.id,
+            title:
+              role.role_name.charAt(0).toUpperCase() + role.role_name.slice(1),
+            description: role.description || "No description available.",
+          }));
+          setRoleOptions(options);
+        }
+      } catch (error) {
+        console.error("Failed to fetch roles:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRoles();
+  }, []);
+
+  if (loading) {
+    return <div>Loading roles...</div>;
+  }
   return (
     <div className="space-y-4">
       <div>
@@ -43,18 +53,29 @@ export function RoleSelection({ value, onChange, error }: RoleSelectionProps) {
         </p>
       </div>
 
-      <RadioGroup value={value} onValueChange={onChange} className="space-y-4">
+      <RadioGroup
+        value={value?.toString()}
+        onValueChange={(val) => onChange(parseInt(val, 10))}
+        className="space-y-4"
+      >
         {roleOptions.map((option) => (
           <Card
             key={option.value}
             className={`cursor-pointer transition-colors ${
               value === option.value ? "border-primary" : ""
             }`}
+            onClick={() => onChange(option.value)}
           >
             <CardHeader className="pb-3">
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value={option.value} id={option.value} />
-                <Label htmlFor={option.value} className="cursor-pointer">
+                <RadioGroupItem
+                  value={option.value.toString()}
+                  id={option.value.toString()}
+                />
+                <Label
+                  htmlFor={option.value.toString()}
+                  className="cursor-pointer"
+                >
                   <CardTitle className="text-base">{option.title}</CardTitle>
                 </Label>
               </div>

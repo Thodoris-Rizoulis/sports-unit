@@ -1,7 +1,5 @@
 // Validation constants for the application
 
-import type { StrongFoot, UserRole } from "@/types/constants";
-
 export const VALIDATION_CONSTANTS = {
   // Username validation
   USERNAME: {
@@ -12,7 +10,7 @@ export const VALIDATION_CONSTANTS = {
 
   // Profile validation
   PROFILE: {
-    BIO_MAX_LENGTH: 200,
+    BIO_MAX_LENGTH: 500,
     LOCATION_MAX_LENGTH: 255,
     FIRST_NAME_MAX_LENGTH: 100,
     LAST_NAME_MAX_LENGTH: 100,
@@ -37,10 +35,9 @@ export const VALIDATION_CONSTANTS = {
 
   // Strong foot options
   STRONG_FOOT_OPTIONS: ["left", "right", "both"] as const,
-
-  // Role options
-  ROLE_OPTIONS: ["athlete", "coach"] as const,
 } as const;
 
-// Type helpers
-export type { StrongFoot, UserRole };
+// Security constants
+export const SECURITY_CONSTANTS = {
+  BCRYPT_ROUNDS: 12,
+} as const;
