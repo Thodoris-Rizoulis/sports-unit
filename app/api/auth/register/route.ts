@@ -9,7 +9,9 @@ import { registerSchema } from "@/types/auth";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log("Register request body:", body);
     const validatedData = registerSchema.parse(body);
+    console.log("Validated data:", validatedData);
     const { email, password, username, roleId } = validatedData;
 
     // Check if email already exists
@@ -36,6 +38,8 @@ export async function POST(request: NextRequest) {
       SECURITY_CONSTANTS.BCRYPT_ROUNDS
     );
 
+    console.log("About to create user:", { email, username, roleId });
+
     // Create user
     const user = await AuthService.registerUser(
       email,
@@ -43,6 +47,8 @@ export async function POST(request: NextRequest) {
       username,
       roleId
     );
+
+    console.log("User created successfully:", user);
 
     return createSuccessResponse({
       user: {
@@ -54,6 +60,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
+    console.error("Registration error:", error);
     if (error instanceof z.ZodError) {
       return createErrorResponse("Invalid input", 400, error.issues);
     }

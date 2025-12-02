@@ -1,0 +1,269 @@
+// Prisma Schema for Sports Unit
+// Generated from existing database, cleaned up for better DX
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ========================================
+// Enums
+// ========================================
+
+enum ConnectionStatus {
+  pending
+  accepted
+  declined
+
+  @@map("connection_status_enum")
+}
+
+// ========================================
+// Core User Models
+// ========================================
+
+model ProfileRole {
+  id          Int       @id @default(autoincrement())
+  roleName    String    @unique @map("role_name") @db.VarChar(50)
+  description String?
+  createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime? @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  users User[]
+
+  @@map("profile_roles")
+}
+
+model User {
+  id                   Int       @id @default(autoincrement())
+  email                String    @unique @db.VarChar(255)
+  password             String?   @db.VarChar(255)
+  username             String    @unique @db.VarChar(50)
+  publicUuid           String    @unique(map: "users_public_uuid_idx") @default(uuid()) @map("public_uuid") @db.Uuid
+  isOnboardingComplete Boolean?  @default(false) @map("is_onboarding_complete")
+  searchText           String?   @map("search_text")
+  createdAt            DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime? @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  roleId     Int?         @map("role_id")
+  role       ProfileRole? @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  attributes UserAttribute?
+
+  // Posts
+  posts            Post[]
+  postLikes        PostLike[]
+  postComments     PostComment[]
+  postCommentLikes PostCommentLike[]
+  postShares       PostShare[]
+  postSaves        PostSave[]
+
+  // Connections
+  sentConnections     Connection[] @relation("ConnectionRequester")
+  receivedConnections Connection[] @relation("ConnectionRecipient")
+
+  @@map("users")
+}
+
+model UserAttribute {
+  id                  Int       @id @default(autoincrement())
+  firstName           String    @map("first_name") @db.VarChar(100)
+  lastName            String    @map("last_name") @db.VarChar(100)
+  bio                 String?
+  location            String?   @db.VarChar(255)
+  dateOfBirth         DateTime? @map("date_of_birth") @db.Date
+  height              Int?
+  profilePictureUrl   String?   @map("profile_picture_url") @db.VarChar(500)
+  coverPictureUrl     String?   @map("cover_picture_url") @db.VarChar(500)
+  positions           Json?
+  openToOpportunities Boolean?  @default(false) @map("open_to_opportunities")
+  strongFoot          String?   @map("strong_foot") @db.VarChar(10)
+  createdAt           DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime? @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  userId  Int?   @unique @map("user_id")
+  user    User?  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  sportId Int?   @map("sport_id")
+  sport   Sport? @relation(fields: [sportId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  teamId  Int?   @map("team_id")
+  team    Team?  @relation(fields: [teamId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("user_attributes")
+}
+
+// ========================================
+// Sports Models
+// ========================================
+
+model Sport {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique @db.VarChar(100)
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  positions      Position[]
+  teams          Team[]
+  userAttributes UserAttribute[]
+
+  @@map("sports")
+}
+
+model Position {
+  id        Int       @id @default(autoincrement())
+  name      String    @db.VarChar(100)
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  sportId Int?   @map("sport_id")
+  sport   Sport? @relation(fields: [sportId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([sportId, name])
+  @@map("positions")
+}
+
+model Team {
+  id        Int       @id @default(autoincrement())
+  name      String    @db.VarChar(255)
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  sportId        Int?            @map("sport_id")
+  sport          Sport?          @relation(fields: [sportId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  userAttributes UserAttribute[]
+
+  @@unique([sportId, name])
+  @@map("teams")
+}
+
+// ========================================
+// Connection Models
+// ========================================
+
+model Connection {
+  id        Int              @id @default(autoincrement())
+  status    ConnectionStatus @default(pending)
+  createdAt DateTime?        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime?        @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  requesterId Int  @map("requester_id")
+  requester   User @relation("ConnectionRequester", fields: [requesterId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  recipientId Int  @map("recipient_id")
+  recipient   User @relation("ConnectionRecipient", fields: [recipientId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([requesterId, recipientId])
+  @@index([requesterId, status], map: "idx_connections_requester_status")
+  @@index([recipientId, status], map: "idx_connections_recipient_status")
+  @@index([status], map: "idx_connections_status")
+  @@map("connections")
+}
+
+// ========================================
+// Post Models
+// ========================================
+
+model Post {
+  id         Int       @id @default(autoincrement())
+  publicUuid String    @unique(map: "posts_public_uuid_idx") @default(uuid()) @map("public_uuid") @db.Uuid
+  content    String?
+  createdAt  DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime? @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  userId Int  @map("user_id")
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  media    PostMedia[]
+  likes    PostLike[]
+  comments PostComment[]
+  shares   PostShare[]
+  saves    PostSave[]
+
+  @@index([createdAt(sort: Desc)], map: "idx_posts_created_at")
+  @@map("posts")
+}
+
+model PostMedia {
+  id         Int     @id @default(autoincrement())
+  mediaType  String  @map("media_type") @db.VarChar(10)
+  url        String?
+  key        String?
+  orderIndex Int?    @default(0) @map("order_index")
+
+  postId Int  @map("post_id")
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("post_media")
+}
+
+model PostLike {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  postId Int  @map("post_id")
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  userId Int  @map("user_id")
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([postId, userId])
+  @@index([postId, userId], map: "idx_post_likes_post_user")
+  @@map("post_likes")
+}
+
+model PostComment {
+  id        Int       @id @default(autoincrement())
+  content   String
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  postId          Int               @map("post_id")
+  post            Post              @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  userId          Int               @map("user_id")
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  parentCommentId Int?              @map("parent_comment_id")
+  parentComment   PostComment?      @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  replies         PostComment[]     @relation("CommentReplies")
+  likes           PostCommentLike[]
+
+  @@index([postId, createdAt], map: "idx_post_comments_post_created")
+  @@map("post_comments")
+}
+
+model PostCommentLike {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  commentId Int         @map("comment_id")
+  comment   PostComment @relation(fields: [commentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  userId    Int         @map("user_id")
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([commentId, userId])
+  @@index([commentId, userId], map: "idx_post_comment_likes_comment_user")
+  @@map("post_comment_likes")
+}
+
+model PostShare {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  postId Int  @map("post_id")
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  userId Int  @map("user_id")
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([postId], map: "idx_post_shares_post")
+  @@map("post_shares")
+}
+
+model PostSave {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  postId Int  @map("post_id")
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  userId Int  @map("user_id")
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([postId, userId])
+  @@index([userId, createdAt], map: "idx_post_saves_user_created")
+  @@map("post_saves")
+}

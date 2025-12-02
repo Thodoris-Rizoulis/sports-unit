@@ -1,89 +1,82 @@
-import pool from "@/lib/db-connection";
+import prisma from "@/lib/prisma";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { User } from "@/types/auth";
 
-// AuthService class
+// Auth user type for internal use
+type AuthUser = {
+  id: string;
+  email: string;
+  name: string;
+  roleId: number | null;
+  onboardingComplete: boolean;
+  password: string;
+  publicUuid: string;
+  username: string;
+};
+
+// AuthService class - Prisma implementation
 export class AuthService {
-  static async getUserByEmail(email: string): Promise<User | null> {
-    const client = await pool.connect();
-    try {
-      const res = await client.query("SELECT * FROM users WHERE email = $1", [
-        email,
-      ]);
-      if (res.rows.length === 0) return null;
-      const user = res.rows[0];
-      return {
-        id: user.id,
-        email: user.email,
-        name: user.username,
-        roleId: user.role_id,
-        onboardingComplete: user.is_onboarding_complete,
-        password: user.password,
-      };
-    } finally {
-      client.release();
-    }
+  static async getUserByEmail(email: string): Promise<AuthUser | null> {
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: { attributes: true },
+    });
+
+    if (!user) return null;
+
+    return {
+      id: user.id.toString(),
+      email: user.email,
+      name: user.username,
+      roleId: user.roleId,
+      onboardingComplete: user.isOnboardingComplete ?? false,
+      password: user.password ?? "",
+      publicUuid: user.publicUuid,
+      username: user.username,
+    };
   }
 
-  static async getUserById(id: string): Promise<User | null> {
-    const client = await pool.connect();
-    try {
-      const res = await client.query("SELECT * FROM users WHERE id = $1", [
-        parseInt(id),
-      ]);
-      if (res.rows.length === 0) return null;
-      const user = res.rows[0];
-      return {
-        id: user.id,
-        email: user.email,
-        name: user.username,
-        roleId: user.role_id,
-        onboardingComplete: user.is_onboarding_complete,
-        password: user.password,
-      };
-    } finally {
-      client.release();
-    }
+  static async getUserById(id: string): Promise<AuthUser | null> {
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(id) },
+    });
+
+    if (!user) return null;
+
+    return {
+      id: user.id.toString(),
+      email: user.email,
+      name: user.username,
+      roleId: user.roleId,
+      onboardingComplete: user.isOnboardingComplete ?? false,
+      password: user.password ?? "",
+      publicUuid: user.publicUuid,
+      username: user.username,
+    };
   }
 
   static async updateOnboardingComplete(id: string): Promise<void> {
-    const client = await pool.connect();
-    try {
-      await client.query(
-        "UPDATE users SET is_onboarding_complete = true WHERE id = $1",
-        [parseInt(id)]
-      );
-    } finally {
-      client.release();
-    }
+    await prisma.user.update({
+      where: { id: parseInt(id) },
+      data: { isOnboardingComplete: true },
+    });
   }
 
   static async checkUsernameExists(username: string): Promise<boolean> {
-    const client = await pool.connect();
-    try {
-      const res = await client.query(
-        "SELECT id FROM users WHERE username = $1",
-        [username]
-      );
-      return res.rows.length > 0;
-    } finally {
-      client.release();
-    }
+    const user = await prisma.user.findUnique({
+      where: { username },
+      select: { id: true },
+    });
+    return user !== null;
   }
 
   static async checkRoleExists(roleId: number): Promise<boolean> {
-    const client = await pool.connect();
-    try {
-      const res = await client.query(
-        "SELECT id FROM profile_roles WHERE id = $1",
-        [roleId]
-      );
-      return res.rows.length > 0;
-    } finally {
-      client.release();
-    }
+    const role = await prisma.profileRole.findUnique({
+      where: { id: roleId },
+      select: { id: true },
+    });
+    return role !== null;
   }
 
   static async registerUser(
@@ -91,25 +84,27 @@ export class AuthService {
     hashedPassword: string,
     username: string,
     roleId: number
-  ): Promise<User> {
-    const client = await pool.connect();
-    try {
-      const res = await client.query(
-        "INSERT INTO users (email, password, username, role_id) VALUES ($1, $2, $3, $4) RETURNING *",
-        [email, hashedPassword, username, roleId]
-      );
-      const user = res.rows[0];
-      return {
-        id: user.id,
-        email: user.email,
-        name: user.username,
-        roleId: user.role_id,
-        onboardingComplete: user.is_onboarding_complete,
-        password: user.password,
-      };
-    } finally {
-      client.release();
-    }
+  ): Promise<AuthUser> {
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        username,
+        roleId,
+        // publicUuid is auto-generated by DB default
+      },
+    });
+
+    return {
+      id: user.id.toString(),
+      email: user.email,
+      name: user.username,
+      roleId: user.roleId,
+      onboardingComplete: user.isOnboardingComplete ?? false,
+      password: user.password ?? "",
+      publicUuid: user.publicUuid,
+      username: user.username,
+    };
   }
 }
 
@@ -149,6 +144,8 @@ export const authOptions: NextAuthOptions = {
             name: user.name,
             roleId: user.roleId,
             onboardingComplete: user.onboardingComplete,
+            publicUuid: user.publicUuid,
+            username: user.username,
           };
         } catch (error) {
           console.error("Auth error:", error);
@@ -166,12 +163,20 @@ export const authOptions: NextAuthOptions = {
         // During sign-in, use the user data
         token.roleId = user.roleId;
         token.onboardingComplete = user.onboardingComplete;
+        // Add publicUuid and username
+        const dbUser = await AuthService.getUserById(user.id);
+        if (dbUser) {
+          token.publicUuid = dbUser.publicUuid;
+          token.username = dbUser.username;
+        }
       } else if (token.sub) {
         // For session updates, query the database for fresh data
-        const user = await AuthService.getUserById(token.sub);
-        if (user) {
-          token.roleId = user.roleId;
-          token.onboardingComplete = user.onboardingComplete;
+        const dbUser = await AuthService.getUserById(token.sub);
+        if (dbUser) {
+          token.roleId = dbUser.roleId;
+          token.onboardingComplete = dbUser.onboardingComplete;
+          token.publicUuid = dbUser.publicUuid;
+          token.username = dbUser.username;
         }
       }
       return token;
@@ -181,6 +186,8 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.sub!;
         session.user.roleId = token.roleId as number;
         session.user.onboardingComplete = token.onboardingComplete as boolean;
+        session.user.publicUuid = token.publicUuid as string;
+        session.user.username = token.username as string;
       }
       return session;
     },

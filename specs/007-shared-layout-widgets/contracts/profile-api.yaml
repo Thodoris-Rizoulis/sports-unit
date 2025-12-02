@@ -1,0 +1,60 @@
+openapi: 3.0.3
+info:
+  title: Profile Widget API
+  version: 1.0.0
+  description: API contract for profile data used in shared layout widgets
+
+paths:
+  /api/profile/{username}:
+    get:
+      summary: Get user profile by username
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User profile data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "404":
+          description: User not found
+        "500":
+          description: Server error
+
+components:
+  schemas:
+    UserProfile:
+      type: object
+      properties:
+        userId:
+          type: string
+        publicUuid:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        username:
+          type: string
+        location:
+          type: string
+        bio:
+          type: string
+          maxLength: 100
+        profileImageUrl:
+          type: string
+          format: uri
+        teamId:
+          type: integer
+        teamName:
+          type: string
+      required:
+        - userId
+        - username
+        - firstName
+        - lastName

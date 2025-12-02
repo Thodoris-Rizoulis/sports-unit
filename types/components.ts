@@ -1,5 +1,6 @@
 import { OnboardingInput } from "./onboarding";
-import { BasicProfileInput, UserProfile } from "./profile";
+import { BasicProfileInput } from "./profile";
+import { UserProfile } from "./prisma";
 import { SportsDetailsInput } from "./sports";
 import { OptionalId, OptionalUsername } from "./common";
 
@@ -64,14 +65,22 @@ export type ProfileImageUploadProps = {
 export type ProfileHeroProps = {
   profile: UserProfile;
   isOwner: boolean;
+  currentlyEditing: string | null;
+  onSetEditing: (section: string | null) => void;
 };
 
 export type ProfileAboutProps = {
   profile: UserProfile;
   isOwner: boolean;
+  currentlyEditing: string | null;
+  onSetEditing: (section: string | null) => void;
 };
 
 export type LoginRegisterModalProps = {
   isOpen: boolean;
   onClose: () => void;
+};
+
+export type HeaderProps = {
+  // Header component props - currently no props needed
 };

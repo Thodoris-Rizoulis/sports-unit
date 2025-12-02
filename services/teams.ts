@@ -1,18 +1,18 @@
-import pool from "@/lib/db-connection";
-import { Team } from "@/types/sports";
+import prisma from "@/lib/prisma";
+import type { Team } from "@prisma/client";
 
-// TeamsService class
+// TeamsService class - Prisma implementation
 export class TeamsService {
   static async getTeamsBySport(sportId: number): Promise<Team[]> {
-    const client = await pool.connect();
-    try {
-      const res = await client.query(
-        "SELECT * FROM teams WHERE sport_id = $1 ORDER BY name",
-        [sportId]
-      );
-      return res.rows;
-    } finally {
-      client.release();
-    }
+    return prisma.team.findMany({
+      where: { sportId },
+      orderBy: { name: "asc" },
+    });
+  }
+
+  static async getTeamById(teamId: number): Promise<Team | null> {
+    return prisma.team.findUnique({
+      where: { id: teamId },
+    });
   }
 }

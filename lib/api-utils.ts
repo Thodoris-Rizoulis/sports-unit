@@ -51,6 +51,17 @@ export function createErrorResponse(
   return NextResponse.json({ error: message, details }, { status });
 }
 
+// Create a standardized redirect response for APIs.
+// Prefer using this helper in API routes instead of calling NextResponse.redirect directly.
+export function createRedirectResponse(url: string, status = 307) {
+  try {
+    return NextResponse.redirect(url, status);
+  } catch (err) {
+    console.error("Failed to create redirect response:", err);
+    return NextResponse.json({ error: "Failed to redirect" }, { status: 500 });
+  }
+}
+
 // Validation helpers
 export function formatValidationErrors(errors: unknown): string[] {
   if (Array.isArray(errors)) {

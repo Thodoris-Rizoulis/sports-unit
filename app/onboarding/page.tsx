@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
 import { OnboardingInput } from "@/types/onboarding";
 import SessionGuard from "@/components/SessionGuard";
+import { getProfileUrl } from "@/lib/utils";
 
 export default function Onboarding() {
   const { data: session, update } = useSession();
@@ -26,10 +27,22 @@ export default function Onboarding() {
         await update();
         console.log("Session updated, now redirecting");
 
-        // Then redirect to user profile
-        const username = session?.user?.name;
-        console.log("Redirecting to profile:", `/profile/${username}`);
-        router.replace(`/profile/${username}`);
+        // Then redirect to user profile. Fetch the canonical profile (current user) to obtain `publicUuid`.
+        try {
+          const res = await fetch(`/api/profile`);
+          if (res.ok) {
+            const profile = await res.json();
+            const url = getProfileUrl(profile);
+            console.log("Redirecting to profile:", url);
+            router.replace(url);
+            return;
+          }
+        } catch (e) {
+          // ignore and fall back to home
+        }
+
+        // Fallback: go home
+        router.replace("/");
       } else {
         console.error("Onboarding failed");
       }
@@ -42,7 +55,7 @@ export default function Onboarding() {
     <SessionGuard>
       <div className="min-h-screen bg-background">
         <OnboardingWizard
-          initialRoleId={session?.user?.roleId}
+          initialRoleId={session?.user?.roleId ?? undefined}
           initialUsername={session?.user?.name || undefined}
           onComplete={handleComplete}
         />

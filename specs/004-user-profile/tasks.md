@@ -42,11 +42,11 @@
 
 **Goal**: Enable logged-in users to view their own profile page with hero and about sections displaying their information, including rounded profile picture on the left.
 
-**Independent Test**: Start session, navigate to /profile/{my-username}, verify hero section shows cover image, rounded profile picture on left, and user info lines, about section shows bio, page loads in <3 seconds
+**Independent Test**: Start session, navigate to /profile/{uuid}/{my-username}, verify hero section shows cover image, rounded profile picture on left, and user info lines, about section shows bio, page loads in <3 seconds
 
 ### Implementation for User Story 1
 
-- [x] T004 [P] [US1] Create profile page component in app/profile/[userId]/page.tsx
+- [x] T004 [P] [US1] Create profile page component in app/profile/[uuid]/[slug]/page.tsx
 - [x] T005 [P] [US1] Create hero section component with profile picture on left in components/ProfileHero.tsx
 - [x] T006 [P] [US1] Create about section component in components/ProfileAbout.tsx
 - [x] T007 [US1] Implement GET profile API endpoint in app/api/profile/[userId]/route.ts (hit DB directly)
@@ -79,7 +79,7 @@
 
 **Goal**: Allow logged-in users to view other users' profile pages
 
-**Independent Test**: Navigate to /profile/{another-username}, verify display of their hero and about sections with their data, including profile picture, confirm no edit options available
+**Independent Test**: Navigate to /profile/{uuid}/{another-username}, verify display of their hero and about sections with their data, including profile picture, confirm no edit options available
 
 ### Implementation for User Story 3
 

@@ -3,7 +3,7 @@
 **Feature Branch**: `004-user-profile`  
 **Created**: November 25, 2025  
 **Status**: Draft  
-**Input**: User description: "Implement user profile pages for the sports networking platform. Each user should have a dedicated profile page accessible via a URL like /profile/{username}. The page consists of two main sections: Hero and About. Hero section: Split horizontally into two parts. Above part (cover section): Display a cover image (default placeholder if none uploaded); if the session user owns the profile, include an upload/edit button to update the cover image via Cloudflare R2. Bottom part (user info section): Display four lines - 1) User's first and last name, 2) @{username}, 3) Current team - location, 4) If "open to opportunities" is true, show a success-colored box (using global.css success color) with text "Open to opportunities"; otherwise, nothing. Profile picture: Located at the left of the hero section, rounded, uploadable by profile owners. Use responsive design for mobile stacking. About section: Display the user's bio text in a clean, readable format. Editing: If the session user matches the profile owner, add edit buttons/modes for updating cover image, profile picture, bio, and "open to opportunities" toggle. Save changes via API endpoints. Include validation and error handling. Backend: Create (if not exit already) API endpoints for fetching profile data and updating fields. Ensure authentication and ownership checks. Use existing database schema (users, user_attributes). Frontend: Build with Next.js, TypeScript, shadcn components, Tailwind CSS. Mobile-first responsive. Follow constitution: Modular, reusable components, error handling, strict TypeScript. Deliverables: Functional profile view and edit pages, API integration, image upload handling, and responsive UI. Placeholder data for testing."
+**Input**: User description: "Implement user profile pages for the sports networking platform. Each user should have a dedicated profile page accessible via a URL like /profile/{uuid}/{username}. The page consists of two main sections: Hero and About. Hero section: Split horizontally into two parts. Above part (cover section): Display a cover image (default placeholder if none uploaded); if the session user owns the profile, include an upload/edit button to update the cover image via Cloudflare R2. Bottom part (user info section): Display four lines - 1) User's first and last name, 2) @{username}, 3) Current team - location, 4) If "open to opportunities" is true, show a success-colored box (using global.css success color) with text "Open to opportunities"; otherwise, nothing. Profile picture: Located at the left of the hero section, rounded, uploadable by profile owners. Use responsive design for mobile stacking. About section: Display the user's bio text in a clean, readable format. Editing: If the session user matches the profile owner, add edit buttons/modes for updating cover image, profile picture, bio, and "open to opportunities" toggle. Save changes via API endpoints. Include validation and error handling. Backend: Create (if not exit already) API endpoints for fetching profile data and updating fields. Ensure authentication and ownership checks. Use existing database schema (users, user_attributes). Frontend: Build with Next.js, TypeScript, shadcn components, Tailwind CSS. Mobile-first responsive. Follow constitution: Modular, reusable components, error handling, strict TypeScript. Deliverables: Functional profile view and edit pages, API integration, image upload handling, and responsive UI. Placeholder data for testing."
 
 ## User Scenarios & Testing _(mandatory)_
 
@@ -13,11 +13,11 @@ As a logged-in user, I want to view my own profile page to see my personal infor
 
 **Why this priority**: This is the core functionality for users to access their profile, enabling self-presentation on the platform.
 
-**Independent Test**: Can be fully tested by logging in, navigating to /profile/{my-username}, and verifying the hero section shows profile picture, cover image, and user info, and the about section shows bio.
+**Independent Test**: Can be fully tested by logging in, navigating to /profile/{uuid}/{my-username}, and verifying the hero section shows profile picture, cover image, and user info, and the about section shows bio.
 
 **Acceptance Scenarios**:
 
-1. **Given** I am logged in and have completed onboarding, **When** I navigate to /profile/{my-username}, **Then** I see the hero section with rounded profile picture on the left, cover image and user info on the right, and the about section with my bio.
+1. **Given** I am logged in and have completed onboarding, **When** I navigate to /profile/{uuid}/{my-username}, **Then** I see the hero section with rounded profile picture on the left, cover image and user info on the right, and the about section with my bio.
 2. **Given** I have no cover image or profile picture uploaded, **When** I view my profile, **Then** default placeholder images are displayed.
 3. **Given** my "open to opportunities" is enabled, **When** I view my profile, **Then** a success-colored box appears with "Open to opportunities" text.
 
@@ -45,11 +45,11 @@ As a logged-in user, I want to view other users' profile pages to learn about th
 
 **Why this priority**: Enables networking by allowing users to discover and connect with others on the platform.
 
-**Independent Test**: Can be fully tested by navigating to another user's /profile/{username}, verifying display of their public information without edit options.
+**Independent Test**: Can be fully tested by navigating to another user's /profile/{uuid}/{username}, verifying display of their public information without edit options.
 
 **Acceptance Scenarios**:
 
-1. **Given** I am logged in, **When** I navigate to /profile/{another-username}, **Then** I see their hero and about sections with their data.
+1. **Given** I am logged in, **When** I navigate to /profile/{uuid}/{another-username}, **Then** I see their hero and about sections with their data.
 2. **Given** I am viewing another user's profile, **When** I look for edit options, **Then** no edit buttons or modes are available.
 
 ### Edge Cases
@@ -63,7 +63,7 @@ As a logged-in user, I want to view other users' profile pages to learn about th
 
 ### Functional Requirements
 
-- **FR-001**: System MUST provide a profile page at /profile/{username} for each user.
+- **FR-001**: System MUST provide a profile page at /profile/{uuid}/{username} for each user.
 - **FR-002**: System MUST display hero section with rounded profile picture on the left, cover image and user info lines on the right (name, username, team-location, opportunities status).
 - **FR-003**: System MUST display about section with user's bio text.
 - **FR-004**: System MUST allow profile owners to edit cover image, profile picture, bio, and opportunities status.

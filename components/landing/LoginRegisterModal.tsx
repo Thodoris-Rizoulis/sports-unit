@@ -25,7 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Role } from "@/types/sports";
+import { Role } from "@/types/prisma";
 import { LoginRegisterModalProps } from "@/types/components";
 import {
   loginFormSchema,
@@ -214,8 +214,8 @@ export function LoginRegisterModal({
                   <SelectContent>
                     {roles.map((role) => (
                       <SelectItem key={role.id} value={role.id.toString()}>
-                        {role.role_name.charAt(0).toUpperCase() +
-                          role.role_name.slice(1)}
+                        {role.roleName.charAt(0).toUpperCase() +
+                          role.roleName.slice(1)}
                       </SelectItem>
                     ))}
                   </SelectContent>

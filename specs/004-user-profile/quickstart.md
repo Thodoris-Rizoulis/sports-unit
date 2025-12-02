@@ -19,7 +19,7 @@ This feature adds user profile pages to the sports networking platform, allowing
 
 ## Key Files
 
-- `app/profile/[userId]/page.tsx`: Profile page component
+- `app/profile/[uuid]/[slug]/page.tsx`: Profile page component
 - `app/api/profile/[userId]/route.ts`: API for fetch/update
 - `app/api/upload/route.ts`: API for presigned URLs
 - `components/ProfileHero.tsx`: Hero section component
@@ -27,7 +27,7 @@ This feature adds user profile pages to the sports networking platform, allowing
 
 ## Usage
 
-1. Navigate to `/profile/{username}` to view a profile.
+1. Navigate to `/profile/{uuid}/{username}` to view a profile.
 2. If owner, click edit to update fields, including uploading profile picture and cover image.
 3. Profile picture appears rounded on the left of hero section.
 

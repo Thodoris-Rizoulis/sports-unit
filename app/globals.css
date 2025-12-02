@@ -25,48 +25,50 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    /* Light mode using customer's brand colors */
+    --background: 210 20% 90%; /* #e0e0e2 - light gray */
+    --foreground: 200 100% 5%; /* #00111b - dark blue */
+    --card: 210 15% 96%; /* derived: slightly darker than background */
+    --card-foreground: 200 100% 5%; /* same as foreground */
+    --popover: 210 15% 96%; /* same as card */
+    --popover-foreground: 200 100% 5%; /* same as foreground */
+    --primary: 200 100% 5%; /* #00111b - dark blue */
+    --primary-foreground: 210 20% 98%; /* light background for contrast */
+    --secondary: 231 52% 47%; /* #3e50b4 - medium blue */
+    --secondary-foreground: 210 20% 98%; /* light background for contrast */
+    --muted: 210 10% 92%; /* derived: muted background */
+    --muted-foreground: 200 20% 35%; /* derived: muted text */
+    --accent: 164 48% 48%; /* #42a98b - teal green */
+    --accent-foreground: 210 20% 98%; /* light background for contrast */
+    --destructive: 3 100% 65%; /* #ff6361 - coral red */
+    --destructive-foreground: 210 20% 98%; /* light background for contrast */
+    --border: 210 12% 88%; /* derived: subtle border */
+    --input: 0 0% 100%; /* pure white for inputs */
+    --ring: 200 100% 5%; /* primary color for focus rings */
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 94.1%;
+    /* Dark mode derived from brand colors */
+    --background: 200 100% 3%; /* very dark blue, derived from primary */
+    --foreground: 210 20% 98%; /* light text */
+    --card: 200 100% 5%; /* slightly lighter than background */
+    --card-foreground: 210 20% 98%; /* light text */
+    --popover: 200 100% 5%; /* same as card */
+    --popover-foreground: 210 20% 98%; /* light text */
+    --primary: 231 52% 47%; /* #3e50b4 - medium blue (lighter for dark mode) */
+    --primary-foreground: 200 100% 3%; /* dark background for contrast */
+    --secondary: 200 50% 15%; /* derived: dark secondary */
+    --secondary-foreground: 210 20% 98%; /* light text */
+    --muted: 200 50% 10%; /* derived: muted dark background */
+    --muted-foreground: 200 20% 65%; /* derived: muted text */
+    --accent: 164 48% 48%; /* #42a98b - teal green (same) */
+    --accent-foreground: 200 100% 3%; /* dark background for contrast */
+    --destructive: 3 100% 65%; /* #ff6361 - coral red (same) */
+    --destructive-foreground: 200 100% 3%; /* dark background for contrast */
+    --border: 200 50% 12%; /* derived: subtle dark border */
+    --input: 200 50% 8%; /* derived: dark input background */
+    --ring: 231 52% 47%; /* primary color for focus rings */
   }
 }
 

@@ -3,38 +3,10 @@ import { VALIDATION_CONSTANTS } from "@/lib/constants";
 import { idField } from "./common";
 
 // ========================================
-// Sports Schemas and Types
+// Sports Input Validation Schemas
+// For validating user input in forms and API requests
+// Output types (Sport, Position, Team, Role) are in types/prisma.ts
 // ========================================
-
-export const sportSchema = z.object({
-  id: idField,
-  name: z.string(),
-  created_at: z.date(),
-});
-export type Sport = z.infer<typeof sportSchema>;
-
-export const positionSchema = z.object({
-  id: idField,
-  sport_id: idField,
-  name: z.string(),
-  created_at: z.date(),
-});
-export type Position = z.infer<typeof positionSchema>;
-
-export const teamSchema = z.object({
-  id: idField,
-  sport_id: idField,
-  name: z.string(),
-  created_at: z.date(),
-});
-export type Team = z.infer<typeof teamSchema>;
-
-export const roleSchema = z.object({
-  id: idField,
-  role_name: z.string(),
-  description: z.string().optional(),
-});
-export type Role = z.infer<typeof roleSchema>;
 
 // Sports details validation schema
 export const sportsDetailsSchema = z.object({

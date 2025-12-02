@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { OnboardingInput } from "@/types/onboarding";
-import { Sport, Position, Team, Role } from "@/types/sports";
+import { Sport, Position, Team, Role } from "@/types/prisma";
 import { ReviewSubmitProps } from "@/types/components";
 
 export function ReviewSubmit({ data, error }: ReviewSubmitProps) {
@@ -110,7 +110,7 @@ export function ReviewSubmit({ data, error }: ReviewSubmitProps) {
                 <div>
                   <span className="font-medium">Role:</span>{" "}
                   <Badge variant="secondary">
-                    {role?.role_name || "Unknown Role"}
+                    {role?.roleName || "Unknown Role"}
                   </Badge>
                 </div>
                 <div>

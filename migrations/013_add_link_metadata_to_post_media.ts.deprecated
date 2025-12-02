@@ -1,0 +1,41 @@
+import { config } from "dotenv";
+import { Client } from "pg";
+
+// Load environment variables from .env.local
+config({ path: ".env.local" });
+
+async function addLinkMetadataToPostMedia() {
+  const client = new Client({
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT || "5432"),
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+  });
+
+  try {
+    await client.connect();
+
+    console.log(
+      "Starting migration: add title and description to post_media table"
+    );
+
+    // Add title and description columns
+    await client.query(`
+      ALTER TABLE post_media
+      ADD COLUMN IF NOT EXISTS title TEXT,
+      ADD COLUMN IF NOT EXISTS description TEXT;
+    `);
+
+    console.log(
+      "Migration completed: title and description added to post_media table"
+    );
+  } catch (err) {
+    console.error("Error during migration:", err);
+    throw err;
+  } finally {
+    await client.end();
+  }
+}
+
+addLinkMetadataToPostMedia().catch(console.error);

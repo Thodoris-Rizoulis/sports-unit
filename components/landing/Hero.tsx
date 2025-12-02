@@ -10,7 +10,7 @@ export function Hero() {
 
   return (
     <>
-      <section className="bg-linear-to-br from-background to-muted/20 py-24 px-4">
+      <section className="py-24 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <div
             style={{ width: 200, height: 80, position: "relative" }}

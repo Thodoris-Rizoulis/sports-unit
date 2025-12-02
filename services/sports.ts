@@ -1,15 +1,11 @@
-import pool from "@/lib/db-connection";
-import { Sport } from "@/types/sports";
+import prisma from "@/lib/prisma";
+import type { Sport } from "@prisma/client";
 
-// SportsService class
+// SportsService class - Prisma implementation
 export class SportsService {
   static async getSports(): Promise<Sport[]> {
-    const client = await pool.connect();
-    try {
-      const res = await client.query("SELECT * FROM sports ORDER BY name");
-      return res.rows;
-    } finally {
-      client.release();
-    }
+    return prisma.sport.findMany({
+      orderBy: { name: "asc" },
+    });
   }
 }

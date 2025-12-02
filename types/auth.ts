@@ -3,15 +3,13 @@ import {
   emailField,
   passwordField,
   loginPasswordField,
-  hashedPasswordField,
   usernameBase,
-  idField,
   roleIdField,
-  onboardingCompleteField,
 } from "./common";
 
 // ========================================
-// Auth Schemas and Types
+// Auth Input Validation Schemas
+// For validating user input in forms and API requests
 // ========================================
 
 // Unified register schema (for both form and API validation)
@@ -22,21 +20,6 @@ export const registerSchema = z.object({
   roleId: roleIdField,
 });
 export type RegisterInput = z.infer<typeof registerSchema>;
-
-// User schema (for DB/auth operations)
-export const userSchema = z.object({
-  id: idField,
-  email: emailField,
-  name: usernameBase,
-  roleId: idField,
-  onboardingComplete: onboardingCompleteField,
-  password: hashedPasswordField,
-});
-export type User = z.infer<typeof userSchema>;
-
-// ========================================
-// Form Schemas and Types (for UI components)
-// ========================================
 
 // Login form schema
 export const loginFormSchema = z.object({

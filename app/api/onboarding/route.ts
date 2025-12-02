@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     const existingId = await UserService.getUserIdByUsername(
       validatedData.username
     );
-    if (existingId && parseInt(existingId) !== userId) {
+    if (existingId && existingId !== userId) {
       return createErrorResponse("Username already taken", 409);
     }
 

@@ -1,0 +1,120 @@
+openapi: 3.0.3
+info:
+  title: Global Header Search API
+  version: 1.0.0
+  description: API for searching users by name or username in the global header
+
+servers:
+  - url: /api
+    description: Base API path
+
+paths:
+  /search/people:
+    get:
+      summary: Search for users by name or username
+      description: Returns a list of users matching the search query
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 100
+          description: Search term for user name or username
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+          description: Maximum number of results to return
+      responses:
+        "200":
+          description: Successful search
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          description: User ID
+                        publicUuid:
+                          type: string
+                          format: uuid
+                          description: Public UUID for profile URLs
+                        firstName:
+                          type: string
+                          description: User's first name
+                        lastName:
+                          type: string
+                          description: User's last name
+                        username:
+                          type: string
+                          description: User's username
+                        profileImageUrl:
+                          type: string
+                          format: uri
+                          description: URL to user's profile image
+                      required:
+                        - id
+                        - publicUuid
+                        - firstName
+                        - lastName
+                        - username
+        "400":
+          description: Bad request - invalid query parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Query parameter 'q' is required"
+        "401":
+          description: Unauthorized - user not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Authentication required"
+        "429":
+          description: Too many requests - rate limit exceeded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Rate limit exceeded"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal server error"
+
+securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT

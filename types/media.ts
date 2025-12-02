@@ -9,10 +9,10 @@ import { idField } from "./common";
 // Upload request schema
 export const uploadRequestSchema = z.object({
   fileName: z.string().min(1),
-  fileType: z.string().regex(/^image\/(jpeg|png|webp)$/),
-  fileSize: z
-    .number()
-    .max(VALIDATION_CONSTANTS.MEDIA.MAX_FILE_SIZE_MB * 1024 * 1024),
+  fileType: z
+    .string()
+    .regex(/^(image\/(jpeg|png|webp)|video\/(mp4|webm|quicktime))$/),
+  fileSize: z.number().max(100 * 1024 * 1024), // 100MB for videos
   userId: idField,
 });
 export type UploadRequestInput = z.infer<typeof uploadRequestSchema>;

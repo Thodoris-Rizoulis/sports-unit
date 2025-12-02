@@ -1,0 +1,338 @@
+openapi: 3.0.3
+info:
+  title: Connections API
+  description: API for managing user connections (LinkedIn-style networking)
+  version: 1.0.0
+  contact:
+    name: Sports Unit Development Team
+
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+
+security:
+  - bearerAuth: []
+
+paths:
+  /connections/request:
+    post:
+      summary: Send a connection request
+      description: Send a connection request to another user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - recipientId
+              properties:
+                recipientId:
+                  type: integer
+                  description: ID of the user to connect with
+                  example: 123
+      responses:
+        "201":
+          description: Request sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 456
+                      status:
+                        type: string
+                        enum: [pending]
+                        example: pending
+        "400":
+          description: Bad request (validation error, self-connection, already connected)
+        "401":
+          description: Unauthorized
+        "404":
+          description: Recipient not found
+
+  /connections/{id}/respond:
+    post:
+      summary: Respond to connection request
+      description: Accept or decline a pending connection request
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Connection request ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - action
+              properties:
+                action:
+                  type: string
+                  enum: [accept, decline]
+                  example: accept
+      responses:
+        "200":
+          description: Response processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 456
+                      status:
+                        type: string
+                        enum: [accepted, declined]
+                        example: accepted
+        "400":
+          description: Invalid action or request not pending
+        "401":
+          description: Unauthorized
+        "403":
+          description: Not authorized to respond to this request
+        "404":
+          description: Connection request not found
+
+  /connections:
+    get:
+      summary: Get user's connections
+      description: Retrieve paginated list of user's accepted connections
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [accepted]
+            default: accepted
+          description: Connection status filter
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+          description: Number of connections per page
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Pagination offset
+      responses:
+        "200":
+          description: Connections retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      connections:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 456
+                            user:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  example: 123
+                                username:
+                                  type: string
+                                  example: "johndoe"
+                                publicUuid:
+                                  type: string
+                                  example: "abc-123-def"
+                            status:
+                              type: string
+                              enum: [accepted]
+                              example: accepted
+                            createdAt:
+                              type: string
+                              format: date-time
+                              example: "2025-11-30T10:00:00Z"
+                      total:
+                        type: integer
+                        example: 150
+                      limit:
+                        type: integer
+                        example: 20
+                      offset:
+                        type: integer
+                        example: 0
+        "401":
+          description: Unauthorized
+
+    delete:
+      summary: Remove a connection
+      description: Remove an existing accepted connection
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: Connection ID to remove
+      responses:
+        "200":
+          description: Connection removed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        "400":
+          description: Invalid connection ID
+        "401":
+          description: Unauthorized
+        "403":
+          description: Not authorized to remove this connection
+        "404":
+          description: Connection not found
+
+  /connections/requests:
+    get:
+      summary: Get pending connection requests
+      description: Retrieve pending connection requests received by the user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Requests retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 456
+                        requester:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 789
+                            username:
+                              type: string
+                              example: "janedoe"
+                            publicUuid:
+                              type: string
+                              example: "def-456-ghi"
+                        createdAt:
+                          type: string
+                          format: date-time
+                          example: "2025-11-30T09:00:00Z"
+        "401":
+          description: Unauthorized
+
+  /connections/status/{userId}:
+    get:
+      summary: Check connection status
+      description: Check the connection status between current user and target user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Target user ID
+      responses:
+        "200":
+          description: Status retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        enum: [none, pending_sent, pending_received, connected]
+                        example: connected
+                      connectionId:
+                        type: integer
+                        nullable: true
+                        example: 456
+        "401":
+          description: Unauthorized
+        "404":
+          description: Target user not found
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Validation failed"
+        details:
+          type: object
+          additionalProperties: true

@@ -13,7 +13,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import { VALIDATION_CONSTANTS } from "@/lib/constants";
-import { SportsDetailsInput, Sport, Position, Team } from "@/types/sports";
+import { Sport, Position, Team } from "@/types/prisma";
+import { SportsDetailsInput } from "@/types/sports";
 import { SportsDetailsProps } from "@/types/components";
 
 export function SportsDetails({ value, onChange, errors }: SportsDetailsProps) {

@@ -27,7 +27,7 @@ export function Features() {
   ];
 
   return (
-    <section className="py-24 px-4 bg-muted/30">
+    <section className="py-24 px-4">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-4xl md:text-5xl font-bold text-center text-foreground mb-16 leading-tight">
           Why Choose Sports Unit?

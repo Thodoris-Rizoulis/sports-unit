@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       uploadRequestSchema.parse(body);
 
     // Generate unique key
-    const key = `profiles/${userId}/${Date.now()}-${fileName}`;
+    const key = `posts/${userId}/${Date.now()}-${fileName}`;
 
     // Create put object command
     const command = new PutObjectCommand({

@@ -14,48 +14,12 @@ import {
 } from "./common";
 
 // ========================================
-// Profile Schemas and Types
+// Profile Input Validation Schemas
+// For validating user input in forms and API requests
+// Output types (UserProfile, SearchUserResult) are in types/prisma.ts
 // ========================================
 
-export const userProfileSchema = z.object({
-  userId: z.string(),
-  firstName: firstNameBase,
-  lastName: lastNameBase,
-  username: usernameBase,
-  teamId: z.number().nullable().optional(),
-  teamName: z.string().optional(),
-  location: locationField,
-  bio: bioField,
-  coverImageUrl: urlField,
-  profileImageUrl: urlField,
-  openToOpportunities: z.boolean(),
-  sportId: idField.optional(),
-});
-export type UserProfile = z.infer<typeof userProfileSchema>;
-
-export const userAttributeSchema = z.object({
-  id: idField,
-  user_id: idField,
-  first_name: firstNameBase,
-  last_name: lastNameBase,
-  bio: bioField,
-  location: locationField,
-  date_of_birth: dateOfBirthField,
-  height: heightField,
-  profile_picture_url: urlField,
-  cover_picture_url: urlField,
-  sport_id: idField.optional(),
-  positions: z.array(idField).optional(), // JSON array of position ids
-  team_id: idField.optional(),
-  open_to_opportunities: z.boolean(),
-  strong_foot: z.string().optional(),
-  role_id: idField.optional(),
-  created_at: z.date(),
-  updated_at: z.date(),
-});
-export type UserAttribute = z.infer<typeof userAttributeSchema>;
-
-// Basic profile validation schema
+// Basic profile validation schema (onboarding)
 export const basicProfileSchema = z.object({
   firstName: firstNameRequired,
   lastName: lastNameRequired,
@@ -67,21 +31,34 @@ export const basicProfileSchema = z.object({
 export type BasicProfileInput = z.infer<typeof basicProfileSchema>;
 
 // Profile partial update validation schema (flat structure for partial updates)
+// Using .partial() to make all fields optional for PATCH-style updates
 export const profilePartialUpdateSchema = z
   .object({
-    username: usernameBase.optional(),
-    firstName: firstNameBase.optional(),
-    lastName: lastNameBase.optional(),
-    bio: bioField.optional(),
-    location: locationField.optional(),
-    dateOfBirth: dateOfBirthField.optional(),
-    height: heightField.optional(),
-    profileImageUrl: urlField.optional(),
-    coverImageUrl: urlField.optional(),
-    sportId: idField.optional(),
-    positionIds: z.array(idField).optional(),
-    teamId: idField.optional(),
-    openToOpportunities: z.boolean().optional(),
-    strongFoot: z.string().optional(),
+    username: usernameBase,
+    firstName: firstNameBase,
+    lastName: lastNameBase,
+    bio: bioField,
+    location: locationField,
+    dateOfBirth: dateOfBirthField,
+    height: heightField,
+    profileImageUrl: urlField,
+    coverImageUrl: urlField,
+    sportId: idField,
+    positionIds: z.array(idField),
+    teamId: idField,
+    openToOpportunities: z.boolean(),
+    strongFoot: z.string(),
   })
   .partial();
+
+// Edit profile schema for EditProfileModal (required fields for form validation)
+export const editProfileSchema = z.object({
+  firstName: firstNameRequired,
+  lastName: lastNameRequired,
+  username: usernameBase,
+  teamId: idField.nullable(),
+  location: locationField,
+  openToOpportunities: z.boolean(),
+});
+
+export type EditProfileForm = z.infer<typeof editProfileSchema>;

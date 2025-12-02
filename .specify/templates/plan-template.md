@@ -32,9 +32,9 @@
 _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 - **Code Quality**: Ensure TypeScript with strict mode enabled, prefer `type` over `interface`, avoid `any` type, follow DRY principle, clean and readable code, consistent naming, no duplicated logic.
-- **TypeScript & Type Safety**: Use Zod for validation, centralize types in `/types`, no types outside `/types`, use reusable fields from `common.ts`.
-- **Project Structure**: Use Next.js App Router, maintain folder organization (`/app`, `/components`, `/types`, `/services`, `/lib`), use barrel exports.
-- **API & Data Layer**: Use `api-utils` for responses, business logic in `/services`, validate inputs with Zod, proper error handling.
+- **TypeScript & Type Safety**: Use two-layer type system: Zod for input validation, Prisma types for output. Centralize types in `/types`. Output types in `types/prisma.ts`. Use reusable fields from `common.ts`. Avoid redundant `.optional()` with `.partial()`.
+- **Project Structure**: Use Next.js App Router, maintain folder organization (`/app`, `/components`, `/types`, `/services`, `/lib`, `/prisma`), use barrel exports.
+- **API & Data Layer**: Use `api-utils` for responses, Prisma ORM for database operations via `lib/prisma.ts`, business logic in `/services`, validate inputs with Zod, use mapper functions for Prisma→UI type conversion.
 - **Component Development**: Use Server Components by default, proper prop types from `types/components.ts`, use shadcn/ui.
 - **Styling & Theming**: Use Tailwind with theme variables in `globals.css`, semantic color tokens.
 - **Validation & Best Practices**: All inputs validated with Zod, use established naming conventions, remove unused exports.
@@ -97,7 +97,11 @@ services/
 lib/
 ├── api-utils.ts
 ├── constants.ts
-└── db-connection.ts
+├── prisma.ts            # Prisma client singleton
+└── utils.ts
+
+prisma/
+└── schema.prisma        # Database schema
 ```
 
 **Structure Decision**: [Document the selected structure and reference the real

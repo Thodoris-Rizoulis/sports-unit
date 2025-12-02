@@ -1,11 +1,18 @@
 <!--
 Sync Impact Report
-Version change: 1.2.0 → 2.0.0
-List of modified principles: All principles updated to reflect current Next.js TypeScript best practices
-Added sections: TypeScript & Type Safety, API & Data Layer, Component Development, Styling & Theming, Validation & Best Practices, Performance & Optimization, Migration & Updates, Quality Assurance
-Removed sections: Old outdated principles (repositories, testing pre-MVP)
-Templates requiring updates: .specify/templates/plan-template.md (✅ updated) / .specify/templates/spec-template.md (not required) / .specify/templates/tasks-template.md (✅ updated) / README.md (not required)
-Follow-up TODOs: None - templates aligned with new constitution
+Version change: 2.0.0 → 2.1.0
+List of modified principles:
+  - TypeScript & Type Safety: Updated to reflect two-layer type system (Zod input / Prisma output)
+  - API & Data Layer: Updated to use Prisma ORM instead of raw pg queries
+  - Dependencies: Added Prisma to allowed dependencies
+Added sections: None
+Removed sections: None
+Templates requiring updates:
+  - .specify/templates/plan-template.md (✅ updated - removed db-connection.ts reference)
+  - .specify/templates/spec-template.md (not required)
+  - .specify/templates/tasks-template.md (not required)
+  - .github/copilot-instructions.md (✅ updated)
+Follow-up TODOs: None
 -->
 
 # Sports Unit Constitution
@@ -25,11 +32,14 @@ Follow-up TODOs: None - templates aligned with new constitution
 ### TypeScript & Type Safety
 
 - Enable strict TypeScript mode in `tsconfig.json`.
-- Use Zod for runtime validation and type inference: `export type MyType = z.infer<typeof mySchema>`.
-- Create reusable Zod field schemas in `types/common.ts` (emailField, passwordField, etc.).
-- Do not create duplicate schemas; use `usernameBase` for all username validations.
-- Export inferred types from Zod schemas consistently.
+- Use a two-layer type system:
+  - **Input validation**: Zod schemas for forms and API request validation. Infer types with `z.infer<typeof schema>`.
+  - **Output types**: Prisma-generated types and mapped UI types defined in `types/prisma.ts`.
+- Create reusable Zod field schemas in `types/common.ts` (emailField, passwordField, idField, etc.).
+- Do not create duplicate schemas; reuse base fields (e.g., `usernameBase`, `idField`) across all schemas.
+- When using `.partial()` on a schema, do not add `.optional()` to individual fields (redundant).
 - Centralize ALL types in `/types` folder by domain (auth, profile, sports, etc.).
+- Output types (Post, UserProfile, etc.) MUST be defined in `types/prisma.ts` as the single source of truth.
 - No types or interfaces outside `/types` directory.
 
 ### Project Structure
@@ -44,7 +54,11 @@ Follow-up TODOs: None - templates aligned with new constitution
 ### API & Data Layer
 
 - All API routes must use `api-utils` for responses: `createSuccessResponse()`, `createErrorResponse()`.
+- Use Prisma ORM for all database operations. The Prisma client is configured in `lib/prisma.ts`.
 - Business logic and database queries belong in `/services`, never in `/app/api`.
+- Services MUST use Prisma client and return properly typed data using types from `types/prisma.ts`.
+- Use Prisma's include patterns (defined in `types/prisma.ts`) for consistent query shapes.
+- Use mapper functions (`toUserProfile`, `toUserSummary`, `toPost`, etc.) to transform Prisma results to UI types.
 - Validate all inputs with Zod schemas at API boundaries.
 - Use proper error handling with try/catch blocks.
 - Implement consistent authentication with NextAuth.js.
@@ -97,7 +111,7 @@ Follow-up TODOs: None - templates aligned with new constitution
 ### Dependencies
 
 - Keep dependencies minimal; prefer native TypeScript/JavaScript features.
-- Allowed dependencies: Tailwind CSS, shadcn components, Zod, NextAuth.js, React Hook Form.
+- Allowed dependencies: Tailwind CSS, shadcn components, Zod, NextAuth.js, React Hook Form, Prisma ORM.
 - Extra dependencies may be allowed when justified.
 
 ### Design / Responsiveness
@@ -131,4 +145,4 @@ Constitution supersedes all other practices; Amendments require documentation, a
 
 All PRs/reviews must verify compliance; Complexity must be justified.
 
-**Version**: 2.0.0 | **Ratified**: TODO(RATIFICATION_DATE): Original adoption date unknown | **Last Amended**: 2025-11-28
+**Version**: 2.1.0 | **Ratified**: TODO(RATIFICATION_DATE): Original adoption date unknown | **Last Amended**: 2025-12-02
