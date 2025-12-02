@@ -4,8 +4,10 @@ import {
   toUserProfile,
   UserProfile,
   SearchUserResult,
+  ExtendedUserProfile,
 } from "@/types/prisma";
 import type { UserAttribute } from "@prisma/client";
+import type { KeyInfoInput } from "@/types/enhanced-profile";
 
 // UserService class - Prisma implementation
 export class UserService {
@@ -241,4 +243,105 @@ export async function searchUsers(
   limit: number = 10
 ): Promise<SearchUserResult[]> {
   return UserService.searchUsers(query, limit);
+}
+
+// Extended include pattern for full profile with role name
+const includeExtendedUserProfile = {
+  ...includeUserProfile,
+  role: true,
+} satisfies Parameters<typeof prisma.user.findUnique>[0]["include"];
+
+/**
+ * Get extended user profile with role information for role-based section visibility
+ */
+export async function getExtendedUserProfile(
+  uuid: string
+): Promise<ExtendedUserProfile | null> {
+  const user = await prisma.user.findUnique({
+    where: { publicUuid: uuid },
+    include: includeExtendedUserProfile,
+  });
+
+  if (!user) return null;
+
+  const baseProfile = toUserProfile(user);
+
+  return {
+    ...baseProfile,
+    roleId: user.roleId,
+    roleName: user.role?.roleName ?? null,
+    dateOfBirth: user.attributes?.dateOfBirth ?? null,
+    height: user.attributes?.height ?? null,
+    positions: (user.attributes?.positions as number[] | null) ?? null,
+    strongFoot: user.attributes?.strongFoot ?? null,
+  };
+}
+
+/**
+ * Get extended user profile by user ID for owner operations
+ */
+export async function getExtendedUserProfileById(
+  userId: number
+): Promise<ExtendedUserProfile | null> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: includeExtendedUserProfile,
+  });
+
+  if (!user) return null;
+
+  const baseProfile = toUserProfile(user);
+
+  return {
+    ...baseProfile,
+    roleId: user.roleId,
+    roleName: user.role?.roleName ?? null,
+    dateOfBirth: user.attributes?.dateOfBirth ?? null,
+    height: user.attributes?.height ?? null,
+    positions: (user.attributes?.positions as number[] | null) ?? null,
+    strongFoot: user.attributes?.strongFoot ?? null,
+  };
+}
+
+/**
+ * Update key information fields (DOB, height, positions, strongFoot) for athletes
+ */
+export async function updateKeyInfo(
+  userId: number,
+  data: KeyInfoInput
+): Promise<void> {
+  const updateData: Parameters<typeof prisma.userAttribute.update>[0]["data"] = {};
+
+  if (data.dateOfBirth !== undefined) {
+    updateData.dateOfBirth = data.dateOfBirth;
+  }
+  if (data.height !== undefined) {
+    updateData.height = data.height;
+  }
+  if (data.positionIds !== undefined) {
+    updateData.positions = data.positionIds;
+  }
+  if (data.strongFoot !== undefined) {
+    updateData.strongFoot = data.strongFoot;
+  }
+
+  if (Object.keys(updateData).length === 0) {
+    return;
+  }
+
+  await prisma.userAttribute.update({
+    where: { userId },
+    data: updateData,
+  });
+}
+
+/**
+ * Get user ID from public UUID
+ */
+export async function getUserIdFromUuid(uuid: string): Promise<number | null> {
+  const user = await prisma.user.findUnique({
+    where: { publicUuid: uuid },
+    select: { id: true },
+  });
+  return user?.id ?? null;
 }

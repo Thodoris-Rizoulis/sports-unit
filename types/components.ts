@@ -1,6 +1,6 @@
 import { OnboardingInput } from "./onboarding";
 import { BasicProfileInput } from "./profile";
-import { UserProfile } from "./prisma";
+import { UserProfile, ExtendedUserProfile } from "./prisma";
 import { SportsDetailsInput } from "./sports";
 import { OptionalId, OptionalUsername } from "./common";
 
@@ -83,4 +83,78 @@ export type LoginRegisterModalProps = {
 
 export type HeaderProps = {
   // Header component props - currently no props needed
+};
+
+// ========================================
+// Enhanced Profile Component Props
+// ========================================
+
+/**
+ * Base props for profile section components
+ */
+export type ProfileSectionProps = {
+  profile: ExtendedUserProfile;
+  isOwner: boolean;
+  currentlyEditing: string | null;
+  onSetEditing: (section: string | null) => void;
+};
+
+/**
+ * Props for KeyInformationSection (athlete-only)
+ */
+export type KeyInformationSectionProps = ProfileSectionProps;
+
+/**
+ * Props for AthleteMetricsSection (athlete-only)
+ */
+export type AthleteMetricsSectionProps = ProfileSectionProps;
+
+/**
+ * Props for RecentActivitySection
+ */
+export type RecentActivitySectionProps = ProfileSectionProps;
+
+/**
+ * Props for ExperienceSection
+ */
+export type ExperienceSectionProps = ProfileSectionProps;
+
+/**
+ * Props for EducationSection
+ */
+export type EducationSectionProps = ProfileSectionProps;
+
+/**
+ * Props for CertificationsSection (coach-only)
+ */
+export type CertificationsSectionProps = ProfileSectionProps;
+
+/**
+ * Props for ProfileSidebar wrapper
+ */
+export type ProfileSidebarProps = {
+  profile: ExtendedUserProfile;
+  isOwner: boolean;
+  currentlyEditing: string | null;
+  onSetEditing: (section: string | null) => void;
+};
+
+/**
+ * Props for LanguagesWidget
+ */
+export type LanguagesWidgetProps = {
+  uuid: string;
+  isOwner: boolean;
+  currentlyEditing: string | null;
+  onSetEditing: (section: string | null) => void;
+};
+
+/**
+ * Props for AwardsWidget
+ */
+export type AwardsWidgetProps = {
+  uuid: string;
+  isOwner: boolean;
+  currentlyEditing: string | null;
+  onSetEditing: (section: string | null) => void;
 };

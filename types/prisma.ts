@@ -9,7 +9,16 @@ import type {
   Position as PrismaPosition,
   Team as PrismaTeam,
   ProfileRole as PrismaProfileRole,
+  AthleteMetrics as PrismaAthleteMetrics,
+  UserExperience as PrismaUserExperience,
+  UserEducation as PrismaUserEducation,
+  UserCertification as PrismaUserCertification,
+  UserLanguage as PrismaUserLanguage,
+  UserAward as PrismaUserAward,
 } from "@prisma/client";
+
+// Re-export analytics types for convenience
+export type { ProfileAnalyticsData, ProfileVisitResponse } from "./analytics";
 
 // ========================================
 // Re-export Prisma Base Models
@@ -225,6 +234,127 @@ export type ConnectionStatusResponse = {
 };
 
 // ========================================
+// Hashtag Types
+// ========================================
+
+/**
+ * Hashtag for display
+ */
+export type Hashtag = {
+  id: number;
+  name: string;
+  createdAt: Date;
+};
+
+/**
+ * Popular hashtag for widget (without post count per spec)
+ */
+export type PopularHashtag = {
+  id: number;
+  name: string;
+};
+
+/**
+ * Response type for popular hashtags API
+ */
+export type PopularHashtagsResponse = {
+  hashtags: PopularHashtag[];
+};
+
+/**
+ * Response type for hashtag posts API
+ */
+export type HashtagPostsResponse = {
+  hashtag: string;
+  posts: Post[];
+  nextCursor: number | null;
+  hasMore: boolean;
+};
+
+// ========================================
+// Enhanced Profile UI Types
+// ========================================
+
+/**
+ * Extended user profile with role information for role-based section visibility
+ */
+export type ExtendedUserProfile = UserProfile & {
+  roleId: number | null;
+  roleName: string | null; // 'athlete' | 'coach' | 'scout'
+  dateOfBirth: Date | null;
+  height: number | null;
+  positions: number[] | null;
+  strongFoot: string | null;
+};
+
+/**
+ * Athlete metrics for display
+ */
+export type AthleteMetricsUI = {
+  id: number;
+  userId: number;
+  sprintSpeed30m: number | null;
+  agilityTTest: number | null;
+  beepTestLevel: number | null;
+  beepTestShuttle: number | null;
+  verticalJump: number | null;
+};
+
+/**
+ * Experience entry for display
+ */
+export type ExperienceUI = {
+  id: number;
+  title: string;
+  teamId: number;
+  teamName: string;
+  yearFrom: number;
+  yearTo: number | null; // null = Present
+  location: string | null;
+};
+
+/**
+ * Education entry for display
+ */
+export type EducationUI = {
+  id: number;
+  title: string; // Institution name
+  subtitle: string | null; // Degree/program
+  yearFrom: number;
+  yearTo: number | null; // null = Present
+};
+
+/**
+ * Certification entry for display
+ */
+export type CertificationUI = {
+  id: number;
+  title: string;
+  organization: string | null;
+  year: number;
+  description: string | null;
+};
+
+/**
+ * Language entry for display
+ */
+export type LanguageUI = {
+  id: number;
+  language: string;
+  level: "native" | "fluent" | "proficient" | "intermediate" | "basic";
+};
+
+/**
+ * Award entry for display
+ */
+export type AwardUI = {
+  id: number;
+  title: string;
+  year: number;
+  description: string | null;
+};
+
+// ========================================
 // Mappers - Transform Prisma results to UI types
 // ========================================
 
@@ -316,5 +446,99 @@ export function toPostComment(
     isLiked: (comment.likes?.length ?? 0) > 0,
     parentCommentId: comment.parentCommentId,
     user: toUserSummary(comment.user),
+  };
+}
+
+// ========================================
+// Enhanced Profile Mappers
+// ========================================
+
+/**
+ * Map Prisma AthleteMetrics to AthleteMetricsUI
+ */
+export function toAthleteMetrics(
+  metrics: PrismaAthleteMetrics | null
+): AthleteMetricsUI | null {
+  if (!metrics) return null;
+  return {
+    id: metrics.id,
+    userId: metrics.userId,
+    sprintSpeed30m: metrics.sprintSpeed30m
+      ? parseFloat(metrics.sprintSpeed30m.toString())
+      : null,
+    agilityTTest: metrics.agilityTTest
+      ? parseFloat(metrics.agilityTTest.toString())
+      : null,
+    beepTestLevel: metrics.beepTestLevel,
+    beepTestShuttle: metrics.beepTestShuttle,
+    verticalJump: metrics.verticalJump,
+  };
+}
+
+/**
+ * Map Prisma UserExperience to ExperienceUI
+ */
+export function toExperience(
+  experience: PrismaUserExperience & { team: { name: string } }
+): ExperienceUI {
+  return {
+    id: experience.id,
+    title: experience.title,
+    teamId: experience.teamId,
+    teamName: experience.team.name,
+    yearFrom: experience.yearFrom,
+    yearTo: experience.yearTo,
+    location: experience.location,
+  };
+}
+
+/**
+ * Map Prisma UserEducation to EducationUI
+ */
+export function toEducation(education: PrismaUserEducation): EducationUI {
+  return {
+    id: education.id,
+    title: education.title,
+    subtitle: education.subtitle,
+    yearFrom: education.yearFrom,
+    yearTo: education.yearTo,
+  };
+}
+
+/**
+ * Map Prisma UserCertification to CertificationUI
+ */
+export function toCertification(
+  certification: PrismaUserCertification
+): CertificationUI {
+  return {
+    id: certification.id,
+    title: certification.title,
+    organization: certification.organization,
+    year: certification.year,
+    description: certification.description,
+  };
+}
+
+/**
+ * Map Prisma UserLanguage to LanguageUI
+ */
+export function toLanguage(language: PrismaUserLanguage): LanguageUI {
+  return {
+    id: language.id,
+    language: language.language,
+    level: language.level,
+  };
+}
+
+/**
+ * Map Prisma UserAward to AwardUI
+ */
+export function toAward(award: PrismaUserAward): AwardUI {
+  return {
+    id: award.id,
+    title: award.title,
+    year: award.year,
+    description: award.description,
   };
 }

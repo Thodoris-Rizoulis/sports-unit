@@ -10,6 +10,14 @@ const NavigationWidget = dynamic(
   () => import("@/components/widgets/NavigationWidget")
 );
 
+const PopularHashtagsWidget = dynamic(
+  () => import("@/components/widgets/PopularHashtagsWidget")
+);
+
+const ProfileAnalyticsWidget = dynamic(
+  () => import("@/components/widgets/ProfileAnalyticsWidget")
+);
+
 export default function MainLayout({
   children,
 }: {
@@ -21,6 +29,7 @@ export default function MainLayout({
       <aside className="hidden md:block w-72 p-4">
         <div className="sticky top-4 space-y-4">
           <ProfileWidget />
+          <ProfileAnalyticsWidget />
           <NavigationWidget />
         </div>
       </aside>
@@ -31,8 +40,10 @@ export default function MainLayout({
       </main>
 
       {/* Right Sidebar */}
-      <aside className="hidden md:block w-72 p-4">
-        {/* Future widgets can be added here */}
+      <aside className="hidden lg:block w-72 p-4">
+        <div className="sticky top-4 space-y-4">
+          <PopularHashtagsWidget />
+        </div>
       </aside>
     </div>
   );

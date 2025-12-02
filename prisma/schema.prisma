@@ -21,6 +21,16 @@ enum ConnectionStatus {
   @@map("connection_status_enum")
 }
 
+enum LanguageLevel {
+  native
+  fluent
+  proficient
+  intermediate
+  basic
+
+  @@map("language_level_enum")
+}
+
 // ========================================
 // Core User Models
 // ========================================
@@ -64,6 +74,18 @@ model User {
   // Connections
   sentConnections     Connection[] @relation("ConnectionRequester")
   receivedConnections Connection[] @relation("ConnectionRecipient")
+
+  // Profile Analytics
+  profileVisitsMade     ProfileVisit[] @relation("ProfileVisitor")
+  profileVisitsReceived ProfileVisit[] @relation("ProfileVisited")
+
+  // Enhanced Profile
+  athleteMetrics AthleteMetrics?
+  experiences    UserExperience[]
+  education      UserEducation[]
+  certifications UserCertification[]
+  languages      UserLanguage[]
+  awards         UserAward[]
 
   @@map("users")
 }
@@ -131,6 +153,7 @@ model Team {
   sportId        Int?            @map("sport_id")
   sport          Sport?          @relation(fields: [sportId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   userAttributes UserAttribute[]
+  experiences    UserExperience[]
 
   @@unique([sportId, name])
   @@map("teams")
@@ -177,9 +200,40 @@ model Post {
   comments PostComment[]
   shares   PostShare[]
   saves    PostSave[]
+  hashtags PostHashtag[]
 
   @@index([createdAt(sort: Desc)], map: "idx_posts_created_at")
   @@map("posts")
+}
+
+// ========================================
+// Hashtag Models
+// ========================================
+
+model Hashtag {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique @db.VarChar(50)
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  posts PostHashtag[]
+
+  @@index([name], map: "idx_hashtags_name")
+  @@map("hashtags")
+}
+
+model PostHashtag {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  postId    Int     @map("post_id")
+  post      Post    @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  hashtagId Int     @map("hashtag_id")
+  hashtag   Hashtag @relation(fields: [hashtagId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([postId, hashtagId])
+  @@index([hashtagId, createdAt(sort: Desc)], map: "idx_post_hashtags_hashtag_created")
+  @@index([createdAt], map: "idx_post_hashtags_created")
+  @@map("post_hashtags")
 }
 
 model PostMedia {
@@ -266,4 +320,123 @@ model PostSave {
   @@unique([postId, userId])
   @@index([userId, createdAt], map: "idx_post_saves_user_created")
   @@map("post_saves")
+}
+
+// ========================================
+// Profile Analytics Models
+// ========================================
+
+model ProfileVisit {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  visitorId Int  @map("visitor_id")
+  visitor   User @relation("ProfileVisitor", fields: [visitorId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  visitedId Int  @map("visited_id")
+  visited   User @relation("ProfileVisited", fields: [visitedId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([visitedId, createdAt(sort: Desc)], map: "idx_profile_visits_visited_created")
+  @@index([visitorId], map: "idx_profile_visits_visitor")
+  @@map("profile_visits")
+}
+
+// ========================================
+// Enhanced Profile Models
+// ========================================
+
+model AthleteMetrics {
+  id              Int       @id @default(autoincrement())
+  sprintSpeed30m  Decimal?  @map("sprint_speed_30m") @db.Decimal(4, 2)
+  agilityTTest    Decimal?  @map("agility_t_test") @db.Decimal(4, 2)
+  beepTestLevel   Int?      @map("beep_test_level")
+  beepTestShuttle Int?      @map("beep_test_shuttle")
+  verticalJump    Int?      @map("vertical_jump")
+  createdAt       DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime? @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  userId Int  @unique @map("user_id")
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("athlete_metrics")
+}
+
+model UserExperience {
+  id        Int       @id @default(autoincrement())
+  title     String    @db.VarChar(255)
+  yearFrom  Int       @map("year_from")
+  yearTo    Int?      @map("year_to")
+  location  String?   @db.VarChar(255)
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime? @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  userId Int  @map("user_id")
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  teamId Int  @map("team_id")
+  team   Team @relation(fields: [teamId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@index([userId], map: "idx_user_experiences_user_id")
+  @@index([yearFrom(sort: Desc)], map: "idx_user_experiences_year_from")
+  @@map("user_experiences")
+}
+
+model UserEducation {
+  id        Int       @id @default(autoincrement())
+  title     String    @db.VarChar(255)
+  subtitle  String?   @db.VarChar(255)
+  yearFrom  Int       @map("year_from")
+  yearTo    Int?      @map("year_to")
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime? @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  userId Int  @map("user_id")
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([userId], map: "idx_user_education_user_id")
+  @@index([yearFrom(sort: Desc)], map: "idx_user_education_year_from")
+  @@map("user_education")
+}
+
+model UserCertification {
+  id           Int       @id @default(autoincrement())
+  title        String    @db.VarChar(255)
+  organization String?   @db.VarChar(255)
+  year         Int
+  description  String?
+  createdAt    DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime? @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  userId Int  @map("user_id")
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([userId], map: "idx_user_certifications_user_id")
+  @@index([year(sort: Desc)], map: "idx_user_certifications_year")
+  @@map("user_certifications")
+}
+
+model UserLanguage {
+  id        Int           @id @default(autoincrement())
+  language  String        @db.VarChar(100)
+  level     LanguageLevel
+  createdAt DateTime?     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  userId Int  @map("user_id")
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([userId], map: "idx_user_languages_user_id")
+  @@map("user_languages")
+}
+
+model UserAward {
+  id          Int       @id @default(autoincrement())
+  title       String    @db.VarChar(255)
+  year        Int
+  description String?
+  createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  userId Int  @map("user_id")
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([userId], map: "idx_user_awards_user_id")
+  @@index([year(sort: Desc)], map: "idx_user_awards_year")
+  @@map("user_awards")
 }

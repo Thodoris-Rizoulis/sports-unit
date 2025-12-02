@@ -1,6 +1,7 @@
 "use client";
 
 import { parseTextWithLinks } from "@/lib/utils";
+import { HashtagLink } from "@/components/posts/HashtagLink";
 
 interface TextWithLinksProps {
   text: string;
@@ -24,6 +25,11 @@ export function TextWithLinks({ text, className }: TextWithLinksProps) {
             >
               {part.content}
             </a>
+          );
+        }
+        if (part.type === "hashtag") {
+          return (
+            <HashtagLink key={index} tag={part.tag} content={part.content} />
           );
         }
         return <span key={index}>{part.content}</span>;

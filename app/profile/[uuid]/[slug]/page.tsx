@@ -1,12 +1,12 @@
 import { notFound, redirect } from "next/navigation";
-import { UserService } from "@/services/profile";
+import { getExtendedUserProfile } from "@/services/profile";
 import ProfilePageWrapper from "@/components/profile/ProfilePageWrapper";
 import { getProfileUrl } from "@/lib/utils";
 
-interface Params {
+type Params = {
   uuid: string;
   slug: string;
-}
+};
 
 export default async function ProfileByUuidPage({
   params,
@@ -15,7 +15,7 @@ export default async function ProfileByUuidPage({
 }) {
   const { uuid, slug } = await params;
 
-  const profile = await UserService.getUserProfileByUuid(uuid);
+  const profile = await getExtendedUserProfile(uuid);
   if (!profile) return notFound();
 
   if (profile.username !== slug) {

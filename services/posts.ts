@@ -5,6 +5,7 @@ import {
   PostMediaItem,
   toUserSummary,
 } from "@/types/prisma";
+import { HashtagService } from "./hashtags";
 
 // ========================================
 // Input Types for PostService
@@ -96,6 +97,9 @@ export class PostService {
         user: toUserSummary(post.user),
       };
     });
+
+    // Extract and link hashtags after transaction completes
+    await HashtagService.extractAndLinkHashtags(result.id, result.content);
 
     return result;
   }
@@ -527,6 +531,84 @@ export class PostService {
         orderIndex: m.orderIndex,
       })),
       user: toUserSummary(s.post.user),
+    }));
+  }
+
+  /**
+   * Get posts by a specific user
+   */
+  static async getUserPosts(
+    targetUserId: number,
+    currentUserId?: number,
+    options: { limit?: number; offset?: number } = {}
+  ): Promise<Post[]> {
+    const { limit = 20, offset = 0 } = options;
+
+    const posts = await prisma.post.findMany({
+      where: {
+        userId: targetUserId,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            publicUuid: true,
+            attributes: {
+              select: {
+                firstName: true,
+                lastName: true,
+                profilePictureUrl: true,
+              },
+            },
+          },
+        },
+        media: {
+          orderBy: { orderIndex: "asc" },
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+          },
+        },
+        likes: currentUserId
+          ? {
+              where: { userId: currentUserId },
+              select: { id: true },
+            }
+          : false,
+        saves: currentUserId
+          ? {
+              where: { userId: currentUserId },
+              select: { id: true },
+            }
+          : false,
+      },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      skip: offset,
+    });
+
+    return posts.map((p) => ({
+      id: p.id,
+      publicUuid: p.publicUuid,
+      content: p.content,
+      createdAt: p.createdAt ?? new Date(),
+      updatedAt: p.updatedAt ?? new Date(),
+      likeCount: p._count.likes,
+      commentCount: p._count.comments,
+      isLiked: Array.isArray(p.likes) ? p.likes.length > 0 : false,
+      isSaved: Array.isArray(p.saves) ? p.saves.length > 0 : false,
+      media: p.media.map((m) => ({
+        id: m.id,
+        postId: m.postId,
+        mediaType: m.mediaType,
+        url: m.url,
+        key: m.key,
+        orderIndex: m.orderIndex,
+      })),
+      user: toUserSummary(p.user),
     }));
   }
 }

@@ -18,9 +18,19 @@ export function getProfileUrl(profile: {
 const URL_REGEX = /(https?:\/\/[^\s]+)/g;
 // Markdown link regex - matches [title](url)
 const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\((https?:\/\/[^\s]+)\)/g;
+// Hashtag detection regex - matches # followed by alphanumeric and underscores
+const HASHTAG_INLINE_REGEX = /(#[a-zA-Z0-9_]+)/g;
 
-export function parseTextWithLinks(text: string) {
-  const parts = [];
+/**
+ * Text part types for rendering with links and hashtags
+ */
+export type TextPart =
+  | { type: "text"; content: string }
+  | { type: "link"; content: string; url: string }
+  | { type: "hashtag"; content: string; tag: string };
+
+export function parseTextWithLinks(text: string): TextPart[] {
+  const parts: TextPart[] = [];
   let lastIndex = 0;
 
   // First, handle markdown-style links [title](url)
@@ -28,9 +38,9 @@ export function parseTextWithLinks(text: string) {
   while ((match = MARKDOWN_LINK_REGEX.exec(text)) !== null) {
     // Add text before the link
     if (match.index > lastIndex) {
-      // Check for auto-detected URLs in the text before this link
+      // Check for auto-detected URLs and hashtags in the text before this link
       const beforeText = text.slice(lastIndex, match.index);
-      parts.push(...parseAutoLinks(beforeText));
+      parts.push(...parseAutoLinksAndHashtags(beforeText));
     }
 
     // Add the markdown link
@@ -46,20 +56,23 @@ export function parseTextWithLinks(text: string) {
   // Handle any remaining text after the last markdown link
   if (lastIndex < text.length) {
     const remainingText = text.slice(lastIndex);
-    parts.push(...parseAutoLinks(remainingText));
+    parts.push(...parseAutoLinksAndHashtags(remainingText));
   }
 
   return parts;
 }
 
-// Helper function to parse auto-detected URLs
-function parseAutoLinks(text: string) {
-  const parts = [];
+// Helper function to parse auto-detected URLs and hashtags
+function parseAutoLinksAndHashtags(text: string): TextPart[] {
+  const parts: TextPart[] = [];
+
+  // Combined regex to match URLs and hashtags
+  const COMBINED_REGEX = /(https?:\/\/[^\s]+)|(#[a-zA-Z0-9_]+)/g;
   let lastIndex = 0;
   let match;
 
-  while ((match = URL_REGEX.exec(text)) !== null) {
-    // Add text before the URL
+  while ((match = COMBINED_REGEX.exec(text)) !== null) {
+    // Add text before the match
     if (match.index > lastIndex) {
       parts.push({
         type: "text" as const,
@@ -67,12 +80,21 @@ function parseAutoLinks(text: string) {
       });
     }
 
-    // Add the URL
-    parts.push({
-      type: "link" as const,
-      content: match[0],
-      url: match[0],
-    });
+    if (match[1]) {
+      // URL match
+      parts.push({
+        type: "link" as const,
+        content: match[0],
+        url: match[0],
+      });
+    } else if (match[2]) {
+      // Hashtag match
+      parts.push({
+        type: "hashtag" as const,
+        content: match[0], // e.g., "#training"
+        tag: match[0].slice(1).toLowerCase(), // e.g., "training"
+      });
+    }
 
     lastIndex = match.index + match[0].length;
   }
@@ -115,4 +137,42 @@ export function formatRelativeTime(date: Date | string): string {
   } else {
     return dateObj.toLocaleDateString();
   }
+}
+
+// ========================================
+// Hashtag Utilities
+// ========================================
+
+/**
+ * Hashtag extraction regex - matches # followed by alphanumeric and underscores
+ * Requires whitespace or start-of-string before # (prevents mid-word matches like super#hero)
+ */
+const HASHTAG_REGEX = /(?:^|\s)(#[a-zA-Z0-9_]+)/g;
+
+/**
+ * Extract hashtags from text content for database storage.
+ * Returns unique, lowercase hashtag names without the # prefix.
+ *
+ * @param text - The text content to extract hashtags from
+ * @returns Array of unique lowercase hashtag names (without #)
+ *
+ * @example
+ * extractHashtags("Great #Training session! #sports #training")
+ * // Returns: ["training", "sports"]
+ */
+export function extractHashtags(text: string): string[] {
+  if (!text) return [];
+
+  const matches = text.matchAll(HASHTAG_REGEX);
+  const hashtags = new Set<string>();
+
+  for (const match of matches) {
+    // match[1] is the captured group including #
+    const hashtag = match[1].slice(1).toLowerCase(); // Remove # and lowercase
+    if (hashtag.length > 0 && hashtag.length <= 50) {
+      hashtags.add(hashtag);
+    }
+  }
+
+  return Array.from(hashtags);
 }

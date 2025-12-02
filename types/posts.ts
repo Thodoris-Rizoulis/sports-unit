@@ -94,3 +94,28 @@ export type CreateCommentInput = z.infer<typeof createCommentInputSchema>;
 export type ToggleLikeInput = z.infer<typeof toggleLikeInputSchema>;
 export type ToggleSaveInput = z.infer<typeof toggleSaveInputSchema>;
 export type SharePostInput = z.infer<typeof sharePostInputSchema>;
+
+// ========================================
+// Hashtag Input Validation Schemas
+// ========================================
+
+/**
+ * Schema for hashtag posts query parameters
+ */
+export const hashtagPostsQuerySchema = z.object({
+  limit: z.coerce.number().int().positive().max(50).default(20),
+  cursor: z.coerce.number().int().positive().optional(),
+});
+
+export type HashtagPostsQuery = z.infer<typeof hashtagPostsQuerySchema>;
+
+/**
+ * Schema for validating hashtag path parameter
+ * Accepts alphanumeric and underscores, transforms to lowercase
+ */
+export const hashtagNameSchema = z
+  .string()
+  .min(1, "Hashtag name is required")
+  .max(50, "Hashtag name cannot exceed 50 characters")
+  .regex(/^[a-zA-Z0-9_]+$/, "Invalid hashtag format")
+  .transform((s) => s.toLowerCase());
