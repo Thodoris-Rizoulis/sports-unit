@@ -11,7 +11,9 @@ export function useAwards(uuid: string | undefined) {
   return useQuery({
     queryKey: awardsKey(uuid!),
     queryFn: async (): Promise<AwardUI[]> => {
-      const res = await fetch(`/api/profile/${encodeURIComponent(uuid!)}/awards`);
+      const res = await fetch(
+        `/api/profile/${encodeURIComponent(uuid!)}/awards`
+      );
       if (!res.ok) throw new Error("Failed to fetch awards");
       const data = await res.json();
       return data.awards;
@@ -28,11 +30,14 @@ export function useCreateAward(uuid: string) {
 
   return useMutation({
     mutationFn: async (data: AwardInput): Promise<AwardUI> => {
-      const res = await fetch(`/api/profile/${encodeURIComponent(uuid)}/awards`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        `/api/profile/${encodeURIComponent(uuid)}/awards`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        }
+      );
       if (!res.ok) {
         const error = await res.json();
         throw new Error(error.error || "Failed to create award");

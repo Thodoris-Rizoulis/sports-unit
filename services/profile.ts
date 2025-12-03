@@ -310,7 +310,8 @@ export async function updateKeyInfo(
   userId: number,
   data: KeyInfoInput
 ): Promise<void> {
-  const updateData: Parameters<typeof prisma.userAttribute.update>[0]["data"] = {};
+  const updateData: Parameters<typeof prisma.userAttribute.update>[0]["data"] =
+    {};
 
   if (data.dateOfBirth !== undefined) {
     updateData.dateOfBirth = data.dateOfBirth;

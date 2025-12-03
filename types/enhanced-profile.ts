@@ -6,73 +6,62 @@ import { idField } from "./common";
 // Athlete Metrics Schema
 // ========================================
 
+// Helper to create optional numeric field - allows null, undefined, or valid number
+const optionalNumber = (
+  min: number,
+  max: number,
+  minMsg: string,
+  maxMsg: string
+) => z.number().min(min, minMsg).max(max, maxMsg).nullable().optional();
+
+const optionalInt = (
+  min: number,
+  max: number,
+  minMsg: string,
+  maxMsg: string
+) => z.number().int().min(min, minMsg).max(max, maxMsg).nullable().optional();
+
 export const athleteMetricsSchema = z.object({
-  sprintSpeed30m: z
-    .number()
-    .min(
-      VALIDATION_CONSTANTS.ATHLETE_METRICS.SPRINT_SPEED_30M.MIN,
-      `Sprint speed must be at least ${VALIDATION_CONSTANTS.ATHLETE_METRICS.SPRINT_SPEED_30M.MIN}s`
-    )
-    .max(
-      VALIDATION_CONSTANTS.ATHLETE_METRICS.SPRINT_SPEED_30M.MAX,
-      `Sprint speed must be at most ${VALIDATION_CONSTANTS.ATHLETE_METRICS.SPRINT_SPEED_30M.MAX}s`
-    )
-    .nullable()
-    .optional(),
-  agilityTTest: z
-    .number()
-    .min(
-      VALIDATION_CONSTANTS.ATHLETE_METRICS.AGILITY_T_TEST.MIN,
-      `Agility T-Test must be at least ${VALIDATION_CONSTANTS.ATHLETE_METRICS.AGILITY_T_TEST.MIN}s`
-    )
-    .max(
-      VALIDATION_CONSTANTS.ATHLETE_METRICS.AGILITY_T_TEST.MAX,
-      `Agility T-Test must be at most ${VALIDATION_CONSTANTS.ATHLETE_METRICS.AGILITY_T_TEST.MAX}s`
-    )
-    .nullable()
-    .optional(),
-  beepTestLevel: z
-    .number()
-    .int()
-    .min(
-      VALIDATION_CONSTANTS.ATHLETE_METRICS.BEEP_TEST_LEVEL.MIN,
-      `Beep test level must be at least ${VALIDATION_CONSTANTS.ATHLETE_METRICS.BEEP_TEST_LEVEL.MIN}`
-    )
-    .max(
-      VALIDATION_CONSTANTS.ATHLETE_METRICS.BEEP_TEST_LEVEL.MAX,
-      `Beep test level must be at most ${VALIDATION_CONSTANTS.ATHLETE_METRICS.BEEP_TEST_LEVEL.MAX}`
-    )
-    .nullable()
-    .optional(),
-  beepTestShuttle: z
-    .number()
-    .int()
-    .min(
-      VALIDATION_CONSTANTS.ATHLETE_METRICS.BEEP_TEST_SHUTTLE.MIN,
-      `Beep test shuttle must be at least ${VALIDATION_CONSTANTS.ATHLETE_METRICS.BEEP_TEST_SHUTTLE.MIN}`
-    )
-    .max(
-      VALIDATION_CONSTANTS.ATHLETE_METRICS.BEEP_TEST_SHUTTLE.MAX,
-      `Beep test shuttle must be at most ${VALIDATION_CONSTANTS.ATHLETE_METRICS.BEEP_TEST_SHUTTLE.MAX}`
-    )
-    .nullable()
-    .optional(),
-  verticalJump: z
-    .number()
-    .int()
-    .min(
-      VALIDATION_CONSTANTS.ATHLETE_METRICS.VERTICAL_JUMP.MIN,
-      `Vertical jump must be at least ${VALIDATION_CONSTANTS.ATHLETE_METRICS.VERTICAL_JUMP.MIN}cm`
-    )
-    .max(
-      VALIDATION_CONSTANTS.ATHLETE_METRICS.VERTICAL_JUMP.MAX,
-      `Vertical jump must be at most ${VALIDATION_CONSTANTS.ATHLETE_METRICS.VERTICAL_JUMP.MAX}cm`
-    )
-    .nullable()
-    .optional(),
+  sprintSpeed30m: optionalNumber(
+    VALIDATION_CONSTANTS.ATHLETE_METRICS.SPRINT_SPEED_30M.MIN,
+    VALIDATION_CONSTANTS.ATHLETE_METRICS.SPRINT_SPEED_30M.MAX,
+    `Sprint speed must be at least ${VALIDATION_CONSTANTS.ATHLETE_METRICS.SPRINT_SPEED_30M.MIN}s`,
+    `Sprint speed must be at most ${VALIDATION_CONSTANTS.ATHLETE_METRICS.SPRINT_SPEED_30M.MAX}s`
+  ),
+  agilityTTest: optionalNumber(
+    VALIDATION_CONSTANTS.ATHLETE_METRICS.AGILITY_T_TEST.MIN,
+    VALIDATION_CONSTANTS.ATHLETE_METRICS.AGILITY_T_TEST.MAX,
+    `Agility T-Test must be at least ${VALIDATION_CONSTANTS.ATHLETE_METRICS.AGILITY_T_TEST.MIN}s`,
+    `Agility T-Test must be at most ${VALIDATION_CONSTANTS.ATHLETE_METRICS.AGILITY_T_TEST.MAX}s`
+  ),
+  beepTestLevel: optionalInt(
+    VALIDATION_CONSTANTS.ATHLETE_METRICS.BEEP_TEST_LEVEL.MIN,
+    VALIDATION_CONSTANTS.ATHLETE_METRICS.BEEP_TEST_LEVEL.MAX,
+    `Beep test level must be at least ${VALIDATION_CONSTANTS.ATHLETE_METRICS.BEEP_TEST_LEVEL.MIN}`,
+    `Beep test level must be at most ${VALIDATION_CONSTANTS.ATHLETE_METRICS.BEEP_TEST_LEVEL.MAX}`
+  ),
+  beepTestShuttle: optionalInt(
+    VALIDATION_CONSTANTS.ATHLETE_METRICS.BEEP_TEST_SHUTTLE.MIN,
+    VALIDATION_CONSTANTS.ATHLETE_METRICS.BEEP_TEST_SHUTTLE.MAX,
+    `Beep test shuttle must be at least ${VALIDATION_CONSTANTS.ATHLETE_METRICS.BEEP_TEST_SHUTTLE.MIN}`,
+    `Beep test shuttle must be at most ${VALIDATION_CONSTANTS.ATHLETE_METRICS.BEEP_TEST_SHUTTLE.MAX}`
+  ),
+  verticalJump: optionalNumber(
+    VALIDATION_CONSTANTS.ATHLETE_METRICS.VERTICAL_JUMP.MIN,
+    VALIDATION_CONSTANTS.ATHLETE_METRICS.VERTICAL_JUMP.MAX,
+    `Vertical jump must be at least ${VALIDATION_CONSTANTS.ATHLETE_METRICS.VERTICAL_JUMP.MIN}cm`,
+    `Vertical jump must be at most ${VALIDATION_CONSTANTS.ATHLETE_METRICS.VERTICAL_JUMP.MAX}cm`
+  ),
 });
 
-export type AthleteMetricsInput = z.infer<typeof athleteMetricsSchema>;
+// Form input type for react-hook-form
+export type AthleteMetricsInput = {
+  sprintSpeed30m?: number | null;
+  agilityTTest?: number | null;
+  beepTestLevel?: number | null;
+  beepTestShuttle?: number | null;
+  verticalJump?: number | null;
+};
 
 // ========================================
 // Key Information Schema
@@ -128,8 +117,14 @@ export type KeyInfoFormInput = {
 const yearField = z
   .number()
   .int()
-  .min(VALIDATION_CONSTANTS.YEAR.MIN, `Year must be at least ${VALIDATION_CONSTANTS.YEAR.MIN}`)
-  .max(VALIDATION_CONSTANTS.YEAR.MAX, `Year must be at most ${VALIDATION_CONSTANTS.YEAR.MAX}`);
+  .min(
+    VALIDATION_CONSTANTS.YEAR.MIN,
+    `Year must be at least ${VALIDATION_CONSTANTS.YEAR.MIN}`
+  )
+  .max(
+    VALIDATION_CONSTANTS.YEAR.MAX,
+    `Year must be at most ${VALIDATION_CONSTANTS.YEAR.MAX}`
+  );
 
 // ========================================
 // Experience Schema
@@ -156,7 +151,10 @@ export type ExperienceInput = z.infer<typeof experienceSchema>;
 
 export const educationSchema = z
   .object({
-    title: z.string().min(1, "Institution name is required").max(255, "Title is too long"),
+    title: z
+      .string()
+      .min(1, "Institution name is required")
+      .max(255, "Title is too long"),
     subtitle: z.string().max(255, "Subtitle is too long").nullable().optional(),
     yearFrom: yearField,
     yearTo: yearField.nullable().optional(),
@@ -174,7 +172,11 @@ export type EducationInput = z.infer<typeof educationSchema>;
 
 export const certificationSchema = z.object({
   title: z.string().min(1, "Title is required").max(255, "Title is too long"),
-  organization: z.string().max(255, "Organization name is too long").nullable().optional(),
+  organization: z
+    .string()
+    .max(255, "Organization name is too long")
+    .nullable()
+    .optional(),
   year: yearField,
   description: z.string().nullable().optional(),
 });
@@ -189,7 +191,10 @@ export const languageLevels = VALIDATION_CONSTANTS.LANGUAGE_LEVELS;
 export type LanguageLevel = (typeof languageLevels)[number];
 
 export const languageSchema = z.object({
-  language: z.string().min(1, "Language is required").max(100, "Language name is too long"),
+  language: z
+    .string()
+    .min(1, "Language is required")
+    .max(100, "Language name is too long"),
   level: z.enum(languageLevels),
 });
 

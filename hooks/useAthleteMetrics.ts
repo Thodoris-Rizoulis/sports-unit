@@ -11,7 +11,9 @@ export function useAthleteMetrics(uuid: string | undefined) {
   return useQuery({
     queryKey: athleteMetricsKey(uuid!),
     queryFn: async (): Promise<AthleteMetricsUI | null> => {
-      const res = await fetch(`/api/profile/${encodeURIComponent(uuid!)}/metrics`);
+      const res = await fetch(
+        `/api/profile/${encodeURIComponent(uuid!)}/metrics`
+      );
       if (!res.ok) throw new Error("Failed to fetch athlete metrics");
       const data = await res.json();
       return data.metrics;
@@ -27,12 +29,17 @@ export function useUpdateAthleteMetrics(uuid: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: AthleteMetricsInput): Promise<AthleteMetricsUI> => {
-      const res = await fetch(`/api/profile/${encodeURIComponent(uuid)}/metrics`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+    mutationFn: async (
+      data: AthleteMetricsInput
+    ): Promise<AthleteMetricsUI> => {
+      const res = await fetch(
+        `/api/profile/${encodeURIComponent(uuid)}/metrics`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        }
+      );
       if (!res.ok) {
         const error = await res.json();
         throw new Error(error.error || "Failed to update athlete metrics");

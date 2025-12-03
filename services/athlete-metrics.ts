@@ -1,8 +1,5 @@
 import prisma from "@/lib/prisma";
-import {
-  toAthleteMetrics,
-  AthleteMetricsUI,
-} from "@/types/prisma";
+import { toAthleteMetrics, AthleteMetricsUI } from "@/types/prisma";
 import type { AthleteMetricsInput } from "@/types/enhanced-profile";
 
 /**

@@ -48,17 +48,19 @@ export function KeyInfoEditModal({
   const [selectedPositions, setSelectedPositions] = useState<number[]>([]);
 
   // Fetch positions for the user's sport
-  const { data: positions, isLoading: positionsLoading } = useQuery<Position[]>({
-    queryKey: ["positions", profile.sportId],
-    queryFn: async () => {
-      if (!profile.sportId) return [];
-      const res = await fetch(`/api/positions?sportId=${profile.sportId}`);
-      if (!res.ok) return [];
-      const data = await res.json();
-      return data.positions || data;
-    },
-    enabled: open && !!profile.sportId,
-  });
+  const { data: positions, isLoading: positionsLoading } = useQuery<Position[]>(
+    {
+      queryKey: ["positions", profile.sportId],
+      queryFn: async () => {
+        if (!profile.sportId) return [];
+        const res = await fetch(`/api/positions?sportId=${profile.sportId}`);
+        if (!res.ok) return [];
+        const data = await res.json();
+        return data.positions || data;
+      },
+      enabled: open && !!profile.sportId,
+    }
+  );
 
   const {
     register,
@@ -109,7 +111,9 @@ export function KeyInfoEditModal({
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["profile", profile.publicUuid] });
+      queryClient.invalidateQueries({
+        queryKey: ["profile", profile.publicUuid],
+      });
       toast.success("Key information updated successfully");
       onOpenChange(false);
     },
@@ -162,14 +166,18 @@ export function KeyInfoEditModal({
                   type="date"
                   value={formatDateForInput(field.value as Date | null)}
                   onChange={(e) => {
-                    field.onChange(e.target.value ? new Date(e.target.value) : null);
+                    field.onChange(
+                      e.target.value ? new Date(e.target.value) : null
+                    );
                   }}
                   max={new Date().toISOString().split("T")[0]}
                 />
               )}
             />
             {errors.dateOfBirth && (
-              <p className="text-sm text-red-600">{errors.dateOfBirth.message}</p>
+              <p className="text-sm text-red-600">
+                {errors.dateOfBirth.message}
+              </p>
             )}
           </div>
 
@@ -198,7 +206,8 @@ export function KeyInfoEditModal({
               <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-md">
                 <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
                 <p className="text-sm text-amber-700">
-                  Please select a sport in your profile settings first to choose positions.
+                  Please select a sport in your profile settings first to choose
+                  positions.
                 </p>
               </div>
             ) : positionsLoading ? (
@@ -218,7 +227,8 @@ export function KeyInfoEditModal({
                       onCheckedChange={() => togglePosition(position.id)}
                       disabled={
                         !selectedPositions.includes(position.id) &&
-                        selectedPositions.length >= VALIDATION_CONSTANTS.SPORTS.MAX_POSITIONS
+                        selectedPositions.length >=
+                          VALIDATION_CONSTANTS.SPORTS.MAX_POSITIONS
                       }
                     />
                     <span className="text-sm">{position.name}</span>
@@ -226,11 +236,14 @@ export function KeyInfoEditModal({
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-gray-500">No positions available for this sport.</p>
+              <p className="text-sm text-gray-500">
+                No positions available for this sport.
+              </p>
             )}
             {selectedPositions.length > 0 && (
               <p className="text-xs text-gray-500">
-                {selectedPositions.length} of {VALIDATION_CONSTANTS.SPORTS.MAX_POSITIONS} positions selected
+                {selectedPositions.length} of{" "}
+                {VALIDATION_CONSTANTS.SPORTS.MAX_POSITIONS} positions selected
               </p>
             )}
           </div>

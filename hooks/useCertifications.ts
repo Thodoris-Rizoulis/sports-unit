@@ -11,7 +11,9 @@ export function useCertifications(uuid: string | undefined) {
   return useQuery({
     queryKey: certificationsKey(uuid!),
     queryFn: async (): Promise<CertificationUI[]> => {
-      const res = await fetch(`/api/profile/${encodeURIComponent(uuid!)}/certifications`);
+      const res = await fetch(
+        `/api/profile/${encodeURIComponent(uuid!)}/certifications`
+      );
       if (!res.ok) throw new Error("Failed to fetch certifications");
       const data = await res.json();
       return data.certifications;
@@ -28,11 +30,14 @@ export function useCreateCertification(uuid: string) {
 
   return useMutation({
     mutationFn: async (data: CertificationInput): Promise<CertificationUI> => {
-      const res = await fetch(`/api/profile/${encodeURIComponent(uuid)}/certifications`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        `/api/profile/${encodeURIComponent(uuid)}/certifications`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        }
+      );
       if (!res.ok) {
         const error = await res.json();
         throw new Error(error.error || "Failed to create certification");

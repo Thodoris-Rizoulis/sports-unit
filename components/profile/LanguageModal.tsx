@@ -101,13 +101,19 @@ export function LanguageModal({
       });
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.message || `Failed to ${isEditMode ? "update" : "add"} language`);
+        throw new Error(
+          error.message || `Failed to ${isEditMode ? "update" : "add"} language`
+        );
       }
       return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["languages", uuid] });
-      toast.success(isEditMode ? "Language updated successfully" : "Language added successfully");
+      toast.success(
+        isEditMode
+          ? "Language updated successfully"
+          : "Language added successfully"
+      );
       onClose();
     },
     onError: (error: Error) => {
@@ -193,10 +199,7 @@ export function LanguageModal({
                 Cancel
               </Button>
             </DialogClose>
-            <Button
-              type="submit"
-              disabled={isSubmitting || mutation.isPending}
-            >
+            <Button type="submit" disabled={isSubmitting || mutation.isPending}>
               {mutation.isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />

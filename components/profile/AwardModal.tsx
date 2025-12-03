@@ -33,12 +33,7 @@ type AwardModalProps = {
  * AwardModal - Modal for adding/editing awards and achievements
  * Fields: Title, Year, Description
  */
-export function AwardModal({
-  open,
-  onClose,
-  uuid,
-  award,
-}: AwardModalProps) {
+export function AwardModal({ open, onClose, uuid, award }: AwardModalProps) {
   const queryClient = useQueryClient();
   const currentYear = new Date().getFullYear();
   const isEditMode = !!award;
@@ -90,13 +85,17 @@ export function AwardModal({
       });
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.message || `Failed to ${isEditMode ? "update" : "add"} award`);
+        throw new Error(
+          error.message || `Failed to ${isEditMode ? "update" : "add"} award`
+        );
       }
       return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["awards", uuid] });
-      toast.success(isEditMode ? "Award updated successfully" : "Award added successfully");
+      toast.success(
+        isEditMode ? "Award updated successfully" : "Award added successfully"
+      );
       onClose();
     },
     onError: (error: Error) => {
@@ -118,9 +117,7 @@ export function AwardModal({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>
-            {isEditMode ? "Edit Award" : "Add Award"}
-          </DialogTitle>
+          <DialogTitle>{isEditMode ? "Edit Award" : "Add Award"}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -162,7 +159,9 @@ export function AwardModal({
               {...register("description")}
             />
             {errors.description && (
-              <p className="text-sm text-red-600">{errors.description.message}</p>
+              <p className="text-sm text-red-600">
+                {errors.description.message}
+              </p>
             )}
           </div>
 
@@ -185,10 +184,7 @@ export function AwardModal({
                 Cancel
               </Button>
             </DialogClose>
-            <Button
-              type="submit"
-              disabled={isSubmitting || mutation.isPending}
-            >
+            <Button type="submit" disabled={isSubmitting || mutation.isPending}>
               {mutation.isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />

@@ -157,13 +157,20 @@ export function ExperienceModal({
       });
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.message || `Failed to ${isEditMode ? "update" : "add"} experience`);
+        throw new Error(
+          error.message ||
+            `Failed to ${isEditMode ? "update" : "add"} experience`
+        );
       }
       return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["experience", uuid] });
-      toast.success(isEditMode ? "Experience updated successfully" : "Experience added successfully");
+      toast.success(
+        isEditMode
+          ? "Experience updated successfully"
+          : "Experience added successfully"
+      );
       onClose();
     },
     onError: (error: Error) => {
@@ -219,7 +226,8 @@ export function ExperienceModal({
               <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-md">
                 <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
                 <p className="text-sm text-amber-700">
-                  Please select a sport in your profile settings first to choose a team.
+                  Please select a sport in your profile settings first to choose
+                  a team.
                 </p>
               </div>
             ) : (
@@ -257,7 +265,9 @@ export function ExperienceModal({
                               <Check
                                 className={cn(
                                   "mr-2 h-4 w-4",
-                                  selectedTeam?.id === team.id ? "opacity-100" : "opacity-0"
+                                  selectedTeam?.id === team.id
+                                    ? "opacity-100"
+                                    : "opacity-0"
                                 )}
                               />
                               {team.name}
@@ -269,7 +279,9 @@ export function ExperienceModal({
                   </PopoverContent>
                 </Popover>
                 {errors.teamId && (
-                  <p className="text-sm text-red-600">{errors.teamId.message}</p>
+                  <p className="text-sm text-red-600">
+                    {errors.teamId.message}
+                  </p>
                 )}
               </>
             )}
@@ -287,7 +299,9 @@ export function ExperienceModal({
                 {...register("yearFrom", { valueAsNumber: true })}
               />
               {errors.yearFrom && (
-                <p className="text-sm text-red-600">{errors.yearFrom.message}</p>
+                <p className="text-sm text-red-600">
+                  {errors.yearFrom.message}
+                </p>
               )}
             </div>
             <div className="space-y-2">
@@ -321,7 +335,9 @@ export function ExperienceModal({
             <Checkbox
               id="isCurrentPosition"
               checked={isCurrentPosition}
-              onCheckedChange={(checked) => setIsCurrentPosition(checked === true)}
+              onCheckedChange={(checked) =>
+                setIsCurrentPosition(checked === true)
+              }
             />
             <Label htmlFor="isCurrentPosition" className="cursor-pointer">
               I currently work here

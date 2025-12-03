@@ -86,7 +86,9 @@ export function KeyInformationSection({
     const positionNames = profile.positions
       .map((id) => positions.find((p) => p.id === id)?.name)
       .filter(Boolean);
-    return positionNames.length > 0 ? positionNames.join(", ") : "Not specified";
+    return positionNames.length > 0
+      ? positionNames.join(", ")
+      : "Not specified";
   };
 
   // Format height
@@ -115,7 +117,9 @@ export function KeyInformationSection({
             {isOwner && (
               <Button
                 onClick={handleOpenModal}
-                disabled={currentlyEditing !== null && currentlyEditing !== "keyInfo"}
+                disabled={
+                  currentlyEditing !== null && currentlyEditing !== "keyInfo"
+                }
                 variant="outline"
                 size="sm"
                 className="text-gray-700 hover:text-gray-900 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -171,7 +175,9 @@ export function KeyInformationSection({
               <Footprints className="w-5 h-5 text-gray-400 mt-0.5" />
               <div>
                 <p className="text-sm text-gray-500">Strong Foot</p>
-                <p className="font-medium">{formatStrongFoot(profile.strongFoot)}</p>
+                <p className="font-medium">
+                  {formatStrongFoot(profile.strongFoot)}
+                </p>
               </div>
             </div>
           </div>

@@ -18,7 +18,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { certificationSchema, CertificationInput } from "@/types/enhanced-profile";
+import {
+  certificationSchema,
+  CertificationInput,
+} from "@/types/enhanced-profile";
 import { VALIDATION_CONSTANTS } from "@/lib/constants";
 import type { CertificationUI } from "@/types/prisma";
 
@@ -93,13 +96,20 @@ export function CertificationModal({
       });
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.message || `Failed to ${isEditMode ? "update" : "add"} certification`);
+        throw new Error(
+          error.message ||
+            `Failed to ${isEditMode ? "update" : "add"} certification`
+        );
       }
       return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["certifications", uuid] });
-      toast.success(isEditMode ? "Certification updated successfully" : "Certification added successfully");
+      toast.success(
+        isEditMode
+          ? "Certification updated successfully"
+          : "Certification added successfully"
+      );
       onClose();
     },
     onError: (error: Error) => {
@@ -149,7 +159,9 @@ export function CertificationModal({
               {...register("organization")}
             />
             {errors.organization && (
-              <p className="text-sm text-red-600">{errors.organization.message}</p>
+              <p className="text-sm text-red-600">
+                {errors.organization.message}
+              </p>
             )}
           </div>
 
@@ -178,7 +190,9 @@ export function CertificationModal({
               {...register("description")}
             />
             {errors.description && (
-              <p className="text-sm text-red-600">{errors.description.message}</p>
+              <p className="text-sm text-red-600">
+                {errors.description.message}
+              </p>
             )}
           </div>
 
@@ -201,10 +215,7 @@ export function CertificationModal({
                 Cancel
               </Button>
             </DialogClose>
-            <Button
-              type="submit"
-              disabled={isSubmitting || mutation.isPending}
-            >
+            <Button type="submit" disabled={isSubmitting || mutation.isPending}>
               {mutation.isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />

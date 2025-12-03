@@ -76,7 +76,9 @@ export function AthleteMetricsSection({
             {isOwner && (
               <Button
                 onClick={handleOpenModal}
-                disabled={currentlyEditing !== null && currentlyEditing !== "metrics"}
+                disabled={
+                  currentlyEditing !== null && currentlyEditing !== "metrics"
+                }
                 variant="outline"
                 size="sm"
                 className="text-gray-700 hover:text-gray-900 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -97,18 +99,9 @@ export function AthleteMetricsSection({
               No metrics recorded yet.
             </p>
           ) : !hasMetrics && isOwner ? (
-            <div className="text-center py-4">
-              <p className="text-gray-500 mb-3">
-                Track your athletic performance by adding your metrics.
-              </p>
-              <Button
-                variant="outline"
-                onClick={handleOpenModal}
-                disabled={currentlyEditing !== null && currentlyEditing !== "metrics"}
-              >
-                Add Metrics
-              </Button>
-            </div>
+            <p className="text-gray-500 text-center py-4">
+              Track your athletic performance by adding your metrics.
+            </p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Sprint Speed 30m */}

@@ -19,10 +19,20 @@ import { CertificationModal } from "@/components/profile/CertificationModal";
 import { LanguageModal } from "@/components/profile/LanguageModal";
 import { AwardModal } from "@/components/profile/AwardModal";
 import { DeleteConfirmationDialog } from "@/components/profile/DeleteConfirmationDialog";
-import { ExtendedUserProfile, ExperienceUI, EducationUI, CertificationUI, LanguageUI, AwardUI } from "@/types/prisma";
+import {
+  ExtendedUserProfile,
+  ExperienceUI,
+  EducationUI,
+  CertificationUI,
+  LanguageUI,
+  AwardUI,
+} from "@/types/prisma";
 import { useExperience, useDeleteExperience } from "@/hooks/useExperience";
 import { useEducation, useDeleteEducation } from "@/hooks/useEducation";
-import { useCertifications, useDeleteCertification } from "@/hooks/useCertifications";
+import {
+  useCertifications,
+  useDeleteCertification,
+} from "@/hooks/useCertifications";
 import { useLanguages, useDeleteLanguage } from "@/hooks/useLanguages";
 import { useAwards, useDeleteAward } from "@/hooks/useAwards";
 
@@ -99,7 +109,12 @@ export default function ProfilePageWrapper({ profile }: Props) {
   }, [entityType, action, id, education]);
 
   const editingCertification = useMemo<CertificationUI | null>(() => {
-    if (entityType === "certification" && action === "edit" && id && certifications) {
+    if (
+      entityType === "certification" &&
+      action === "edit" &&
+      id &&
+      certifications
+    ) {
       return certifications.find((c) => c.id === id) ?? null;
     }
     return null;
@@ -135,37 +150,61 @@ export default function ProfilePageWrapper({ profile }: Props) {
       case "experience": {
         const item = experiences?.find((e) => e.id === id);
         return item
-          ? { title: "Delete Experience", description: `Are you sure you want to delete "${item.title}" at ${item.teamName}?` }
+          ? {
+              title: "Delete Experience",
+              description: `Are you sure you want to delete "${item.title}" at ${item.teamName}?`,
+            }
           : null;
       }
       case "education": {
         const item = education?.find((e) => e.id === id);
         return item
-          ? { title: "Delete Education", description: `Are you sure you want to delete "${item.title}"?` }
+          ? {
+              title: "Delete Education",
+              description: `Are you sure you want to delete "${item.title}"?`,
+            }
           : null;
       }
       case "certification": {
         const item = certifications?.find((c) => c.id === id);
         return item
-          ? { title: "Delete Certification", description: `Are you sure you want to delete "${item.title}"?` }
+          ? {
+              title: "Delete Certification",
+              description: `Are you sure you want to delete "${item.title}"?`,
+            }
           : null;
       }
       case "language": {
         const item = languages?.find((l) => l.id === id);
         return item
-          ? { title: "Delete Language", description: `Are you sure you want to delete "${item.language}"?` }
+          ? {
+              title: "Delete Language",
+              description: `Are you sure you want to delete "${item.language}"?`,
+            }
           : null;
       }
       case "award": {
         const item = awards?.find((a) => a.id === id);
         return item
-          ? { title: "Delete Award", description: `Are you sure you want to delete "${item.title}"?` }
+          ? {
+              title: "Delete Award",
+              description: `Are you sure you want to delete "${item.title}"?`,
+            }
           : null;
       }
       default:
         return null;
     }
-  }, [entityType, action, id, experiences, education, certifications, languages, awards]);
+  }, [
+    entityType,
+    action,
+    id,
+    experiences,
+    education,
+    certifications,
+    languages,
+    awards,
+  ]);
 
   // Handle delete confirmation
   const handleDeleteConfirm = async () => {
@@ -196,7 +235,8 @@ export default function ProfilePageWrapper({ profile }: Props) {
       }
       setEditingSection(null);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to delete";
+      const message =
+        error instanceof Error ? error.message : "Failed to delete";
       toast.error(message);
     }
   };
@@ -225,7 +265,7 @@ export default function ProfilePageWrapper({ profile }: Props) {
 
   return (
     <SessionGuard>
-      <div className="flex flex-col lg:flex-row gap-6">
+      <div className="flex flex-col lg:flex-row gap-6 px-4 md:px-6 lg:px-8">
         {/* Main Content */}
         <div className="flex-1 space-y-6">
           <ProfileHero
@@ -307,7 +347,9 @@ export default function ProfilePageWrapper({ profile }: Props) {
 
       {/* Experience Modal */}
       <ExperienceModal
-        open={entityType === "experience" && (action === "add" || action === "edit")}
+        open={
+          entityType === "experience" && (action === "add" || action === "edit")
+        }
         onClose={handleCloseModal}
         uuid={profile.publicUuid}
         sportId={profile.sportId}
@@ -316,7 +358,9 @@ export default function ProfilePageWrapper({ profile }: Props) {
 
       {/* Education Modal */}
       <EducationModal
-        open={entityType === "education" && (action === "add" || action === "edit")}
+        open={
+          entityType === "education" && (action === "add" || action === "edit")
+        }
         onClose={handleCloseModal}
         uuid={profile.publicUuid}
         education={editingEducation}
@@ -324,7 +368,10 @@ export default function ProfilePageWrapper({ profile }: Props) {
 
       {/* Certification Modal */}
       <CertificationModal
-        open={entityType === "certification" && (action === "add" || action === "edit")}
+        open={
+          entityType === "certification" &&
+          (action === "add" || action === "edit")
+        }
         onClose={handleCloseModal}
         uuid={profile.publicUuid}
         certification={editingCertification}
@@ -332,7 +379,9 @@ export default function ProfilePageWrapper({ profile }: Props) {
 
       {/* Language Modal */}
       <LanguageModal
-        open={entityType === "language" && (action === "add" || action === "edit")}
+        open={
+          entityType === "language" && (action === "add" || action === "edit")
+        }
         onClose={handleCloseModal}
         uuid={profile.publicUuid}
         language={editingLanguage}

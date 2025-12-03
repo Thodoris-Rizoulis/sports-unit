@@ -11,7 +11,9 @@ export function useEducation(uuid: string | undefined) {
   return useQuery({
     queryKey: educationKey(uuid!),
     queryFn: async (): Promise<EducationUI[]> => {
-      const res = await fetch(`/api/profile/${encodeURIComponent(uuid!)}/education`);
+      const res = await fetch(
+        `/api/profile/${encodeURIComponent(uuid!)}/education`
+      );
       if (!res.ok) throw new Error("Failed to fetch education");
       const data = await res.json();
       return data.education;
@@ -28,11 +30,14 @@ export function useCreateEducation(uuid: string) {
 
   return useMutation({
     mutationFn: async (data: EducationInput): Promise<EducationUI> => {
-      const res = await fetch(`/api/profile/${encodeURIComponent(uuid)}/education`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        `/api/profile/${encodeURIComponent(uuid)}/education`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        }
+      );
       if (!res.ok) {
         const error = await res.json();
         throw new Error(error.error || "Failed to create education");

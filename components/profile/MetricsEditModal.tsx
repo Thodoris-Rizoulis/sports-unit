@@ -17,7 +17,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { athleteMetricsSchema, AthleteMetricsInput } from "@/types/enhanced-profile";
+import {
+  athleteMetricsSchema,
+  AthleteMetricsInput,
+} from "@/types/enhanced-profile";
 import { VALIDATION_CONSTANTS } from "@/lib/constants";
 import type { AthleteMetricsUI } from "@/types/prisma";
 
@@ -83,7 +86,8 @@ export function MetricsEditModal({
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["athlete-metrics", uuid] });
+      queryClient.invalidateQueries({ queryKey: ["athleteMetrics", uuid] });
+      queryClient.invalidateQueries({ queryKey: ["profile", uuid] });
       toast.success("Metrics updated successfully");
       onOpenChange(false);
     },
@@ -104,7 +108,13 @@ export function MetricsEditModal({
     updateMetricsMutation.mutate(cleanedData);
   };
 
-  const { SPRINT_SPEED_30M, AGILITY_T_TEST, BEEP_TEST_LEVEL, BEEP_TEST_SHUTTLE, VERTICAL_JUMP } = VALIDATION_CONSTANTS.ATHLETE_METRICS;
+  const {
+    SPRINT_SPEED_30M,
+    AGILITY_T_TEST,
+    BEEP_TEST_LEVEL,
+    BEEP_TEST_SHUTTLE,
+    VERTICAL_JUMP,
+  } = VALIDATION_CONSTANTS.ATHLETE_METRICS;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -116,20 +126,24 @@ export function MetricsEditModal({
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* Sprint Speed (30m) */}
           <div className="space-y-2">
-            <Label htmlFor="sprintSpeed30m">
-              Sprint Speed 30m (seconds)
-            </Label>
+            <Label htmlFor="sprintSpeed30m">Sprint Speed 30m (seconds)</Label>
             <Input
               id="sprintSpeed30m"
               type="number"
               step="0.01"
               placeholder={`${SPRINT_SPEED_30M.MIN} - ${SPRINT_SPEED_30M.MAX}`}
               {...register("sprintSpeed30m", {
-                setValueAs: (v) => (v === "" ? null : parseFloat(v)),
+                setValueAs: (v) => {
+                  if (v === "" || v === null || v === undefined) return null;
+                  const num = parseFloat(v);
+                  return isNaN(num) ? null : num;
+                },
               })}
             />
             {errors.sprintSpeed30m && (
-              <p className="text-sm text-red-600">{errors.sprintSpeed30m.message}</p>
+              <p className="text-sm text-red-600">
+                {errors.sprintSpeed30m.message}
+              </p>
             )}
             <p className="text-xs text-gray-500">
               Enter your 30-meter sprint time in seconds (e.g., 4.25)
@@ -138,20 +152,24 @@ export function MetricsEditModal({
 
           {/* Agility T-Test */}
           <div className="space-y-2">
-            <Label htmlFor="agilityTTest">
-              Agility T-Test (seconds)
-            </Label>
+            <Label htmlFor="agilityTTest">Agility T-Test (seconds)</Label>
             <Input
               id="agilityTTest"
               type="number"
               step="0.01"
               placeholder={`${AGILITY_T_TEST.MIN} - ${AGILITY_T_TEST.MAX}`}
               {...register("agilityTTest", {
-                setValueAs: (v) => (v === "" ? null : parseFloat(v)),
+                setValueAs: (v) => {
+                  if (v === "" || v === null || v === undefined) return null;
+                  const num = parseFloat(v);
+                  return isNaN(num) ? null : num;
+                },
               })}
             />
             {errors.agilityTTest && (
-              <p className="text-sm text-red-600">{errors.agilityTTest.message}</p>
+              <p className="text-sm text-red-600">
+                {errors.agilityTTest.message}
+              </p>
             )}
             <p className="text-xs text-gray-500">
               Enter your T-Test agility time in seconds (e.g., 9.50)
@@ -161,37 +179,45 @@ export function MetricsEditModal({
           {/* Beep Test Level & Shuttle */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="beepTestLevel">
-                Beep Test Level
-              </Label>
+              <Label htmlFor="beepTestLevel">Beep Test Level</Label>
               <Input
                 id="beepTestLevel"
                 type="number"
                 step="1"
                 placeholder={`${BEEP_TEST_LEVEL.MIN} - ${BEEP_TEST_LEVEL.MAX}`}
                 {...register("beepTestLevel", {
-                  setValueAs: (v) => (v === "" ? null : parseInt(v, 10)),
+                  setValueAs: (v) => {
+                    if (v === "" || v === null || v === undefined) return null;
+                    const num = parseInt(v, 10);
+                    return isNaN(num) ? null : num;
+                  },
                 })}
               />
               {errors.beepTestLevel && (
-                <p className="text-sm text-red-600">{errors.beepTestLevel.message}</p>
+                <p className="text-sm text-red-600">
+                  {errors.beepTestLevel.message}
+                </p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="beepTestShuttle">
-                Beep Test Shuttle
-              </Label>
+              <Label htmlFor="beepTestShuttle">Beep Test Shuttle</Label>
               <Input
                 id="beepTestShuttle"
                 type="number"
                 step="1"
                 placeholder={`${BEEP_TEST_SHUTTLE.MIN} - ${BEEP_TEST_SHUTTLE.MAX}`}
                 {...register("beepTestShuttle", {
-                  setValueAs: (v) => (v === "" ? null : parseInt(v, 10)),
+                  setValueAs: (v) => {
+                    if (v === "" || v === null || v === undefined) return null;
+                    const num = parseInt(v, 10);
+                    return isNaN(num) ? null : num;
+                  },
                 })}
               />
               {errors.beepTestShuttle && (
-                <p className="text-sm text-red-600">{errors.beepTestShuttle.message}</p>
+                <p className="text-sm text-red-600">
+                  {errors.beepTestShuttle.message}
+                </p>
               )}
             </div>
           </div>
@@ -201,20 +227,24 @@ export function MetricsEditModal({
 
           {/* Vertical Jump */}
           <div className="space-y-2">
-            <Label htmlFor="verticalJump">
-              Vertical Jump (cm)
-            </Label>
+            <Label htmlFor="verticalJump">Vertical Jump (cm)</Label>
             <Input
               id="verticalJump"
               type="number"
               step="0.1"
               placeholder={`${VERTICAL_JUMP.MIN} - ${VERTICAL_JUMP.MAX}`}
               {...register("verticalJump", {
-                setValueAs: (v) => (v === "" ? null : parseFloat(v)),
+                setValueAs: (v) => {
+                  if (v === "" || v === null || v === undefined) return null;
+                  const num = parseFloat(v);
+                  return isNaN(num) ? null : num;
+                },
               })}
             />
             {errors.verticalJump && (
-              <p className="text-sm text-red-600">{errors.verticalJump.message}</p>
+              <p className="text-sm text-red-600">
+                {errors.verticalJump.message}
+              </p>
             )}
             <p className="text-xs text-gray-500">
               Enter your vertical jump height in centimeters (e.g., 65.5)

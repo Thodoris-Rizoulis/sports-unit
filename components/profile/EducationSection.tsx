@@ -50,7 +50,10 @@ export function EducationSection({
           {isOwner && (
             <Button
               onClick={() => onSetEditing("education-add")}
-              disabled={currentlyEditing !== null && !currentlyEditing?.startsWith("education")}
+              disabled={
+                currentlyEditing !== null &&
+                !currentlyEditing?.startsWith("education")
+              }
               variant="outline"
               size="sm"
               className="text-gray-700 hover:text-gray-900 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -68,21 +71,11 @@ export function EducationSection({
       <CardContent>
         {!hasEducation ? (
           <div className="text-center py-6">
-            <p className="text-gray-500 mb-3">
+            <p className="text-gray-500">
               {isOwner
                 ? "Add your education background."
                 : "No education added yet."}
             </p>
-            {isOwner && (
-              <Button
-                variant="outline"
-                onClick={() => onSetEditing("education-add")}
-                disabled={currentlyEditing !== null && !currentlyEditing?.startsWith("education")}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Education
-              </Button>
-            )}
           </div>
         ) : (
           <div className="space-y-4">
@@ -145,7 +138,10 @@ function EducationItem({
             variant="ghost"
             size="sm"
             onClick={onEdit}
-            disabled={currentlyEditing !== null && !currentlyEditing?.startsWith("education")}
+            disabled={
+              currentlyEditing !== null &&
+              !currentlyEditing?.startsWith("education")
+            }
             className="text-gray-500 hover:text-gray-700"
           >
             <Edit3 className="w-4 h-4" />
@@ -154,7 +150,10 @@ function EducationItem({
             variant="ghost"
             size="sm"
             onClick={onDelete}
-            disabled={currentlyEditing !== null && !currentlyEditing?.startsWith("education")}
+            disabled={
+              currentlyEditing !== null &&
+              !currentlyEditing?.startsWith("education")
+            }
             className="text-gray-500 hover:text-red-600"
           >
             <Trash2 className="w-4 h-4" />

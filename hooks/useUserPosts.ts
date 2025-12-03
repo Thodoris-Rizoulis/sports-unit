@@ -16,7 +16,9 @@ export function useUserPosts(uuid: string | undefined, limit: number = 20) {
     queryKey: userPostsKey(uuid!),
     queryFn: async ({ pageParam = 0 }): Promise<UserPostsResponse> => {
       const res = await fetch(
-        `/api/profile/${encodeURIComponent(uuid!)}/posts?limit=${limit}&offset=${pageParam}`
+        `/api/profile/${encodeURIComponent(
+          uuid!
+        )}/posts?limit=${limit}&offset=${pageParam}`
       );
       if (!res.ok) throw new Error("Failed to fetch user posts");
       return res.json();

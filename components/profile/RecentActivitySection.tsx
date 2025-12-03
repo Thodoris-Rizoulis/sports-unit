@@ -54,9 +54,7 @@ export function RecentActivitySection({
         {!hasPosts ? (
           <div className="text-center py-8">
             <p className="text-gray-500">
-              {isOwner
-                ? "You haven't posted anything yet."
-                : "No posts yet."}
+              {isOwner ? "You haven't posted anything yet." : "No posts yet."}
             </p>
             {isOwner && (
               <Link href="/dashboard">

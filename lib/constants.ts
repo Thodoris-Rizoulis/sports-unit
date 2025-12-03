@@ -52,7 +52,13 @@ export const VALIDATION_CONSTANTS = {
   STRONG_FOOT_OPTIONS: ["left", "right", "both"] as const,
 
   // Language proficiency levels
-  LANGUAGE_LEVELS: ["native", "fluent", "proficient", "intermediate", "basic"] as const,
+  LANGUAGE_LEVELS: [
+    "native",
+    "fluent",
+    "proficient",
+    "intermediate",
+    "basic",
+  ] as const,
 } as const;
 
 // Security constants

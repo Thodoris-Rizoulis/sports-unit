@@ -16,19 +16,14 @@ export default function UserPostsPageContent() {
   const uuid = params?.uuid ?? "";
   const slug = params?.slug ?? "";
 
-  const {
-    data,
-    isLoading,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-  } = useUserPosts(uuid);
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
+    useUserPosts(uuid);
 
   const posts = data?.pages.flatMap((page) => page.posts) ?? [];
 
   if (isLoading) {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+      <div className="space-y-6">
         <div className="flex items-center gap-4 mb-6">
           <Skeleton className="h-10 w-10" />
           <Skeleton className="h-8 w-48" />
@@ -41,9 +36,9 @@ export default function UserPostsPageContent() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6">
+    <div className="space-y-6">
       {/* Header with back button */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4">
         <Link href={`/profile/${uuid}/${slug}`}>
           <Button variant="ghost" size="icon" className="rounded-full">
             <ArrowLeft className="w-5 h-5" />

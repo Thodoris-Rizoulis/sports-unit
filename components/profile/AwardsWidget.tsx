@@ -36,7 +36,10 @@ export function AwardsWidget({
           {isOwner && (
             <Button
               onClick={() => onSetEditing("award-add")}
-              disabled={currentlyEditing !== null && !currentlyEditing?.startsWith("award")}
+              disabled={
+                currentlyEditing !== null &&
+                !currentlyEditing?.startsWith("award")
+              }
               variant="ghost"
               size="sm"
               className="text-gray-500 hover:text-gray-700 h-8 w-8 p-0"
@@ -54,20 +57,9 @@ export function AwardsWidget({
       <CardContent className="pt-0">
         {!hasAwards ? (
           <div className="text-center py-4">
-            <p className="text-sm text-gray-500 mb-2">
+            <p className="text-sm text-gray-500">
               {isOwner ? "Showcase your achievements." : "No awards added."}
             </p>
-            {isOwner && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onSetEditing("award-add")}
-                disabled={currentlyEditing !== null && !currentlyEditing?.startsWith("award")}
-              >
-                <Plus className="w-4 h-4 mr-1" />
-                Add
-              </Button>
-            )}
           </div>
         ) : (
           <div className="space-y-3">
@@ -108,7 +100,9 @@ function AwardItem({
     <div className="flex items-start justify-between py-1 group">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-gray-900 truncate">{award.title}</span>
+          <span className="font-medium text-gray-900 truncate">
+            {award.title}
+          </span>
           <span className="text-sm text-gray-500 shrink-0">{award.year}</span>
         </div>
         {award.description && (
@@ -123,7 +117,10 @@ function AwardItem({
             variant="ghost"
             size="sm"
             onClick={onEdit}
-            disabled={currentlyEditing !== null && !currentlyEditing?.startsWith("award")}
+            disabled={
+              currentlyEditing !== null &&
+              !currentlyEditing?.startsWith("award")
+            }
             className="h-7 w-7 p-0 text-gray-400 hover:text-gray-600"
           >
             <Edit3 className="w-3.5 h-3.5" />
@@ -132,7 +129,10 @@ function AwardItem({
             variant="ghost"
             size="sm"
             onClick={onDelete}
-            disabled={currentlyEditing !== null && !currentlyEditing?.startsWith("award")}
+            disabled={
+              currentlyEditing !== null &&
+              !currentlyEditing?.startsWith("award")
+            }
             className="h-7 w-7 p-0 text-gray-400 hover:text-red-600"
           >
             <Trash2 className="w-3.5 h-3.5" />

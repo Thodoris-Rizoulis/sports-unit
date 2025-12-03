@@ -78,7 +78,7 @@ export function ProfileHero({
 
   return (
     <>
-      <Card className="w-full max-w-4xl mx-auto overflow-hidden">
+      <Card className="w-full overflow-hidden">
         <CardContent className="p-0">
           {/* Cover Image Section */}
           <div

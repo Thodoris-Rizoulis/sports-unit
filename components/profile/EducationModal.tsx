@@ -112,13 +112,20 @@ export function EducationModal({
       });
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.message || `Failed to ${isEditMode ? "update" : "add"} education`);
+        throw new Error(
+          error.message ||
+            `Failed to ${isEditMode ? "update" : "add"} education`
+        );
       }
       return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["education", uuid] });
-      toast.success(isEditMode ? "Education updated successfully" : "Education added successfully");
+      toast.success(
+        isEditMode
+          ? "Education updated successfully"
+          : "Education added successfully"
+      );
       onClose();
     },
     onError: (error: Error) => {
@@ -184,7 +191,9 @@ export function EducationModal({
                 {...register("yearFrom", { valueAsNumber: true })}
               />
               {errors.yearFrom && (
-                <p className="text-sm text-red-600">{errors.yearFrom.message}</p>
+                <p className="text-sm text-red-600">
+                  {errors.yearFrom.message}
+                </p>
               )}
             </div>
             <div className="space-y-2">
@@ -218,7 +227,9 @@ export function EducationModal({
             <Checkbox
               id="isCurrentlyStudying"
               checked={isCurrentlyStudying}
-              onCheckedChange={(checked) => setIsCurrentlyStudying(checked === true)}
+              onCheckedChange={(checked) =>
+                setIsCurrentlyStudying(checked === true)
+              }
             />
             <Label htmlFor="isCurrentlyStudying" className="cursor-pointer">
               I am currently studying here
@@ -244,10 +255,7 @@ export function EducationModal({
                 Cancel
               </Button>
             </DialogClose>
-            <Button
-              type="submit"
-              disabled={isSubmitting || mutation.isPending}
-            >
+            <Button type="submit" disabled={isSubmitting || mutation.isPending}>
               {mutation.isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />

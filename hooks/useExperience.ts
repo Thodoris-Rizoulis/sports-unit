@@ -11,7 +11,9 @@ export function useExperience(uuid: string | undefined) {
   return useQuery({
     queryKey: experienceKey(uuid!),
     queryFn: async (): Promise<ExperienceUI[]> => {
-      const res = await fetch(`/api/profile/${encodeURIComponent(uuid!)}/experience`);
+      const res = await fetch(
+        `/api/profile/${encodeURIComponent(uuid!)}/experience`
+      );
       if (!res.ok) throw new Error("Failed to fetch experience");
       const data = await res.json();
       return data.experiences;
@@ -28,11 +30,14 @@ export function useCreateExperience(uuid: string) {
 
   return useMutation({
     mutationFn: async (data: ExperienceInput): Promise<ExperienceUI> => {
-      const res = await fetch(`/api/profile/${encodeURIComponent(uuid)}/experience`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        `/api/profile/${encodeURIComponent(uuid)}/experience`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        }
+      );
       if (!res.ok) {
         const error = await res.json();
         throw new Error(error.error || "Failed to create experience");

@@ -11,7 +11,9 @@ export function useLanguages(uuid: string | undefined) {
   return useQuery({
     queryKey: languagesKey(uuid!),
     queryFn: async (): Promise<LanguageUI[]> => {
-      const res = await fetch(`/api/profile/${encodeURIComponent(uuid!)}/languages`);
+      const res = await fetch(
+        `/api/profile/${encodeURIComponent(uuid!)}/languages`
+      );
       if (!res.ok) throw new Error("Failed to fetch languages");
       const data = await res.json();
       return data.languages;
@@ -28,11 +30,14 @@ export function useCreateLanguage(uuid: string) {
 
   return useMutation({
     mutationFn: async (data: LanguageInput): Promise<LanguageUI> => {
-      const res = await fetch(`/api/profile/${encodeURIComponent(uuid)}/languages`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        `/api/profile/${encodeURIComponent(uuid)}/languages`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        }
+      );
       if (!res.ok) {
         const error = await res.json();
         throw new Error(error.error || "Failed to create language");
