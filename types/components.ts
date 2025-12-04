@@ -49,6 +49,7 @@ export type SportsDetailsProps = {
   value: SportsDetailsInput;
   onChange: (data: SportsDetailsInput) => void;
   errors?: Partial<Record<keyof SportsDetailsInput, string>>;
+  roleId?: number;
 };
 
 export type ReviewSubmitProps = {

@@ -28,11 +28,13 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { keyInfoSchema, KeyInfoFormInput } from "@/types/enhanced-profile";
 import { ExtendedUserProfile, Position } from "@/types/prisma";
 import { VALIDATION_CONSTANTS } from "@/lib/constants";
+import { keyInfoKey, KeyInfoData } from "@/hooks/useKeyInfo";
 
 type KeyInfoEditModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   profile: ExtendedUserProfile;
+  keyInfo: KeyInfoData | null | undefined;
 };
 
 /**
@@ -43,6 +45,7 @@ export function KeyInfoEditModal({
   open,
   onOpenChange,
   profile,
+  keyInfo,
 }: KeyInfoEditModalProps) {
   const queryClient = useQueryClient();
   const [selectedPositions, setSelectedPositions] = useState<number[]>([]);
@@ -71,25 +74,25 @@ export function KeyInfoEditModal({
   } = useForm<KeyInfoFormInput>({
     resolver: zodResolver(keyInfoSchema),
     defaultValues: {
-      dateOfBirth: profile.dateOfBirth || null,
-      height: profile.height || null,
-      positionIds: profile.positions || [],
-      strongFoot: profile.strongFoot as "left" | "right" | "both" | null,
+      dateOfBirth: keyInfo?.dateOfBirth || null,
+      height: keyInfo?.height || null,
+      positionIds: keyInfo?.positions || [],
+      strongFoot: keyInfo?.strongFoot as "left" | "right" | "both" | null,
     },
   });
 
   // Initialize selected positions when modal opens
   useEffect(() => {
     if (open) {
-      setSelectedPositions(profile.positions || []);
+      setSelectedPositions(keyInfo?.positions || []);
       reset({
-        dateOfBirth: profile.dateOfBirth || null,
-        height: profile.height || null,
-        positionIds: profile.positions || [],
-        strongFoot: profile.strongFoot as "left" | "right" | "both" | null,
+        dateOfBirth: keyInfo?.dateOfBirth || null,
+        height: keyInfo?.height || null,
+        positionIds: keyInfo?.positions || [],
+        strongFoot: keyInfo?.strongFoot as "left" | "right" | "both" | null,
       });
     }
-  }, [open, profile, reset]);
+  }, [open, keyInfo, reset]);
 
   const updateKeyInfoMutation = useMutation({
     mutationFn: async (data: KeyInfoFormInput) => {
@@ -112,7 +115,7 @@ export function KeyInfoEditModal({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["profile", profile.publicUuid],
+        queryKey: keyInfoKey(profile.publicUuid),
       });
       toast.success("Key information updated successfully");
       onOpenChange(false);

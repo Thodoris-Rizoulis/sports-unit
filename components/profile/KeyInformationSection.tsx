@@ -9,6 +9,7 @@ import { KeyInformationSectionProps } from "@/types/components";
 import { useQuery } from "@tanstack/react-query";
 import type { Position } from "@/types/prisma";
 import { KeyInfoEditModal } from "./KeyInfoEditModal";
+import { useKeyInfo } from "@/hooks/useKeyInfo";
 
 /**
  * KeyInformationSection - Displays athlete key information
@@ -22,7 +23,26 @@ export function KeyInformationSection({
 }: KeyInformationSectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Only show for athletes
+  // Hook must be called before any conditional returns
+  const { data: keyInfo, isLoading } = useKeyInfo(profile.publicUuid);
+
+  // Fetch positions to display names (must be before any conditional returns)
+  const { data: positions } = useQuery<Position[]>({
+    queryKey: ["positions", profile.sportId],
+    queryFn: async () => {
+      if (!profile.sportId) return [];
+      const res = await fetch(`/api/positions?sportId=${profile.sportId}`);
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.positions || data;
+    },
+    enabled:
+      profile.roleName === "athlete" &&
+      !!profile.sportId &&
+      !!keyInfo?.positions?.length,
+  });
+
+  // Only show for athletes (after all hooks)
   if (profile.roleName !== "athlete") {
     return null;
   }
@@ -39,19 +59,6 @@ export function KeyInformationSection({
     }
   };
 
-  // Fetch positions to display names
-  const { data: positions } = useQuery<Position[]>({
-    queryKey: ["positions", profile.sportId],
-    queryFn: async () => {
-      if (!profile.sportId) return [];
-      const res = await fetch(`/api/positions?sportId=${profile.sportId}`);
-      if (!res.ok) return [];
-      const data = await res.json();
-      return data.positions || data;
-    },
-    enabled: !!profile.sportId && !!profile.positions?.length,
-  });
-
   // Format date of birth
   const formatDateOfBirth = (date: Date | null) => {
     if (!date) return "Not specified";
@@ -63,35 +70,29 @@ export function KeyInformationSection({
   };
 
   // Calculate age from DOB
-  // Returns null if date is invalid, in the future, or results in age <= 0
   const calculateAge = (date: Date | null) => {
     if (!date) return null;
     const dob = new Date(date);
     const today = new Date();
-
-    // Check if birth date is in the future
     if (dob > today) return null;
-
     let age = today.getFullYear() - dob.getFullYear();
     const monthDiff = today.getMonth() - dob.getMonth();
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
       age--;
     }
-
-    // Return null for invalid ages (0 or negative)
     return age > 0 ? age : null;
   };
 
   // Get position names from IDs
   const getPositionNames = () => {
-    if (!profile.positions || profile.positions.length === 0) {
+    if (!keyInfo?.positions || keyInfo.positions.length === 0) {
       return "Not specified";
     }
     if (!positions || positions.length === 0) {
-      return profile.positions.join(", ");
+      return keyInfo.positions.join(", ");
     }
-    const positionNames = profile.positions
-      .map((id) => positions.find((p) => p.id === id)?.name)
+    const positionNames = keyInfo.positions
+      .map((id: number) => positions.find((p) => p.id === id)?.name)
       .filter(Boolean);
     return positionNames.length > 0
       ? positionNames.join(", ")
@@ -110,7 +111,11 @@ export function KeyInformationSection({
     return foot.charAt(0).toUpperCase() + foot.slice(1);
   };
 
-  const age = calculateAge(profile.dateOfBirth);
+  if (isLoading) {
+    return <KeyInformationSectionSkeleton />;
+  }
+
+  const age = calculateAge(keyInfo?.dateOfBirth ?? null);
 
   return (
     <>
@@ -149,7 +154,7 @@ export function KeyInformationSection({
               <div>
                 <p className="text-sm text-muted-foreground">Date of Birth</p>
                 <p className="font-medium">
-                  {formatDateOfBirth(profile.dateOfBirth)}
+                  {formatDateOfBirth(keyInfo?.dateOfBirth ?? null)}
                   {age !== null && age > 0 && (
                     <span className="text-muted-foreground font-normal ml-1">
                       ({age} years old)
@@ -164,7 +169,9 @@ export function KeyInformationSection({
               <Ruler className="w-5 h-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm text-muted-foreground">Height</p>
-                <p className="font-medium">{formatHeight(profile.height)}</p>
+                <p className="font-medium">
+                  {formatHeight(keyInfo?.height ?? null)}
+                </p>
               </div>
             </div>
 
@@ -183,7 +190,7 @@ export function KeyInformationSection({
               <div>
                 <p className="text-sm text-muted-foreground">Strong Foot</p>
                 <p className="font-medium">
-                  {formatStrongFoot(profile.strongFoot)}
+                  {formatStrongFoot(keyInfo?.strongFoot ?? null)}
                 </p>
               </div>
             </div>
@@ -196,6 +203,7 @@ export function KeyInformationSection({
         open={isModalOpen}
         onOpenChange={handleCloseModal}
         profile={profile}
+        keyInfo={keyInfo}
       />
     </>
   );

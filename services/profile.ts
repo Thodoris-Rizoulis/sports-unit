@@ -304,6 +304,39 @@ export async function getExtendedUserProfileById(
 }
 
 /**
+ * Get key information fields for a user by UUID
+ */
+export async function getKeyInfo(uuid: string): Promise<{
+  dateOfBirth: Date | null;
+  height: number | null;
+  positions: number[] | null;
+  strongFoot: string | null;
+} | null> {
+  const user = await prisma.user.findUnique({
+    where: { publicUuid: uuid },
+    include: {
+      attributes: {
+        select: {
+          dateOfBirth: true,
+          height: true,
+          positions: true,
+          strongFoot: true,
+        },
+      },
+    },
+  });
+
+  if (!user || !user.attributes) return null;
+
+  return {
+    dateOfBirth: user.attributes.dateOfBirth,
+    height: user.attributes.height,
+    positions: user.attributes.positions as number[] | null,
+    strongFoot: user.attributes.strongFoot,
+  };
+}
+
+/**
  * Update key information fields (DOB, height, positions, strongFoot) for athletes
  */
 export async function updateKeyInfo(

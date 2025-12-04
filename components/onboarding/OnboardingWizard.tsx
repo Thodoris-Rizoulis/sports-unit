@@ -13,6 +13,9 @@ import { ReviewSubmit } from "./ReviewSubmit";
 import { OnboardingInput, onboardingSchema } from "@/types/onboarding";
 import { OnboardingWizardProps } from "@/types/components";
 
+// Role ID for athlete (first role inserted in database)
+const ATHLETE_ROLE_ID = 1;
+
 const STEPS = [
   { id: "role-username", title: "Role & Username", required: true },
   { id: "basic-profile", title: "Basic Profile", required: true },
@@ -119,7 +122,9 @@ export function OnboardingWizard({
           setErrors({ sportId: "Please select a sport" });
           return false;
         }
-        if (!stepData.sportsDetails?.positionIds?.length) {
+        // Only require positions for athletes
+        const isAthlete = stepData.roleId === ATHLETE_ROLE_ID;
+        if (isAthlete && !stepData.sportsDetails?.positionIds?.length) {
           setErrors({ positionIds: "Please select at least one position" });
           return false;
         }
@@ -220,6 +225,7 @@ export function OnboardingWizard({
               openToOpportunities: errors.openToOpportunities,
               strongFoot: errors.strongFoot,
             }}
+            roleId={data.roleId}
           />
         );
       case 3:

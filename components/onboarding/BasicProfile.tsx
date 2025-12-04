@@ -10,7 +10,29 @@ import { BasicProfileProps } from "@/types/components";
 // Regex to match only English letters, spaces, hyphens, and apostrophes
 const ENGLISH_NAME_REGEX = /^[a-zA-Z\s'-]*$/;
 
+// Date constraints for birth date
+const getDateConstraints = () => {
+  const today = new Date();
+  // Maximum date: 10 years ago (minimum age)
+  const maxDate = new Date(
+    today.getFullYear() - 10,
+    today.getMonth(),
+    today.getDate()
+  );
+  // Minimum date: 100 years ago (maximum age)
+  const minDate = new Date(
+    today.getFullYear() - 100,
+    today.getMonth(),
+    today.getDate()
+  );
+  return {
+    min: minDate.toISOString().split("T")[0],
+    max: maxDate.toISOString().split("T")[0],
+  };
+};
+
 export function BasicProfile({ value, onChange, errors }: BasicProfileProps) {
+  const dateConstraints = getDateConstraints();
   const updateField = <K extends keyof BasicProfileInput>(
     field: K,
     newValue: BasicProfileInput[K]
@@ -138,8 +160,13 @@ export function BasicProfile({ value, onChange, errors }: BasicProfileProps) {
                 e.target.value ? new Date(e.target.value) : undefined
               )
             }
+            min={dateConstraints.min}
+            max={dateConstraints.max}
             className={errors?.dateOfBirth ? "border-destructive" : ""}
           />
+          <p className="text-xs text-muted-foreground">
+            Must be at least 10 years old
+          </p>
           {errors?.dateOfBirth && (
             <p className="text-sm text-destructive">{errors.dateOfBirth}</p>
           )}

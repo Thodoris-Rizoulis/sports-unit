@@ -11,11 +11,21 @@ import { SportsDetailsInput } from "@/types/sports";
 import { SportsDetailsProps } from "@/types/components";
 import { cn } from "@/lib/utils";
 
-export function SportsDetails({ value, onChange, errors }: SportsDetailsProps) {
+// Role ID for athlete (first role inserted in database)
+const ATHLETE_ROLE_ID = 1;
+
+export function SportsDetails({
+  value,
+  onChange,
+  errors,
+  roleId,
+}: SportsDetailsProps) {
   const [sports, setSports] = useState<Sport[]>([]);
   const [positions, setPositions] = useState<Position[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const isAthlete = roleId === ATHLETE_ROLE_ID;
 
   useEffect(() => {
     const loadData = async () => {
@@ -124,38 +134,40 @@ export function SportsDetails({ value, onChange, errors }: SportsDetailsProps) {
 
       {value.sportId && (
         <>
-          <div className="space-y-2">
-            <Label>
-              Positions * (max {VALIDATION_CONSTANTS.SPORTS.MAX_POSITIONS})
-            </Label>
-            <div className="flex flex-wrap gap-2">
-              {positions.map((position) => (
-                <Badge
-                  key={position.id}
-                  variant={
-                    value.positionIds.includes(position.id)
-                      ? "default"
-                      : "outline"
-                  }
-                  className="cursor-pointer"
-                  onClick={() => handlePositionToggle(position.id)}
-                >
-                  {position.name}
-                  {value.positionIds.includes(position.id) && (
-                    <X className="ml-1 h-3 w-3" />
-                  )}
-                </Badge>
-              ))}
+          {isAthlete && (
+            <div className="space-y-2">
+              <Label>
+                Positions * (max {VALIDATION_CONSTANTS.SPORTS.MAX_POSITIONS})
+              </Label>
+              <div className="flex flex-wrap gap-2">
+                {positions.map((position) => (
+                  <Badge
+                    key={position.id}
+                    variant={
+                      value.positionIds.includes(position.id)
+                        ? "default"
+                        : "outline"
+                    }
+                    className="cursor-pointer"
+                    onClick={() => handlePositionToggle(position.id)}
+                  >
+                    {position.name}
+                    {value.positionIds.includes(position.id) && (
+                      <X className="ml-1 h-3 w-3" />
+                    )}
+                  </Badge>
+                ))}
+              </div>
+              {selectedPositions.length > 0 && (
+                <p className="text-sm text-muted-foreground">
+                  Selected: {selectedPositions.map((p) => p.name).join(", ")}
+                </p>
+              )}
+              {errors?.positionIds && (
+                <p className="text-sm text-destructive">{errors.positionIds}</p>
+              )}
             </div>
-            {selectedPositions.length > 0 && (
-              <p className="text-sm text-muted-foreground">
-                Selected: {selectedPositions.map((p) => p.name).join(", ")}
-              </p>
-            )}
-            {errors?.positionIds && (
-              <p className="text-sm text-destructive">{errors.positionIds}</p>
-            )}
-          </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="team">
@@ -194,43 +206,50 @@ export function SportsDetails({ value, onChange, errors }: SportsDetailsProps) {
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="strongFoot">
-              Strong Foot{" "}
-              <span className="text-sm text-muted-foreground">(optional)</span>
-            </Label>
-            <div className="relative">
-              <select
-                id="strongFoot"
-                value={value.strongFoot || ""}
-                onChange={(e) =>
-                  updateField(
-                    "strongFoot",
-                    (e.target.value as "left" | "right" | "both" | undefined) ||
-                      undefined
-                  )
-                }
-                className={cn(
-                  "flex h-9 w-full appearance-none rounded-md border border-input bg-transparent px-3 py-2 pr-8 text-sm shadow-xs transition-colors",
-                  "focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
-                  "disabled:cursor-not-allowed disabled:opacity-50",
-                  !value.strongFoot && "text-muted-foreground",
-                  errors?.strongFoot && "border-destructive"
-                )}
-              >
-                <option value="">Select your strong foot (optional)</option>
-                {VALIDATION_CONSTANTS.STRONG_FOOT_OPTIONS.map((foot) => (
-                  <option key={foot} value={foot}>
-                    {foot.charAt(0).toUpperCase() + foot.slice(1)}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-50" />
+          {isAthlete && (
+            <div className="space-y-2">
+              <Label htmlFor="strongFoot">
+                Strong Foot{" "}
+                <span className="text-sm text-muted-foreground">
+                  (optional)
+                </span>
+              </Label>
+              <div className="relative">
+                <select
+                  id="strongFoot"
+                  value={value.strongFoot || ""}
+                  onChange={(e) =>
+                    updateField(
+                      "strongFoot",
+                      (e.target.value as
+                        | "left"
+                        | "right"
+                        | "both"
+                        | undefined) || undefined
+                    )
+                  }
+                  className={cn(
+                    "flex h-9 w-full appearance-none rounded-md border border-input bg-transparent px-3 py-2 pr-8 text-sm shadow-xs transition-colors",
+                    "focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                    "disabled:cursor-not-allowed disabled:opacity-50",
+                    !value.strongFoot && "text-muted-foreground",
+                    errors?.strongFoot && "border-destructive"
+                  )}
+                >
+                  <option value="">Select your strong foot (optional)</option>
+                  {VALIDATION_CONSTANTS.STRONG_FOOT_OPTIONS.map((foot) => (
+                    <option key={foot} value={foot}>
+                      {foot.charAt(0).toUpperCase() + foot.slice(1)}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-50" />
+              </div>
+              {errors?.strongFoot && (
+                <p className="text-sm text-destructive">{errors.strongFoot}</p>
+              )}
             </div>
-            {errors?.strongFoot && (
-              <p className="text-sm text-destructive">{errors.strongFoot}</p>
-            )}
-          </div>
+          )}
 
           <div className="flex items-center space-x-2">
             <Checkbox
