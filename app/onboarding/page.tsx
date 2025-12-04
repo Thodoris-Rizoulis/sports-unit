@@ -1,7 +1,6 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
 import { OnboardingInput } from "@/types/onboarding";
 import SessionGuard from "@/components/SessionGuard";
@@ -9,7 +8,6 @@ import { getProfileUrl } from "@/lib/utils";
 
 export default function Onboarding() {
   const { data: session, update } = useSession();
-  const router = useRouter();
 
   const handleComplete = async (data: OnboardingInput) => {
     console.log("handleComplete started");
@@ -22,6 +20,9 @@ export default function Onboarding() {
 
       console.log("API response:", response.ok);
       if (response.ok) {
+        // Clear onboarding data from localStorage
+        localStorage.removeItem("onboarding-data");
+        
         // Update session first to refresh the token for proxy
         console.log("Updating session first");
         await update();
@@ -34,17 +35,20 @@ export default function Onboarding() {
             const profile = await res.json();
             const url = getProfileUrl(profile);
             console.log("Redirecting to profile:", url);
-            router.replace(url);
+            // Use window.location for reliable redirect after session update
+            window.location.href = url;
             return;
           }
         } catch (e) {
-          // ignore and fall back to home
+          console.error("Failed to fetch profile:", e);
         }
 
-        // Fallback: go home
-        router.replace("/");
+        // Fallback: go to dashboard
+        console.log("Fallback: redirecting to dashboard");
+        window.location.href = "/dashboard";
       } else {
-        console.error("Onboarding failed");
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Onboarding failed:", errorData);
       }
     } catch (error) {
       console.error("Onboarding error:", error);
