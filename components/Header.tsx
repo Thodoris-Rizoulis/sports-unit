@@ -11,6 +11,7 @@ import {
   UserIcon,
   BookmarkIcon,
   XMarkIcon,
+  Bars3Icon,
 } from "@heroicons/react/24/solid";
 import { SearchUserResult } from "@/types/prisma";
 import { Spinner } from "@/components/ui/spinner";
@@ -19,6 +20,7 @@ import { InboxDropdown } from "@/components/messaging/InboxDropdown";
 import { InboxBadge } from "@/components/messaging/InboxBadge";
 import { useUnreadMessageCount } from "@/hooks/useMessaging";
 import { InboxIcon } from "@heroicons/react/24/solid";
+import { MobileMenuSheet } from "@/components/navigation";
 
 const navigationItems = [
   { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
@@ -59,6 +61,7 @@ export default function Header() {
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Debounce search query
@@ -337,20 +340,26 @@ export default function Header() {
                 : "text-muted-foreground hover:text-primary hover:bg-accent"
             }`}
           />
-          {profileHref && (
-            <Link
-              href={profileHref}
-              className={`flex flex-col items-center justify-center px-2 py-1 rounded-lg text-xs font-medium transition-colors ${
-                pathname.startsWith("/profile")
-                  ? "text-primary bg-accent"
-                  : "text-muted-foreground hover:text-primary hover:bg-accent"
-              }`}
-            >
-              <UserIcon className="h-5 w-5" />
-            </Link>
-          )}
+          {/* More Menu Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(true)}
+            className={`flex flex-col items-center justify-center px-2 py-1 rounded-lg text-xs font-medium transition-colors ${
+              isMobileMenuOpen
+                ? "text-primary bg-accent"
+                : "text-muted-foreground hover:text-primary hover:bg-accent"
+            }`}
+            aria-label="Open menu"
+          >
+            <Bars3Icon className="h-5 w-5" />
+          </button>
         </div>
       </nav>
+
+      {/* Mobile Menu Sheet */}
+      <MobileMenuSheet
+        open={isMobileMenuOpen}
+        onOpenChange={setIsMobileMenuOpen}
+      />
     </>
   );
 }
