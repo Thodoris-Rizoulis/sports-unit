@@ -57,8 +57,8 @@ export function getProfileUrl(profile: {
 
 // URL detection regex - matches http/https URLs
 const URL_REGEX = /(https?:\/\/[^\s]+)/g;
-// Markdown link regex - matches [title](url)
-const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\((https?:\/\/[^\s]+)\)/g;
+// Markdown link regex - matches [title](url) - excludes ) from URL to properly terminate
+const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
 // Hashtag detection regex - matches # followed by alphanumeric and underscores
 const HASHTAG_INLINE_REGEX = /(#[a-zA-Z0-9_]+)/g;
 
@@ -73,6 +73,9 @@ export type TextPart =
 export function parseTextWithLinks(text: string): TextPart[] {
   const parts: TextPart[] = [];
   let lastIndex = 0;
+
+  // Reset regex lastIndex to ensure fresh search
+  MARKDOWN_LINK_REGEX.lastIndex = 0;
 
   // First, handle markdown-style links [title](url)
   let match;
