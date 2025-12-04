@@ -3,19 +3,13 @@
 import { useState, useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
+import { X, ChevronDown } from "lucide-react";
 import { VALIDATION_CONSTANTS } from "@/lib/constants";
 import { Sport, Position, Team } from "@/types/prisma";
 import { SportsDetailsInput } from "@/types/sports";
 import { SportsDetailsProps } from "@/types/components";
+import { cn } from "@/lib/utils";
 
 export function SportsDetails({ value, onChange, errors }: SportsDetailsProps) {
   const [sports, setSports] = useState<Sport[]>([]);
@@ -99,23 +93,30 @@ export function SportsDetails({ value, onChange, errors }: SportsDetailsProps) {
 
       <div className="space-y-2">
         <Label htmlFor="sport">Sport *</Label>
-        <Select
-          value={value.sportId?.toString()}
-          onValueChange={(sportId) => updateField("sportId", parseInt(sportId))}
-        >
-          <SelectTrigger
-            className={errors?.sportId ? "border-destructive" : ""}
+        <div className="relative">
+          <select
+            id="sport"
+            value={value.sportId?.toString() || ""}
+            onChange={(e) => updateField("sportId", parseInt(e.target.value))}
+            className={cn(
+              "flex h-9 w-full appearance-none rounded-md border border-input bg-transparent px-3 py-2 pr-8 text-sm shadow-xs transition-colors",
+              "focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+              "disabled:cursor-not-allowed disabled:opacity-50",
+              !value.sportId && "text-muted-foreground",
+              errors?.sportId && "border-destructive"
+            )}
           >
-            <SelectValue placeholder="Select a sport" />
-          </SelectTrigger>
-          <SelectContent>
+            <option value="" disabled>
+              Select a sport
+            </option>
             {sports.map((sport) => (
-              <SelectItem key={sport.id} value={sport.id.toString()}>
+              <option key={sport.id} value={sport.id.toString()}>
                 {sport.name}
-              </SelectItem>
+              </option>
             ))}
-          </SelectContent>
-        </Select>
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-50" />
+        </div>
         {errors?.sportId && (
           <p className="text-sm text-destructive">{errors.sportId}</p>
         )}
@@ -161,25 +162,33 @@ export function SportsDetails({ value, onChange, errors }: SportsDetailsProps) {
               Current Team{" "}
               <span className="text-sm text-muted-foreground">(optional)</span>
             </Label>
-            <Select
-              value={value.teamId?.toString()}
-              onValueChange={(teamId) =>
-                updateField("teamId", teamId ? parseInt(teamId) : undefined)
-              }
-            >
-              <SelectTrigger
-                className={errors?.teamId ? "border-destructive" : ""}
+            <div className="relative">
+              <select
+                id="team"
+                value={value.teamId?.toString() || ""}
+                onChange={(e) =>
+                  updateField(
+                    "teamId",
+                    e.target.value ? parseInt(e.target.value) : undefined
+                  )
+                }
+                className={cn(
+                  "flex h-9 w-full appearance-none rounded-md border border-input bg-transparent px-3 py-2 pr-8 text-sm shadow-xs transition-colors",
+                  "focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                  "disabled:cursor-not-allowed disabled:opacity-50",
+                  !value.teamId && "text-muted-foreground",
+                  errors?.teamId && "border-destructive"
+                )}
               >
-                <SelectValue placeholder="Select your current team (optional)" />
-              </SelectTrigger>
-              <SelectContent>
+                <option value="">Select your current team (optional)</option>
                 {teams.map((team) => (
-                  <SelectItem key={team.id} value={team.id.toString()}>
+                  <option key={team.id} value={team.id.toString()}>
                     {team.name}
-                  </SelectItem>
+                  </option>
                 ))}
-              </SelectContent>
-            </Select>
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-50" />
+            </div>
             {errors?.teamId && (
               <p className="text-sm text-destructive">{errors.teamId}</p>
             )}
@@ -190,28 +199,34 @@ export function SportsDetails({ value, onChange, errors }: SportsDetailsProps) {
               Strong Foot{" "}
               <span className="text-sm text-muted-foreground">(optional)</span>
             </Label>
-            <Select
-              value={value.strongFoot}
-              onValueChange={(strongFoot) =>
-                updateField(
-                  "strongFoot",
-                  strongFoot as "left" | "right" | "both"
-                )
-              }
-            >
-              <SelectTrigger
-                className={errors?.strongFoot ? "border-destructive" : ""}
+            <div className="relative">
+              <select
+                id="strongFoot"
+                value={value.strongFoot || ""}
+                onChange={(e) =>
+                  updateField(
+                    "strongFoot",
+                    (e.target.value as "left" | "right" | "both" | undefined) ||
+                      undefined
+                  )
+                }
+                className={cn(
+                  "flex h-9 w-full appearance-none rounded-md border border-input bg-transparent px-3 py-2 pr-8 text-sm shadow-xs transition-colors",
+                  "focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                  "disabled:cursor-not-allowed disabled:opacity-50",
+                  !value.strongFoot && "text-muted-foreground",
+                  errors?.strongFoot && "border-destructive"
+                )}
               >
-                <SelectValue placeholder="Select your strong foot (optional)" />
-              </SelectTrigger>
-              <SelectContent>
+                <option value="">Select your strong foot (optional)</option>
                 {VALIDATION_CONSTANTS.STRONG_FOOT_OPTIONS.map((foot) => (
-                  <SelectItem key={foot} value={foot}>
+                  <option key={foot} value={foot}>
                     {foot.charAt(0).toUpperCase() + foot.slice(1)}
-                  </SelectItem>
+                  </option>
                 ))}
-              </SelectContent>
-            </Select>
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-50" />
+            </div>
             {errors?.strongFoot && (
               <p className="text-sm text-destructive">{errors.strongFoot}</p>
             )}

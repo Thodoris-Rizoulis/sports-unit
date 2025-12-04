@@ -7,6 +7,9 @@ import { VALIDATION_CONSTANTS } from "@/lib/constants";
 import { BasicProfileInput } from "@/types/profile";
 import { BasicProfileProps } from "@/types/components";
 
+// Regex to match only English letters, spaces, hyphens, and apostrophes
+const ENGLISH_NAME_REGEX = /^[a-zA-Z\s'-]*$/;
+
 export function BasicProfile({ value, onChange, errors }: BasicProfileProps) {
   const updateField = <K extends keyof BasicProfileInput>(
     field: K,
@@ -16,6 +19,17 @@ export function BasicProfile({ value, onChange, errors }: BasicProfileProps) {
       ...value,
       [field]: newValue,
     });
+  };
+
+  // Filter input to only allow English characters for names
+  const handleNameChange = (
+    field: "firstName" | "lastName",
+    inputValue: string
+  ) => {
+    // Only allow English letters, spaces, hyphens, and apostrophes
+    if (ENGLISH_NAME_REGEX.test(inputValue)) {
+      updateField(field, inputValue);
+    }
   };
 
   return (
@@ -33,11 +47,14 @@ export function BasicProfile({ value, onChange, errors }: BasicProfileProps) {
           <Input
             id="firstName"
             type="text"
-            placeholder="Enter your first name"
+            placeholder="Enter your first name (English only)"
             value={value.firstName}
-            onChange={(e) => updateField("firstName", e.target.value)}
+            onChange={(e) => handleNameChange("firstName", e.target.value)}
             className={errors?.firstName ? "border-destructive" : ""}
           />
+          <p className="text-xs text-muted-foreground">
+            Only English letters allowed
+          </p>
           {errors?.firstName && (
             <p className="text-sm text-destructive">{errors.firstName}</p>
           )}
@@ -48,11 +65,14 @@ export function BasicProfile({ value, onChange, errors }: BasicProfileProps) {
           <Input
             id="lastName"
             type="text"
-            placeholder="Enter your last name"
+            placeholder="Enter your last name (English only)"
             value={value.lastName}
-            onChange={(e) => updateField("lastName", e.target.value)}
+            onChange={(e) => handleNameChange("lastName", e.target.value)}
             className={errors?.lastName ? "border-destructive" : ""}
           />
+          <p className="text-xs text-muted-foreground">
+            Only English letters allowed
+          </p>
           {errors?.lastName && (
             <p className="text-sm text-destructive">{errors.lastName}</p>
           )}
