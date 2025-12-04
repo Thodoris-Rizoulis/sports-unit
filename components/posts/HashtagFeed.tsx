@@ -49,6 +49,18 @@ export function HashtagFeed({ hashtag }: HashtagFeedProps) {
       lastPage.hasMore ? lastPage.nextCursor ?? undefined : undefined,
   });
 
+  const posts = data?.pages.flatMap((page) => page.posts) ?? [];
+
+  // Local state for immediate UI updates - MUST be before any conditional returns
+  const [localPosts, setLocalPosts] = useState<Post[]>([]);
+
+  // Sync local state with fetched data
+  useEffect(() => {
+    if (posts.length > 0 || !isLoading) {
+      setLocalPosts(posts);
+    }
+  }, [data, isLoading]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Auto-fetch when scrolling to bottom
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -56,6 +68,17 @@ export function HashtagFeed({ hashtag }: HashtagFeedProps) {
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  const handlePostDeleted = useCallback((postId: number) => {
+    setLocalPosts((prev) => prev.filter((p) => p.id !== postId));
+  }, []);
+
+  const handlePostUpdated = useCallback((updatedPost: Post) => {
+    setLocalPosts((prev) =>
+      prev.map((p) => (p.id === updatedPost.id ? updatedPost : p))
+    );
+  }, []);
+
+  // Conditional returns AFTER all hooks
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -73,27 +96,7 @@ export function HashtagFeed({ hashtag }: HashtagFeedProps) {
     );
   }
 
-  const posts = data?.pages.flatMap((page) => page.posts) ?? [];
-
-  // Local state for immediate UI updates
-  const [localPosts, setLocalPosts] = useState<Post[]>([]);
-
-  // Sync local state with fetched data
-  useEffect(() => {
-    setLocalPosts(posts);
-  }, [data]); // Only depend on data changes
-
-  const handlePostDeleted = useCallback((postId: number) => {
-    setLocalPosts((prev) => prev.filter((p) => p.id !== postId));
-  }, []);
-
-  const handlePostUpdated = useCallback((updatedPost: Post) => {
-    setLocalPosts((prev) =>
-      prev.map((p) => (p.id === updatedPost.id ? updatedPost : p))
-    );
-  }, []);
-
-  if (localPosts.length === 0 && !isLoading) {
+  if (localPosts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
         <Hash className="h-12 w-12 mb-4 opacity-50" />
