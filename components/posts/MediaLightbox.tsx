@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { PostMediaItem } from "@/types/prisma";
 
 interface MediaLightboxProps {
@@ -57,7 +58,13 @@ export function MediaLightbox({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl w-full h-full max-h-[90vh] p-0 bg-black/95 border-none">
+      <DialogContent
+        className="max-w-4xl w-full h-full max-h-[90vh] p-0 bg-black/95 border-none"
+        showCloseButton={false}
+      >
+        <VisuallyHidden.Root asChild>
+          <DialogTitle>Media viewer</DialogTitle>
+        </VisuallyHidden.Root>
         <div className="relative w-full h-full flex items-center justify-center">
           {/* Close button */}
           <Button

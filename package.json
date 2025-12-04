@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "node --no-warnings=ExperimentalWarning --disable-warning=baseline-browser-mapping scripts/suppress-warnings.js dev",
+    "build": "node --no-warnings=ExperimentalWarning scripts/suppress-warnings.js build",
     "start": "next start",
     "lint": "eslint",
     "create-db": "tsx migrations/init/create-db.ts"
@@ -67,6 +67,8 @@
     "react-intersection-observer": "^10.0.0",
     "react-resizable-panels": "^3.0.6",
     "recharts": "^2.15.4",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.17",
@@ -79,7 +81,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
-    "baseline-browser-mapping": "^2.8.32",
+    "baseline-browser-mapping": "^2.9.0",
     "eslint": "^9",
     "eslint-config-next": "16.0.3",
     "tsx": "^4.20.6",

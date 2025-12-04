@@ -72,92 +72,100 @@ export function PostMediaDisplay({ media }: PostMediaDisplayProps) {
   // Multiple images (grid layout)
   if (media.every((m) => m.mediaType === "image")) {
     return (
-      <div className="mt-4 grid gap-2 rounded-lg overflow-hidden border">
-        {media.length === 2 && (
-          <div className="grid grid-cols-2 gap-2">
-            {media.map((item, index) => {
-              const imageUrl =
-                item.url ||
-                `${process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL}/${item.key}`;
-              return (
-                <Image
-                  key={item.id}
-                  src={imageUrl}
-                  alt="Post image"
-                  width={300}
-                  height={300}
-                  className="w-full h-48 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                  loading="lazy"
-                  onClick={() => openLightbox(index)}
-                />
-              );
-            })}
-          </div>
-        )}
-        {media.length === 3 && (
-          <div className="grid grid-cols-2 gap-2">
-            <Image
-              src={
-                media[0].url ||
-                `${process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL}/${media[0].key}`
-              }
-              alt="Post image"
-              width={300}
-              height={300}
-              className="w-full h-48 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-              loading="lazy"
-              onClick={() => openLightbox(0)}
-            />
-            <div className="grid grid-rows-2 gap-2">
-              <Image
-                src={
-                  media[1].url ||
-                  `${process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL}/${media[1].key}`
-                }
-                alt="Post image"
-                width={300}
-                height={150}
-                className="w-full h-24 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                loading="lazy"
-                onClick={() => openLightbox(1)}
-              />
-              <Image
-                src={
-                  media[2].url ||
-                  `${process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL}/${media[2].key}`
-                }
-                alt="Post image"
-                width={300}
-                height={150}
-                className="w-full h-24 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                loading="lazy"
-                onClick={() => openLightbox(2)}
-              />
+      <>
+        <div className="mt-4 grid gap-2 rounded-lg overflow-hidden border">
+          {media.length === 2 && (
+            <div className="grid grid-cols-2 gap-2">
+              {media.map((item, index) => {
+                const imageUrl =
+                  item.url ||
+                  `${process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL}/${item.key}`;
+                return (
+                  <Image
+                    key={item.id}
+                    src={imageUrl}
+                    alt="Post image"
+                    width={300}
+                    height={300}
+                    className="w-full h-48 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                    loading="lazy"
+                    onClick={() => openLightbox(index)}
+                  />
+                );
+              })}
             </div>
-          </div>
-        )}
-        {media.length >= 4 && (
-          <div className="grid grid-cols-2 gap-2">
-            {media.slice(0, 4).map((item, index) => {
-              const imageUrl =
-                item.url ||
-                `${process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL}/${item.key}`;
-              return (
+          )}
+          {media.length === 3 && (
+            <div className="grid grid-cols-2 gap-2">
+              <Image
+                src={
+                  media[0].url ||
+                  `${process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL}/${media[0].key}`
+                }
+                alt="Post image"
+                width={300}
+                height={300}
+                className="w-full h-48 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                loading="lazy"
+                onClick={() => openLightbox(0)}
+              />
+              <div className="grid grid-rows-2 gap-2">
                 <Image
-                  key={item.id}
-                  src={imageUrl}
+                  src={
+                    media[1].url ||
+                    `${process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL}/${media[1].key}`
+                  }
                   alt="Post image"
                   width={300}
-                  height={300}
-                  className="w-full h-48 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                  height={150}
+                  className="w-full h-24 object-cover cursor-pointer hover:opacity-90 transition-opacity"
                   loading="lazy"
-                  onClick={() => openLightbox(index)}
+                  onClick={() => openLightbox(1)}
                 />
-              );
-            })}
-          </div>
-        )}
-      </div>
+                <Image
+                  src={
+                    media[2].url ||
+                    `${process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL}/${media[2].key}`
+                  }
+                  alt="Post image"
+                  width={300}
+                  height={150}
+                  className="w-full h-24 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                  loading="lazy"
+                  onClick={() => openLightbox(2)}
+                />
+              </div>
+            </div>
+          )}
+          {media.length >= 4 && (
+            <div className="grid grid-cols-2 gap-2">
+              {media.slice(0, 4).map((item, index) => {
+                const imageUrl =
+                  item.url ||
+                  `${process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL}/${item.key}`;
+                return (
+                  <Image
+                    key={item.id}
+                    src={imageUrl}
+                    alt="Post image"
+                    width={300}
+                    height={300}
+                    className="w-full h-48 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                    loading="lazy"
+                    onClick={() => openLightbox(index)}
+                  />
+                );
+              })}
+            </div>
+          )}
+        </div>
+        <MediaLightbox
+          media={media}
+          initialIndex={lightboxIndex}
+          isOpen={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+        />
+      </>
     );
   }
 

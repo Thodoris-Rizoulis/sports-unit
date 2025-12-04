@@ -2,19 +2,64 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, Edit3 } from "lucide-react";
+import { CheckCircle, Edit3, MessageSquare, Loader2 } from "lucide-react";
 import { useUpdateProfile, useProfile } from "@/hooks/useProfile";
 import { EditProfileForm } from "@/types/profile";
-import { useRouter } from "next/navigation";
 import { getProfileUrl } from "@/lib/utils";
 import { ProfileHeroProps } from "@/types/components";
 import { Button } from "@/components/ui/button";
 import { EditProfileModal } from "./EditProfileModal";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { ConnectionButton } from "@/components/connections/ConnectionButton";
+import { useConnectionStatus } from "@/hooks/useConnectionStatus";
+import { useGetOrCreateConversation } from "@/hooks/useMessaging";
+
+/**
+ * SendMessageButton Component
+ * Shows "Send message" button for connected users only
+ */
+function SendMessageButton({ targetUserId }: { targetUserId: number }) {
+  const router = useRouter();
+  const { data: connectionStatus } = useConnectionStatus(targetUserId);
+  const getOrCreateConversation = useGetOrCreateConversation();
+
+  // Only show for connected users
+  const isConnected = connectionStatus?.status === "connected";
+
+  if (!isConnected) {
+    return null;
+  }
+
+  const handleClick = async () => {
+    try {
+      const result = await getOrCreateConversation.mutateAsync(targetUserId);
+      // Navigate to inbox with the conversation
+      router.push(`/inbox?c=${result.id}`);
+    } catch (error) {
+      console.error("Failed to create conversation:", error);
+    }
+  };
+
+  return (
+    <Button
+      onClick={handleClick}
+      variant="outline"
+      disabled={getOrCreateConversation.isPending}
+      className="gap-2"
+    >
+      {getOrCreateConversation.isPending ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : (
+        <MessageSquare className="h-4 w-4" />
+      )}
+      Message
+    </Button>
+  );
+}
 
 export function ProfileHero({
   profile,
@@ -213,8 +258,9 @@ export function ProfileHero({
               </div>
 
               {!isOwner && (
-                <div className="flex-shrink-0">
+                <div className="flex-shrink-0 flex items-center gap-2">
                   <ConnectionButton targetUserId={activeProfile.userId} />
+                  <SendMessageButton targetUserId={activeProfile.userId} />
                 </div>
               )}
             </div>

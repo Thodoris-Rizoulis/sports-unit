@@ -14,6 +14,11 @@ Auto-generated from all feature plans. Last updated: 2025-11-30
 - PostgreSQL (existing database) (011-profile-analytics)
 - TypeScript (Next.js 14+) + Next.js, TypeScript, shadcn/ui, Tailwind CSS, Prisma ORM, Zod, React Hook Form, NextAuth.js (012-enhanced-profile-sections)
 - PostgreSQL (existing) with 6 new tables (012-enhanced-profile-sections)
+- TypeScript 5.x (strict mode) + Next.js 14+ App Router, Prisma ORM, Zod, shadcn/ui, React Hook Form, NextAuth.js (013-discovery-watchlists)
+- PostgreSQL via Prisma ORM (013-discovery-watchlists)
+- TypeScript 5.x with strict mode + Next.js 14+ (App Router), React Query, Prisma ORM, NextAuth.js, Zod, shadcn/ui (014-notifications)
+- TypeScript 5.x with strict mode + Next.js 14+ (App Router), React Query, Prisma ORM, NextAuth.js, Zod, shadcn/ui, Socket.io (015-direct-messaging)
+- PostgreSQL via Prisma ORM, Cloudflare R2 for media (015-direct-messaging)
 
 - TypeScript 5.x (Next.js 14+) + Next.js 14+, React 18+, NextAuth.js, shadcn/ui, Tailwind CSS, Zod (007-shared-layout-widgets)
 
@@ -34,9 +39,9 @@ npm test; npm run lint
 TypeScript 5.x (Next.js 14+): Follow standard conventions
 
 ## Recent Changes
-- 012-enhanced-profile-sections: Added TypeScript (Next.js 14+) + Next.js, TypeScript, shadcn/ui, Tailwind CSS, Prisma ORM, Zod, React Hook Form, NextAuth.js
-- 011-profile-analytics: Added TypeScript 5.x with strict mode + Next.js 14+ (App Router), React 18, Prisma ORM, NextAuth.js, Zod, shadcn/ui, Tailwind CSS
-- 011-profile-analytics: Added [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
+- 015-direct-messaging: Added TypeScript 5.x with strict mode + Next.js 14+ (App Router), React Query, Prisma ORM, NextAuth.js, Zod, shadcn/ui, Socket.io
+- 014-notifications: Added TypeScript 5.x with strict mode + Next.js 14+ (App Router), React Query, Prisma ORM, NextAuth.js, Zod, shadcn/ui
+- 013-discovery-watchlists: Added TypeScript 5.x (strict mode) + Next.js 14+ App Router, Prisma ORM, Zod, shadcn/ui, React Hook Form, NextAuth.js
 
 
 <!-- MANUAL ADDITIONS START -->

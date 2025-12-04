@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { ConnectionStatus } from "@prisma/client";
+import { NotificationService } from "./notifications";
 
 // ========================================
 // Types for ConnectionService
@@ -69,7 +70,7 @@ export class ConnectionService {
       throw new Error("Cannot send connection request to yourself");
     }
 
-    return await prisma.$transaction(async (tx) => {
+    const connection = await prisma.$transaction(async (tx) => {
       // Check if connection already exists
       const existing = await tx.connection.findFirst({
         where: {
@@ -89,16 +90,25 @@ export class ConnectionService {
       }
 
       // Create new connection request
-      const connection = await tx.connection.create({
+      return await tx.connection.create({
         data: {
           requesterId,
           recipientId,
           status: "pending",
         },
       });
-
-      return connection;
     });
+
+    // Create notification for the recipient (outside transaction for non-blocking)
+    await NotificationService.create({
+      recipientId,
+      actorId: requesterId,
+      type: "CONNECTION_REQUEST",
+      entityType: "connection",
+      entityId: connection.id,
+    });
+
+    return connection;
   }
 
   /**

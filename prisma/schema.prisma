@@ -31,6 +31,14 @@ enum LanguageLevel {
   @@map("language_level_enum")
 }
 
+enum NotificationType {
+  CONNECTION_REQUEST
+  POST_LIKE
+  POST_COMMENT
+
+  @@map("notification_type_enum")
+}
+
 // ========================================
 // Core User Models
 // ========================================
@@ -86,6 +94,18 @@ model User {
   certifications UserCertification[]
   languages      UserLanguage[]
   awards         UserAward[]
+
+  // Watchlists
+  watchlists Watchlist[]
+  watchedBy  WatchlistAthlete[] @relation("WatchedAthletes")
+
+  // Notifications
+  notificationsReceived Notification[] @relation("NotificationsReceived")
+  notificationsSent     Notification[] @relation("NotificationsSent")
+
+  // Messaging
+  conversationParticipants ConversationParticipant[]
+  messagesSent             Message[]
 
   @@map("users")
 }
@@ -439,4 +459,127 @@ model UserAward {
   @@index([userId], map: "idx_user_awards_user_id")
   @@index([year(sort: Desc)], map: "idx_user_awards_year")
   @@map("user_awards")
+}
+
+// ========================================
+// Watchlist Models
+// ========================================
+
+model Watchlist {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(100)
+  description String?   @db.VarChar(500)
+  createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime? @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  userId Int  @map("user_id")
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  athletes WatchlistAthlete[]
+
+  @@index([userId], map: "idx_watchlists_user_id")
+  @@map("watchlists")
+}
+
+model WatchlistAthlete {
+  id      Int       @id @default(autoincrement())
+  addedAt DateTime? @default(now()) @map("added_at") @db.Timestamptz(6)
+
+  watchlistId Int       @map("watchlist_id")
+  watchlist   Watchlist @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
+
+  athleteId Int  @map("athlete_id")
+  athlete   User @relation("WatchedAthletes", fields: [athleteId], references: [id], onDelete: Cascade)
+
+  @@unique([watchlistId, athleteId])
+  @@index([watchlistId], map: "idx_watchlist_athletes_watchlist_id")
+  @@index([athleteId], map: "idx_watchlist_athletes_athlete_id")
+  @@map("watchlist_athletes")
+}
+
+// ========================================
+// Notification Models
+// ========================================
+
+model Notification {
+  id          Int              @id @default(autoincrement())
+  type        NotificationType
+  entityType  String           @map("entity_type") @db.VarChar(50)
+  entityId    Int              @map("entity_id")
+  isRead      Boolean          @default(false) @map("is_read")
+  createdAt   DateTime?        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime?        @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  recipientId Int  @map("recipient_id")
+  recipient   User @relation("NotificationsReceived", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  actorId Int  @map("actor_id")
+  actor   User @relation("NotificationsSent", fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([recipientId, isRead, createdAt(sort: Desc)], map: "idx_notifications_recipient_unread")
+  @@index([recipientId, createdAt(sort: Desc)], map: "idx_notifications_recipient_created")
+  @@index([actorId, type, entityId], map: "idx_notifications_actor_entity")
+  @@map("notifications")
+}
+
+// ========================================
+// Messaging Models
+// ========================================
+
+model Conversation {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime? @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@index([updatedAt(sort: Desc)], map: "idx_conversations_updated_at")
+  @@map("conversations")
+}
+
+model ConversationParticipant {
+  id         Int       @id @default(autoincrement())
+  lastReadAt DateTime? @map("last_read_at") @db.Timestamptz(6)
+  joinedAt   DateTime? @default(now()) @map("joined_at") @db.Timestamptz(6)
+
+  conversationId Int          @map("conversation_id")
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         Int          @map("user_id")
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([userId], map: "idx_conversation_participants_user_id")
+  @@index([conversationId], map: "idx_conversation_participants_conversation_id")
+  @@map("conversation_participants")
+}
+
+model Message {
+  id        Int       @id @default(autoincrement())
+  content   String?   @db.VarChar(500)
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  conversationId Int          @map("conversation_id")
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       Int          @map("sender_id")
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  media MessageMedia[]
+
+  @@index([conversationId, createdAt(sort: Desc)], map: "idx_messages_conversation_created")
+  @@index([senderId], map: "idx_messages_sender_id")
+  @@map("messages")
+}
+
+model MessageMedia {
+  id         Int     @id @default(autoincrement())
+  mediaType  String  @map("media_type") @db.VarChar(10)
+  url        String?
+  key        String?
+  orderIndex Int?    @default(0) @map("order_index")
+
+  messageId Int     @map("message_id")
+  message   Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@map("message_media")
 }

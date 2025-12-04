@@ -8,20 +8,46 @@ import { useSession } from "next-auth/react";
 import {
   HomeIcon,
   MagnifyingGlassIcon,
-  InboxIcon,
-  BellIcon,
   UserIcon,
   BookmarkIcon,
 } from "@heroicons/react/24/solid";
 import { SearchUserResult } from "@/types/prisma";
 import { Spinner } from "@/components/ui/spinner";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { InboxDropdown } from "@/components/messaging/InboxDropdown";
+import { InboxBadge } from "@/components/messaging/InboxBadge";
+import { useUnreadMessageCount } from "@/hooks/useMessaging";
+import { InboxIcon } from "@heroicons/react/24/solid";
 
 const navigationItems = [
   { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
   { name: "Discovery", href: "/discovery", icon: MagnifyingGlassIcon },
-  { name: "Inbox", href: "/inbox", icon: InboxIcon },
-  { name: "Notifications", href: "/notifications", icon: BellIcon },
 ];
+
+/**
+ * MobileInboxButton Component
+ * Shows inbox icon with badge for mobile bottom navigation
+ */
+function MobileInboxButton({ isActive }: { isActive: boolean }) {
+  const { data: unreadData } = useUnreadMessageCount();
+  const unreadCount = unreadData?.count ?? 0;
+
+  return (
+    <Link
+      href="/inbox"
+      className={`relative flex flex-col items-center justify-center px-2 py-1 rounded-lg text-xs font-medium transition-colors ${
+        isActive
+          ? "text-primary bg-accent"
+          : "text-muted-foreground hover:text-primary hover:bg-accent"
+      }`}
+    >
+      <div className="relative">
+        <InboxIcon className="h-5 w-5" />
+        <InboxBadge count={unreadCount} className="-top-1.5 -right-1.5" />
+      </div>
+    </Link>
+  );
+}
 
 export default function Header() {
   const pathname = usePathname();
@@ -119,6 +145,8 @@ export default function Header() {
                   </Link>
                 );
               })}
+              <InboxDropdown showLabel={true} />
+              <NotificationBell showLabel={true} />
               {profileHref && (
                 <Link
                   href={profileHref}
@@ -204,28 +232,36 @@ export default function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex flex-col items-center justify-center space-y-1 px-2 py-1 rounded-lg text-xs font-medium transition-colors ${
+                className={`flex flex-col items-center justify-center px-2 py-1 rounded-lg text-xs font-medium transition-colors ${
                   isActive
                     ? "text-primary bg-accent"
                     : "text-muted-foreground hover:text-primary hover:bg-accent"
                 }`}
               >
                 <Icon className="h-5 w-5" />
-                <span className="text-[10px] leading-tight">{item.name}</span>
               </Link>
             );
           })}
+          <MobileInboxButton isActive={pathname.startsWith("/inbox")} />
+          <NotificationBell
+            showLabel={false}
+            useDropdown={false}
+            className={`px-2 py-1 rounded-lg text-xs font-medium transition-colors ${
+              pathname === "/notifications"
+                ? "text-primary bg-accent"
+                : "text-muted-foreground hover:text-primary hover:bg-accent"
+            }`}
+          />
           {profileHref && (
             <Link
               href={profileHref}
-              className={`flex flex-col items-center justify-center space-y-1 px-2 py-1 rounded-lg text-xs font-medium transition-colors ${
+              className={`flex flex-col items-center justify-center px-2 py-1 rounded-lg text-xs font-medium transition-colors ${
                 pathname.startsWith("/profile")
                   ? "text-primary bg-accent"
                   : "text-muted-foreground hover:text-primary hover:bg-accent"
               }`}
             >
               <UserIcon className="h-5 w-5" />
-              <span className="text-[10px] leading-tight">Profile</span>
             </Link>
           )}
         </div>

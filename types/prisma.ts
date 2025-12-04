@@ -15,6 +15,8 @@ import type {
   UserCertification as PrismaUserCertification,
   UserLanguage as PrismaUserLanguage,
   UserAward as PrismaUserAward,
+  Message as PrismaMessage,
+  MessageMedia as PrismaMessageMedia,
 } from "@prisma/client";
 
 // Re-export analytics types for convenience
@@ -82,6 +84,72 @@ export const includeConnectionWithUsers = {
   recipient: true,
 } satisfies Prisma.ConnectionInclude;
 
+// Notification with actor (for display)
+export const includeNotificationWithActor = {
+  actor: {
+    select: {
+      id: true,
+      username: true,
+      publicUuid: true,
+      attributes: {
+        select: {
+          firstName: true,
+          lastName: true,
+          profilePictureUrl: true,
+        },
+      },
+    },
+  },
+} satisfies Prisma.NotificationInclude;
+
+// ========================================
+// Messaging Include Patterns
+// ========================================
+
+// Conversation with participants and last message
+export const includeConversationWithParticipants = {
+  participants: {
+    include: {
+      user: {
+        include: {
+          attributes: {
+            select: {
+              firstName: true,
+              lastName: true,
+              profilePictureUrl: true,
+            },
+          },
+        },
+      },
+    },
+  },
+  messages: {
+    orderBy: { createdAt: "desc" as const },
+    take: 1,
+    include: {
+      media: true,
+    },
+  },
+} satisfies Prisma.ConversationInclude;
+
+// Message with sender and media
+export const includeMessageWithSender = {
+  sender: {
+    include: {
+      attributes: {
+        select: {
+          firstName: true,
+          lastName: true,
+          profilePictureUrl: true,
+        },
+      },
+    },
+  },
+  media: {
+    orderBy: { orderIndex: "asc" as const },
+  },
+} satisfies Prisma.MessageInclude;
+
 // ========================================
 // Inferred Types from Includes
 // ========================================
@@ -100,6 +168,19 @@ export type CommentWithUser = Prisma.PostCommentGetPayload<{
 
 export type ConnectionWithUsers = Prisma.ConnectionGetPayload<{
   include: typeof includeConnectionWithUsers;
+}>;
+
+export type NotificationWithActor = Prisma.NotificationGetPayload<{
+  include: typeof includeNotificationWithActor;
+}>;
+
+// Messaging inferred types
+export type ConversationWithParticipants = Prisma.ConversationGetPayload<{
+  include: typeof includeConversationWithParticipants;
+}>;
+
+export type MessageWithSender = Prisma.MessageGetPayload<{
+  include: typeof includeMessageWithSender;
 }>;
 
 // ========================================
@@ -129,6 +210,160 @@ export type PostMediaItem = {
   url: string | null;
   key: string | null;
   orderIndex: number | null;
+};
+
+// ========================================
+// Notification Output Types
+// ========================================
+
+/**
+ * Notification types for type safety
+ */
+export type NotificationTypeEnum =
+  | "CONNECTION_REQUEST"
+  | "POST_LIKE"
+  | "POST_COMMENT";
+
+/**
+ * Single notification for display
+ */
+export type NotificationUI = {
+  id: number;
+  type: NotificationTypeEnum;
+  entityType: string;
+  entityId: number;
+  entityPublicUuid?: string;
+  isRead: boolean;
+  createdAt: Date;
+  actor: UserSummary;
+};
+
+/**
+ * Grouped notification for dropdown display
+ * Multiple likes/comments on the same post are grouped together
+ */
+export type GroupedNotification = {
+  id: number;
+  type: NotificationTypeEnum;
+  entityType: string;
+  entityId: number;
+  entityPublicUuid?: string;
+  isRead: boolean;
+  createdAt: Date;
+  actor: UserSummary;
+  otherActors: UserSummary[];
+  count: number;
+};
+
+/**
+ * Paginated notifications response
+ */
+export type NotificationsResponse = {
+  notifications: GroupedNotification[];
+  nextCursor: number | null;
+  hasMore: boolean;
+};
+
+// ========================================
+// Messaging Output Types
+// ========================================
+
+/**
+ * Message media item for display
+ */
+export type MessageMediaUI = {
+  id: number;
+  mediaType: string;
+  url: string | null;
+};
+
+/**
+ * Message for display in conversation
+ */
+export type MessageUI = {
+  id: number;
+  content: string | null;
+  senderId: number;
+  createdAt: string; // ISO timestamp
+  media: MessageMediaUI[];
+};
+
+/**
+ * Last message preview for conversation list
+ */
+export type LastMessagePreview = {
+  id: number;
+  content: string | null;
+  senderId: number;
+  createdAt: string; // ISO timestamp
+  hasMedia: boolean;
+  isOwnMessage: boolean;
+};
+
+/**
+ * Conversation for list display
+ */
+export type ConversationUI = {
+  id: number;
+  otherUser: UserSummary;
+  lastMessage: LastMessagePreview | null;
+  unreadCount: number;
+  updatedAt: string; // ISO timestamp
+};
+
+/**
+ * Conversation with messages for chat view
+ */
+export type ConversationDetailUI = {
+  id: number;
+  otherUser: UserSummary;
+  messages: MessageUI[];
+  nextCursor: number | null;
+  hasMore: boolean;
+};
+
+/**
+ * Response for creating/getting a conversation
+ */
+export type GetOrCreateConversationResponse = {
+  id: number;
+  otherUser: UserSummary;
+  isNew: boolean;
+};
+
+/**
+ * Response for listing conversations
+ */
+export type ConversationsListResponse = {
+  conversations: ConversationUI[];
+  nextCursor: number | null;
+  hasMore: boolean;
+};
+
+/**
+ * Recent message for header dropdown
+ */
+export type RecentMessageUI = {
+  id: number;
+  conversationId: number;
+  content: string | null;
+  hasMedia: boolean;
+  createdAt: string; // ISO timestamp
+  sender: UserSummary;
+};
+
+/**
+ * Response for recent messages
+ */
+export type RecentMessagesResponse = {
+  messages: RecentMessageUI[];
+};
+
+/**
+ * Response for unread count
+ */
+export type UnreadCountResponse = {
+  count: number;
 };
 
 // ========================================
@@ -450,6 +685,139 @@ export function toPostComment(
 }
 
 // ========================================
+// Notification Mappers
+// ========================================
+
+/**
+ * Map Prisma Notification to NotificationUI
+ */
+export function toNotificationUI(
+  notification: NotificationWithActor,
+  entityPublicUuid?: string
+): NotificationUI {
+  return {
+    id: notification.id,
+    type: notification.type as NotificationTypeEnum,
+    entityType: notification.entityType,
+    entityId: notification.entityId,
+    entityPublicUuid,
+    isRead: notification.isRead,
+    createdAt: notification.createdAt ?? new Date(),
+    actor: toUserSummary(notification.actor),
+  };
+}
+
+/**
+ * Map NotificationUI to GroupedNotification (single notification, no grouping)
+ */
+export function toGroupedNotification(
+  notification: NotificationUI,
+  otherActors: UserSummary[] = [],
+  count: number = 1
+): GroupedNotification {
+  return {
+    ...notification,
+    otherActors,
+    count,
+  };
+}
+
+// ========================================
+// Messaging Mappers
+// ========================================
+
+/**
+ * Map Prisma MessageMedia to MessageMediaUI
+ */
+export function toMessageMedia(media: PrismaMessageMedia): MessageMediaUI {
+  return {
+    id: media.id,
+    mediaType: media.mediaType,
+    url: media.url,
+  };
+}
+
+/**
+ * Map Prisma Message with sender to MessageUI
+ */
+export function toMessage(message: MessageWithSender): MessageUI {
+  return {
+    id: message.id,
+    content: message.content,
+    senderId: message.senderId,
+    createdAt: message.createdAt?.toISOString() ?? new Date().toISOString(),
+    media: message.media.map(toMessageMedia),
+  };
+}
+
+/**
+ * Create last message preview from Prisma message
+ */
+export function toLastMessagePreview(
+  message: PrismaMessage & { media?: PrismaMessageMedia[] },
+  currentUserId: number
+): LastMessagePreview {
+  return {
+    id: message.id,
+    content: message.content,
+    senderId: message.senderId,
+    createdAt: message.createdAt?.toISOString() ?? new Date().toISOString(),
+    hasMedia: (message.media?.length ?? 0) > 0,
+    isOwnMessage: message.senderId === currentUserId,
+  };
+}
+
+/**
+ * Map Prisma Conversation to ConversationUI
+ * @param conversation - Conversation with participants and last message
+ * @param currentUserId - Current user's ID (to determine "other" user)
+ * @param unreadCount - Number of unread messages
+ */
+export function toConversationUI(
+  conversation: ConversationWithParticipants,
+  currentUserId: number,
+  unreadCount: number = 0
+): ConversationUI {
+  // Find the other participant (not the current user)
+  const otherParticipant = conversation.participants.find(
+    (p) => p.userId !== currentUserId
+  );
+
+  if (!otherParticipant) {
+    throw new Error("Conversation must have another participant");
+  }
+
+  const lastMessage = conversation.messages[0] ?? null;
+
+  return {
+    id: conversation.id,
+    otherUser: toUserSummary(otherParticipant.user),
+    lastMessage: lastMessage
+      ? toLastMessagePreview(lastMessage, currentUserId)
+      : null,
+    unreadCount,
+    updatedAt:
+      conversation.updatedAt?.toISOString() ?? new Date().toISOString(),
+  };
+}
+
+/**
+ * Map Prisma Message to RecentMessageUI for header dropdown
+ */
+export function toRecentMessage(
+  message: MessageWithSender & { conversationId: number }
+): RecentMessageUI {
+  return {
+    id: message.id,
+    conversationId: message.conversationId,
+    content: message.content,
+    hasMedia: message.media.length > 0,
+    createdAt: message.createdAt?.toISOString() ?? new Date().toISOString(),
+    sender: toUserSummary(message.sender),
+  };
+}
+
+// ========================================
 // Enhanced Profile Mappers
 // ========================================
 
@@ -540,5 +908,233 @@ export function toAward(award: PrismaUserAward): AwardUI {
     title: award.title,
     year: award.year,
     description: award.description,
+  };
+}
+
+// ========================================
+// Watchlist Include Patterns
+// ========================================
+
+/**
+ * Include pattern for watchlist with athlete count
+ */
+export const includeWatchlistWithCount = {
+  _count: {
+    select: {
+      athletes: true,
+    },
+  },
+} satisfies Prisma.WatchlistInclude;
+
+/**
+ * Include pattern for watchlist with full athlete data (for discovery)
+ */
+export const includeWatchlistWithAthletes = {
+  athletes: {
+    include: {
+      athlete: {
+        include: {
+          attributes: {
+            include: {
+              sport: true,
+            },
+          },
+          athleteMetrics: true,
+        },
+      },
+    },
+  },
+} satisfies Prisma.WatchlistInclude;
+
+/**
+ * Include pattern for athlete discovery (user with full profile data)
+ */
+export const includeAthleteForDiscovery = {
+  attributes: {
+    include: {
+      sport: true,
+    },
+  },
+  athleteMetrics: true,
+  watchedBy: {
+    select: {
+      watchlistId: true,
+      watchlist: {
+        select: {
+          userId: true,
+        },
+      },
+    },
+  },
+} satisfies Prisma.UserInclude;
+
+// ========================================
+// Inferred Watchlist Types
+// ========================================
+
+export type WatchlistWithCount = Prisma.WatchlistGetPayload<{
+  include: typeof includeWatchlistWithCount;
+}>;
+
+export type WatchlistWithAthletes = Prisma.WatchlistGetPayload<{
+  include: typeof includeWatchlistWithAthletes;
+}>;
+
+export type AthleteForDiscovery = Prisma.UserGetPayload<{
+  include: typeof includeAthleteForDiscovery;
+}>;
+
+// ========================================
+// Watchlist Mappers
+// ========================================
+
+import type {
+  WatchlistSummary,
+  WatchlistDetail,
+  WatchlistAthleteItem,
+} from "./watchlists";
+import type {
+  AthleteDiscoveryResult,
+  AthleteDiscoveryMetrics,
+} from "./discovery";
+
+/**
+ * Calculate age from date of birth
+ * Returns null if date is invalid, in the future, or results in age <= 0
+ */
+export function calculateAge(dateOfBirth: Date | null): number | null {
+  if (!dateOfBirth) return null;
+  const today = new Date();
+  const birthDate = new Date(dateOfBirth);
+
+  // Check if birth date is in the future
+  if (birthDate > today) return null;
+
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && today.getDate() < birthDate.getDate())
+  ) {
+    age--;
+  }
+
+  // Return null for invalid ages (0 or negative)
+  return age > 0 ? age : null;
+}
+
+/**
+ * Extract metrics from Prisma AthleteMetrics
+ */
+export function toDiscoveryMetrics(
+  metrics: PrismaAthleteMetrics | null
+): AthleteDiscoveryMetrics | null {
+  if (!metrics) return null;
+  return {
+    sprintSpeed30m: metrics.sprintSpeed30m
+      ? parseFloat(metrics.sprintSpeed30m.toString())
+      : null,
+    agilityTTest: metrics.agilityTTest
+      ? parseFloat(metrics.agilityTTest.toString())
+      : null,
+    beepTestLevel: metrics.beepTestLevel,
+    beepTestShuttle: metrics.beepTestShuttle,
+    verticalJump: metrics.verticalJump,
+  };
+}
+
+/**
+ * Map Prisma Watchlist with count to WatchlistSummary
+ */
+export function toWatchlistSummary(
+  watchlist: WatchlistWithCount
+): WatchlistSummary {
+  return {
+    id: watchlist.id,
+    name: watchlist.name,
+    description: watchlist.description,
+    athleteCount: watchlist._count.athletes,
+    createdAt: watchlist.createdAt?.toISOString() ?? new Date().toISOString(),
+    updatedAt: watchlist.updatedAt?.toISOString() ?? new Date().toISOString(),
+  };
+}
+
+/**
+ * Map Prisma Watchlist to WatchlistDetail
+ */
+export function toWatchlistDetail(watchlist: {
+  id: number;
+  name: string;
+  description: string | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+}): WatchlistDetail {
+  return {
+    id: watchlist.id,
+    name: watchlist.name,
+    description: watchlist.description,
+    createdAt: watchlist.createdAt?.toISOString() ?? new Date().toISOString(),
+    updatedAt: watchlist.updatedAt?.toISOString() ?? new Date().toISOString(),
+  };
+}
+
+/**
+ * Map Prisma User (athlete) to AthleteDiscoveryResult
+ * @param athlete - User with attributes, metrics, and watchedBy
+ * @param currentUserId - Current user's ID (to filter watchlistIds)
+ */
+export function toAthleteDiscoveryResult(
+  athlete: AthleteForDiscovery,
+  currentUserId: number
+): AthleteDiscoveryResult {
+  // Filter watchlist IDs to only include ones owned by current user
+  const inWatchlistIds = athlete.watchedBy
+    .filter((wa) => wa.watchlist.userId === currentUserId)
+    .map((wa) => wa.watchlistId);
+
+  return {
+    id: athlete.id,
+    publicUuid: athlete.publicUuid,
+    username: athlete.username,
+    firstName: athlete.attributes?.firstName ?? "",
+    lastName: athlete.attributes?.lastName ?? "",
+    profileImageUrl: athlete.attributes?.profilePictureUrl ?? null,
+    location: athlete.attributes?.location ?? null,
+    openToOpportunities: athlete.attributes?.openToOpportunities ?? false,
+    strongFoot: athlete.attributes?.strongFoot ?? null,
+    height: athlete.attributes?.height ?? null,
+    age: calculateAge(athlete.attributes?.dateOfBirth ?? null),
+    sportId: athlete.attributes?.sportId ?? null,
+    sportName: athlete.attributes?.sport?.name ?? null,
+    positions: athlete.attributes?.positions as number[] | null,
+    metrics: toDiscoveryMetrics(athlete.athleteMetrics),
+    inWatchlistIds,
+  };
+}
+
+/**
+ * Map WatchlistAthlete (junction) with full athlete data to WatchlistAthleteItem
+ */
+export function toWatchlistAthleteItem(
+  entry: WatchlistWithAthletes["athletes"][number]
+): WatchlistAthleteItem {
+  const athlete = entry.athlete;
+  return {
+    id: athlete.id,
+    publicUuid: athlete.publicUuid,
+    username: athlete.username,
+    firstName: athlete.attributes?.firstName ?? "",
+    lastName: athlete.attributes?.lastName ?? "",
+    profileImageUrl: athlete.attributes?.profilePictureUrl ?? null,
+    location: athlete.attributes?.location ?? null,
+    openToOpportunities: athlete.attributes?.openToOpportunities ?? false,
+    strongFoot: athlete.attributes?.strongFoot ?? null,
+    height: athlete.attributes?.height ?? null,
+    age: calculateAge(athlete.attributes?.dateOfBirth ?? null),
+    sportId: athlete.attributes?.sportId ?? null,
+    sportName: athlete.attributes?.sport?.name ?? null,
+    positions: athlete.attributes?.positions as number[] | null,
+    metrics: toDiscoveryMetrics(athlete.athleteMetrics),
+    addedAt: entry.addedAt?.toISOString() ?? new Date().toISOString(),
   };
 }

@@ -6,6 +6,7 @@ import {
   toUserSummary,
 } from "@/types/prisma";
 import { HashtagService } from "./hashtags";
+import { NotificationService } from "./notifications";
 
 // ========================================
 // Input Types for PostService
@@ -204,7 +205,13 @@ export class PostService {
     postId: number,
     userId: number
   ): Promise<{ liked: boolean; count: number }> {
-    return await prisma.$transaction(async (tx) => {
+    // Get post to check owner for notifications
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { userId: true },
+    });
+
+    const result = await prisma.$transaction(async (tx) => {
       // Check if like exists
       const existingLike = await tx.postLike.findFirst({
         where: { postId, userId },
@@ -232,6 +239,25 @@ export class PostService {
 
       return { liked, count };
     });
+
+    // Handle notifications (outside transaction for non-blocking)
+    if (post && post.userId !== userId) {
+      if (result.liked) {
+        // Create notification on like
+        await NotificationService.create({
+          recipientId: post.userId,
+          actorId: userId,
+          type: "POST_LIKE",
+          entityType: "post",
+          entityId: postId,
+        });
+      } else {
+        // Delete notification on unlike
+        await NotificationService.deleteByAction(userId, "POST_LIKE", postId);
+      }
+    }
+
+    return result;
   }
 
   /**
@@ -242,6 +268,12 @@ export class PostService {
     userId: number,
     input: CreateCommentInput
   ): Promise<PostComment> {
+    // Get post to check owner for notifications
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { userId: true },
+    });
+
     const comment = await prisma.postComment.create({
       data: {
         postId,
@@ -266,6 +298,17 @@ export class PostService {
         },
       },
     });
+
+    // Create notification for the post owner (if not self-commenting)
+    if (post && post.userId !== userId) {
+      await NotificationService.create({
+        recipientId: post.userId,
+        actorId: userId,
+        type: "POST_COMMENT",
+        entityType: "post",
+        entityId: postId,
+      });
+    }
 
     return {
       id: comment.id,

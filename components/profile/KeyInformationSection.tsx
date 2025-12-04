@@ -63,16 +63,23 @@ export function KeyInformationSection({
   };
 
   // Calculate age from DOB
+  // Returns null if date is invalid, in the future, or results in age <= 0
   const calculateAge = (date: Date | null) => {
     if (!date) return null;
     const dob = new Date(date);
     const today = new Date();
+
+    // Check if birth date is in the future
+    if (dob > today) return null;
+
     let age = today.getFullYear() - dob.getFullYear();
     const monthDiff = today.getMonth() - dob.getMonth();
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
       age--;
     }
-    return age;
+
+    // Return null for invalid ages (0 or negative)
+    return age > 0 ? age : null;
   };
 
   // Get position names from IDs
@@ -143,7 +150,7 @@ export function KeyInformationSection({
                 <p className="text-sm text-gray-500">Date of Birth</p>
                 <p className="font-medium">
                   {formatDateOfBirth(profile.dateOfBirth)}
-                  {age !== null && (
+                  {age !== null && age > 0 && (
                     <span className="text-gray-500 font-normal ml-1">
                       ({age} years old)
                     </span>

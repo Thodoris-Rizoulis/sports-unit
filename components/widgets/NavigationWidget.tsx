@@ -3,11 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
-import { UserIcon, BookmarkIcon } from "@heroicons/react/24/solid";
+import {
+  UserIcon,
+  BookmarkIcon,
+  QueueListIcon,
+} from "@heroicons/react/24/solid";
 
 const navigationItems = [
   { name: "Network", href: "/network", icon: UserIcon },
   { name: "Saved", href: "/saved", icon: BookmarkIcon },
+  { name: "Watchlists", href: "/watchlists", icon: QueueListIcon },
 ];
 
 /**
