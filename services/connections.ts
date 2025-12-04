@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { ConnectionStatus } from "@prisma/client";
 import { NotificationService } from "./notifications";
+import { enforcePaginationLimit, enforcePaginationOffset } from "@/lib/utils";
 
 // ========================================
 // Types for ConnectionService
@@ -156,6 +157,10 @@ export class ConnectionService {
     limit: number = 20,
     offset: number = 0
   ): Promise<ConnectionListItem[]> {
+    // Enforce pagination limits
+    const safeLimit = enforcePaginationLimit(limit);
+    const safeOffset = enforcePaginationOffset(offset);
+
     // Build where clause
     const baseWhere = {
       OR: [{ requesterId: userId }, { recipientId: userId }],
@@ -185,8 +190,8 @@ export class ConnectionService {
         },
       },
       orderBy: { createdAt: "desc" },
-      take: limit,
-      skip: offset,
+      take: safeLimit,
+      skip: safeOffset,
     });
 
     return connections.map((c) => {
@@ -361,5 +366,40 @@ export class ConnectionService {
     await prisma.connection.delete({
       where: { id: connectionId },
     });
+  }
+
+  /**
+   * Cancel a pending connection request (only by the requester)
+   */
+  static async cancelRequest(
+    connectionId: number,
+    userId: number
+  ): Promise<void> {
+    // Verify user is the requester of a pending connection
+    const connection = await prisma.connection.findFirst({
+      where: {
+        id: connectionId,
+        status: "pending",
+        requesterId: userId, // Only the requester can cancel
+      },
+    });
+
+    if (!connection) {
+      throw new Error(
+        "Connection request not found or not authorized to cancel"
+      );
+    }
+
+    // Delete the connection request
+    await prisma.connection.delete({
+      where: { id: connectionId },
+    });
+
+    // Delete the associated notification
+    await NotificationService.deleteByAction(
+      userId,
+      "CONNECTION_REQUEST",
+      connectionId
+    );
   }
 }

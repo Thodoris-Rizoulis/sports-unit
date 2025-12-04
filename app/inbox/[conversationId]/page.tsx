@@ -13,6 +13,7 @@ import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
 import { ConversationView } from "@/components/messaging/ConversationView";
 import { useMessageSocket } from "@/hooks/useMessaging";
+import { getSessionUserId } from "@/lib/auth-utils";
 
 export default function ConversationDetailPage() {
   const { data: session, status } = useSession();
@@ -29,7 +30,7 @@ export default function ConversationDetailPage() {
     {
       enabled:
         status === "authenticated" && !!session?.user?.id && !!conversationId,
-      userId: session?.user?.id ? parseInt(session.user.id) : undefined,
+      userId: getSessionUserId(session) ?? undefined,
       sessionToken: session?.user?.id, // Simplified - in production use actual session token
       onError: (error) => {
         console.error("[conversation] WebSocket error:", error);

@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/services/auth";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 import { PostService } from "@/services/posts";
 
 export async function POST(
@@ -15,6 +16,8 @@ export async function POST(
       return createErrorResponse("Unauthorized", 401);
     }
 
+    const userId = requireSessionUserId(session);
+
     const { id } = await params;
     const postId = parseInt(id);
     if (isNaN(postId)) {
@@ -22,10 +25,7 @@ export async function POST(
     }
 
     // Toggle like
-    const result = await PostService.toggleLike(
-      postId,
-      parseInt(session.user.id)
-    );
+    const result = await PostService.toggleLike(postId, userId);
 
     return createSuccessResponse(result);
   } catch (error) {

@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/services/auth";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 import { WatchlistService } from "@/services/watchlists";
 import { z } from "zod";
 
@@ -23,6 +24,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     if (!session?.user?.id) {
       return createErrorResponse("Unauthorized", 401);
     }
+
+    const userId = requireSessionUserId(session);
 
     const { id } = await params;
     const watchlistId = parseInt(id);
@@ -49,7 +52,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     const result = await WatchlistService.addAthleteToWatchlist(
       watchlistId,
       athleteId,
-      parseInt(session.user.id)
+      userId
     );
 
     if (!result) {

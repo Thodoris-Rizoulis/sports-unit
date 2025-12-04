@@ -56,7 +56,7 @@ export function EducationSection({
               }
               variant="outline"
               size="sm"
-              className="text-gray-700 hover:text-gray-900 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-muted-foreground hover:text-foreground hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
               title={
                 currentlyEditing && !currentlyEditing?.startsWith("education")
                   ? `Finish editing ${currentlyEditing} first`
@@ -71,7 +71,7 @@ export function EducationSection({
       <CardContent>
         {!hasEducation ? (
           <div className="text-center py-6">
-            <p className="text-gray-500">
+            <p className="text-muted-foreground">
               {isOwner
                 ? "Add your education background."
                 : "No education added yet."}
@@ -115,10 +115,10 @@ function EducationItem({
   const isPresent = education.yearTo === null;
 
   return (
-    <div className="flex items-start justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+    <div className="flex items-start justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors">
       <div className="flex-1">
         <div className="flex items-center gap-2">
-          <h4 className="font-semibold text-gray-900">{education.title}</h4>
+          <h4 className="font-semibold text-foreground">{education.title}</h4>
           {isPresent && (
             <Badge variant="secondary" className="text-xs">
               Current
@@ -126,9 +126,9 @@ function EducationItem({
           )}
         </div>
         {education.subtitle && (
-          <p className="text-gray-700 mt-1">{education.subtitle}</p>
+          <p className="text-foreground/80 mt-1">{education.subtitle}</p>
         )}
-        <p className="text-sm text-gray-500 mt-2">
+        <p className="text-sm text-muted-foreground mt-2">
           {formatYearRange(education.yearFrom, education.yearTo)}
         </p>
       </div>
@@ -142,7 +142,7 @@ function EducationItem({
               currentlyEditing !== null &&
               !currentlyEditing?.startsWith("education")
             }
-            className="text-gray-500 hover:text-gray-700"
+            className="text-muted-foreground hover:text-foreground"
           >
             <Edit3 className="w-4 h-4" />
           </Button>
@@ -154,7 +154,7 @@ function EducationItem({
               currentlyEditing !== null &&
               !currentlyEditing?.startsWith("education")
             }
-            className="text-gray-500 hover:text-red-600"
+            className="text-muted-foreground hover:text-destructive"
           >
             <Trash2 className="w-4 h-4" />
           </Button>

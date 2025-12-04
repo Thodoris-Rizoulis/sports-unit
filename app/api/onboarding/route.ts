@@ -7,6 +7,7 @@ import { AuthService } from "@/services/auth";
 import { onboardingSchema } from "@/types/onboarding";
 import { authOptions } from "@/services/auth";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
       return createErrorResponse("Unauthorized", 401);
     }
 
-    const userId = parseInt(session.user.id);
+    const userId = requireSessionUserId(session);
     const body = await request.json();
 
     const validatedData = onboardingSchema.parse(body);

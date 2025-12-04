@@ -32,7 +32,10 @@ const levelStyles: Record<
     variant: "outline",
     className: "border-orange-300 text-orange-700",
   },
-  basic: { variant: "outline", className: "border-gray-300 text-gray-600" },
+  basic: {
+    variant: "outline",
+    className: "border-border text-muted-foreground",
+  },
 };
 
 /**
@@ -76,7 +79,7 @@ export function LanguagesWidget({
               }
               variant="ghost"
               size="sm"
-              className="text-gray-500 hover:text-gray-700 h-8 w-8 p-0"
+              className="text-muted-foreground hover:text-foreground h-8 w-8 p-0"
               title={
                 currentlyEditing && !currentlyEditing?.startsWith("language")
                   ? `Finish editing ${currentlyEditing} first`
@@ -91,7 +94,7 @@ export function LanguagesWidget({
       <CardContent className="pt-0">
         {!hasLanguages ? (
           <div className="text-center py-4">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               {isOwner ? "Add languages you speak." : "No languages added."}
             </p>
           </div>
@@ -135,7 +138,7 @@ function LanguageItem({
   return (
     <div className="flex items-center justify-between py-1.5 group">
       <div className="flex items-center gap-2">
-        <span className="font-medium text-gray-900">{language.language}</span>
+        <span className="font-medium text-foreground">{language.language}</span>
         <Badge variant={style.variant} className={`text-xs ${style.className}`}>
           {formatLevel(language.level)}
         </Badge>
@@ -150,7 +153,7 @@ function LanguageItem({
               currentlyEditing !== null &&
               !currentlyEditing?.startsWith("language")
             }
-            className="h-7 w-7 p-0 text-gray-400 hover:text-gray-600"
+            className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
           >
             <Edit3 className="w-3.5 h-3.5" />
           </Button>
@@ -162,7 +165,7 @@ function LanguageItem({
               currentlyEditing !== null &&
               !currentlyEditing?.startsWith("language")
             }
-            className="h-7 w-7 p-0 text-gray-400 hover:text-red-600"
+            className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </Button>

@@ -145,7 +145,7 @@ export function MetricsEditModal({
                 {errors.sprintSpeed30m.message}
               </p>
             )}
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground">
               Enter your 30-meter sprint time in seconds (e.g., 4.25)
             </p>
           </div>
@@ -171,7 +171,7 @@ export function MetricsEditModal({
                 {errors.agilityTTest.message}
               </p>
             )}
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground">
               Enter your T-Test agility time in seconds (e.g., 9.50)
             </p>
           </div>
@@ -221,7 +221,7 @@ export function MetricsEditModal({
               )}
             </div>
           </div>
-          <p className="text-xs text-gray-500 -mt-3">
+          <p className="text-xs text-muted-foreground -mt-3">
             Enter your beep test result (e.g., Level 12, Shuttle 8)
           </p>
 
@@ -246,7 +246,7 @@ export function MetricsEditModal({
                 {errors.verticalJump.message}
               </p>
             )}
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground">
               Enter your vertical jump height in centimeters (e.g., 65.5)
             </p>
           </div>

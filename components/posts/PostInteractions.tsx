@@ -8,6 +8,7 @@ import {
   ShareIcon,
   BookmarkIcon,
 } from "lucide-react";
+import { ShareModal } from "./ShareModal";
 
 interface PostInteractionsProps {
   postId: number;
@@ -34,6 +35,8 @@ export function PostInteractions({
   const [liked, setLiked] = useState(initialLiked);
   const [saved, setSaved] = useState(initialSaved);
   const [loading, setLoading] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
 
   const handleLike = async () => {
     if (loading) return;
@@ -69,21 +72,19 @@ export function PostInteractions({
   const handleShare = async () => {
     if (!postUuid) return;
 
+    // Record the share action
     try {
-      // Record the share action
       await fetch(`/api/posts/${postId}/share`, {
         method: "POST",
       });
-
-      // Copy link to clipboard
-      const shareUrl = `${window.location.origin}/post/${postUuid}`;
-      await navigator.clipboard.writeText(shareUrl);
-      // TODO: Show success toast
-      alert("Link copied to clipboard!");
     } catch (error) {
-      console.error("Share error:", error);
-      alert("Failed to share post");
+      console.error("Share record error:", error);
     }
+
+    // Generate share URL and open modal
+    const url = `${window.location.origin}/post/${postUuid}`;
+    setShareUrl(url);
+    setShareModalOpen(true);
   };
 
   const handleSave = async () => {
@@ -127,6 +128,10 @@ export function PostInteractions({
         size="sm"
         onClick={handleLike}
         disabled={loading}
+        aria-label={
+          liked ? `Unlike post (${likes} likes)` : `Like post (${likes} likes)`
+        }
+        aria-pressed={liked}
         className={`flex items-center space-x-1 transition-all duration-200 hover:scale-105 active:scale-95 ${
           liked
             ? "text-destructive hover:text-destructive/80"
@@ -148,6 +153,9 @@ export function PostInteractions({
         size="sm"
         className="flex items-center space-x-1 transition-all duration-200 hover:scale-105 active:scale-95 hover:text-primary"
         onClick={onCommentClick}
+        aria-label={`View comments${
+          initialComments > 0 ? ` (${initialComments})` : ""
+        }`}
       >
         <MessageCircleIcon className="h-4 w-4 transition-transform duration-200 hover:scale-110" />
         <span>{initialComments > 0 ? initialComments : ""}</span>
@@ -159,6 +167,7 @@ export function PostInteractions({
         className="flex items-center space-x-1 transition-all duration-200 hover:scale-105 active:scale-95 hover:text-primary"
         onClick={handleShare}
         disabled={!postUuid}
+        aria-label="Share post"
       >
         <ShareIcon className="h-4 w-4 transition-transform duration-200 hover:scale-110" />
         <span>Share</span>
@@ -169,6 +178,8 @@ export function PostInteractions({
         size="sm"
         onClick={handleSave}
         disabled={loading}
+        aria-label={saved ? "Remove from saved posts" : "Save post"}
+        aria-pressed={saved}
         className={`flex items-center space-x-1 transition-all duration-200 hover:scale-105 active:scale-95 ${
           saved ? "text-secondary" : "hover:text-primary"
         }`}
@@ -180,6 +191,12 @@ export function PostInteractions({
         />
         <span>Save</span>
       </Button>
+
+      <ShareModal
+        isOpen={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        shareUrl={shareUrl}
+      />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/services/auth";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 import { getUserIdFromUuid } from "@/services/profile";
 import { AwardService } from "@/services/awards";
 import { awardSchema } from "@/types/enhanced-profile";
@@ -32,7 +33,8 @@ export async function PUT(
     }
 
     // Check ownership
-    if (userId !== parseInt(session.user.id)) {
+    const sessionUserId = requireSessionUserId(session);
+    if (userId !== sessionUserId) {
       return createErrorResponse("Forbidden", 403);
     }
 
@@ -90,7 +92,8 @@ export async function DELETE(
     }
 
     // Check ownership
-    if (userId !== parseInt(session.user.id)) {
+    const sessionUserId = requireSessionUserId(session);
+    if (userId !== sessionUserId) {
       return createErrorResponse("Forbidden", 403);
     }
 

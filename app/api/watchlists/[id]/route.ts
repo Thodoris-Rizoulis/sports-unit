@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/services/auth";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 import { WatchlistService } from "@/services/watchlists";
 import { updateWatchlistSchema } from "@/types/watchlists";
 
@@ -20,6 +21,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       return createErrorResponse("Unauthorized", 401);
     }
 
+    const userId = requireSessionUserId(session);
     const { id } = await params;
     const watchlistId = parseInt(id);
 
@@ -34,7 +36,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
 
     const result = await WatchlistService.getWatchlistById(
       watchlistId,
-      parseInt(session.user.id),
+      userId,
       { page, limit }
     );
 
@@ -60,6 +62,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       return createErrorResponse("Unauthorized", 401);
     }
 
+    const userId = requireSessionUserId(session);
     const { id } = await params;
     const watchlistId = parseInt(id);
 
@@ -82,7 +85,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 
     const watchlist = await WatchlistService.updateWatchlist(
       watchlistId,
-      parseInt(session.user.id),
+      userId,
       validationResult.data
     );
 
@@ -108,6 +111,7 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
       return createErrorResponse("Unauthorized", 401);
     }
 
+    const userId = requireSessionUserId(session);
     const { id } = await params;
     const watchlistId = parseInt(id);
 
@@ -115,10 +119,7 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
       return createErrorResponse("Invalid watchlist ID", 400);
     }
 
-    const deleted = await WatchlistService.deleteWatchlist(
-      watchlistId,
-      parseInt(session.user.id)
-    );
+    const deleted = await WatchlistService.deleteWatchlist(watchlistId, userId);
 
     if (!deleted) {
       return createErrorResponse("Watchlist not found", 404);

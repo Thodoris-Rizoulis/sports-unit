@@ -42,7 +42,7 @@ export function AwardsWidget({
               }
               variant="ghost"
               size="sm"
-              className="text-gray-500 hover:text-gray-700 h-8 w-8 p-0"
+              className="text-muted-foreground hover:text-foreground h-8 w-8 p-0"
               title={
                 currentlyEditing && !currentlyEditing?.startsWith("award")
                   ? `Finish editing ${currentlyEditing} first`
@@ -57,7 +57,7 @@ export function AwardsWidget({
       <CardContent className="pt-0">
         {!hasAwards ? (
           <div className="text-center py-4">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               {isOwner ? "Showcase your achievements." : "No awards added."}
             </p>
           </div>
@@ -100,13 +100,15 @@ function AwardItem({
     <div className="flex items-start justify-between py-1 group">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-gray-900 truncate">
+          <span className="font-medium text-foreground truncate">
             {award.title}
           </span>
-          <span className="text-sm text-gray-500 shrink-0">{award.year}</span>
+          <span className="text-sm text-muted-foreground shrink-0">
+            {award.year}
+          </span>
         </div>
         {award.description && (
-          <p className="text-sm text-gray-600 mt-0.5 line-clamp-2">
+          <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">
             {award.description}
           </p>
         )}
@@ -121,7 +123,7 @@ function AwardItem({
               currentlyEditing !== null &&
               !currentlyEditing?.startsWith("award")
             }
-            className="h-7 w-7 p-0 text-gray-400 hover:text-gray-600"
+            className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
           >
             <Edit3 className="w-3.5 h-3.5" />
           </Button>
@@ -133,7 +135,7 @@ function AwardItem({
               currentlyEditing !== null &&
               !currentlyEditing?.startsWith("award")
             }
-            className="h-7 w-7 p-0 text-gray-400 hover:text-red-600"
+            className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </Button>

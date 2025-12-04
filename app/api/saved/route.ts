@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/services/auth";
 import { PostService } from "@/services/posts";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
+import { paginationQuerySchema } from "@/types/common";
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,11 +13,27 @@ export async function GET(request: NextRequest) {
       return createErrorResponse("Unauthorized", 401);
     }
 
-    const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get("limit") || "20");
-    const offset = parseInt(searchParams.get("offset") || "0");
+    const userId = requireSessionUserId(session);
 
-    const posts = await PostService.getSavedPosts(parseInt(session.user.id), {
+    const { searchParams } = new URL(request.url);
+
+    // Validate pagination parameters
+    const parseResult = paginationQuerySchema.safeParse({
+      limit: searchParams.get("limit") ?? undefined,
+      offset: searchParams.get("offset") ?? undefined,
+    });
+
+    if (!parseResult.success) {
+      return createErrorResponse(
+        "Invalid query parameters",
+        400,
+        parseResult.error.issues
+      );
+    }
+
+    const { limit, offset } = parseResult.data;
+
+    const posts = await PostService.getSavedPosts(userId, {
       limit,
       offset,
     });

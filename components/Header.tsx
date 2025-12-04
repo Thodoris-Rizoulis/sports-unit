@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, memo } from "react";
+import React, { useState, useEffect, useRef, memo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -10,6 +10,7 @@ import {
   MagnifyingGlassIcon,
   UserIcon,
   BookmarkIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/solid";
 import { SearchUserResult } from "@/types/prisma";
 import { Spinner } from "@/components/ui/spinner";
@@ -57,6 +58,8 @@ export default function Header() {
   const [searchResults, setSearchResults] = useState<SearchUserResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Debounce search query
   useEffect(() => {
@@ -77,6 +80,13 @@ export default function Header() {
       setIsOpen(false);
     }
   }, [debouncedQuery]);
+
+  // Focus input when search expands on mobile
+  useEffect(() => {
+    if (isSearchExpanded && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchExpanded]);
 
   const performSearch = async (query: string) => {
     setIsLoading(true);
@@ -158,68 +168,143 @@ export default function Header() {
               )}
             </nav>
 
-            {/* Search */}
+            {/* Search - Desktop: always visible, Mobile: expandable */}
             <div className="flex-shrink-0 relative">
-              <div className="relative">
-                <div className="relative">
-                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
-                  <input
-                    type="text"
-                    placeholder="Search people..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-4 py-2 w-64 border border-border rounded-md bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    aria-label="Search for people by name or username"
-                  />
-                </div>
-              </div>
-              {isOpen && (
-                <div className="absolute top-full mt-1 w-64 bg-background border border-border rounded-md shadow-lg z-50">
-                  {isLoading ? (
-                    <div className="flex items-center space-x-2 px-3 py-2 text-sm text-muted-foreground">
-                      <Spinner className="h-4 w-4" />
-                      <span>Searching...</span>
-                    </div>
-                  ) : searchResults.length === 0 ? (
-                    <div className="px-3 py-2 text-sm text-muted-foreground">
-                      No results found.
-                    </div>
-                  ) : (
-                    <div className="max-h-64 overflow-y-auto">
-                      {searchResults.map((user) => (
-                        <div
-                          key={user.id}
-                          onClick={() => {
-                            window.location.href = `/profile/${user.publicUuid}/${user.username}`;
-                            setIsOpen(false);
-                            setSearchQuery("");
-                          }}
-                          className="flex items-center space-x-3 px-3 py-2 cursor-pointer hover:bg-accent"
-                        >
-                          <Image
-                            src={user.profileImageUrl || "/default_profile.jpg"}
-                            alt={`${user.firstName} ${user.lastName}`}
-                            width={32}
-                            height={32}
-                            className="rounded-full"
-                          />
-                          <div>
-                            <div className="font-medium">
-                              {user.firstName} {user.lastName}
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              @{user.username}
+              {/* Mobile Search Toggle Button */}
+              <button
+                onClick={() => setIsSearchExpanded(!isSearchExpanded)}
+                className="md:hidden p-2 rounded-md text-primary-foreground hover:bg-accent transition-colors"
+                aria-label="Toggle search"
+              >
+                {isSearchExpanded ? (
+                  <XMarkIcon className="h-5 w-5" />
+                ) : (
+                  <MagnifyingGlassIcon className="h-5 w-5" />
+                )}
+              </button>
+
+              {/* Desktop Search Input - always visible */}
+              <div className="hidden md:block relative">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                <input
+                  type="text"
+                  placeholder="Search people..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-64 border border-border rounded-md bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  aria-label="Search for people by name or username"
+                />
+                {isOpen && (
+                  <div className="absolute top-full mt-1 w-64 bg-background border border-border rounded-md shadow-lg z-50">
+                    {isLoading ? (
+                      <div className="flex items-center space-x-2 px-3 py-2 text-sm text-muted-foreground">
+                        <Spinner className="h-4 w-4" />
+                        <span>Searching...</span>
+                      </div>
+                    ) : searchResults.length === 0 ? (
+                      <div className="px-3 py-2 text-sm text-muted-foreground">
+                        No results found.
+                      </div>
+                    ) : (
+                      <div className="max-h-64 overflow-y-auto">
+                        {searchResults.map((user) => (
+                          <div
+                            key={user.id}
+                            onClick={() => {
+                              window.location.href = `/profile/${user.publicUuid}/${user.username}`;
+                              setIsOpen(false);
+                              setSearchQuery("");
+                            }}
+                            className="flex items-center space-x-3 px-3 py-2 cursor-pointer hover:bg-accent"
+                          >
+                            <Image
+                              src={
+                                user.profileImageUrl || "/default_profile.jpg"
+                              }
+                              alt={`${user.firstName} ${user.lastName}`}
+                              width={32}
+                              height={32}
+                              className="rounded-full"
+                            />
+                            <div>
+                              <div className="font-medium">
+                                {user.firstName} {user.lastName}
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                @{user.username}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Mobile Expanded Search Overlay */}
+        {isSearchExpanded && (
+          <div className="md:hidden absolute top-full left-0 right-0 bg-background border-b border-border shadow-lg p-4">
+            <div className="relative">
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Search people..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-border rounded-md bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                aria-label="Search for people by name or username"
+              />
+            </div>
+            {isOpen && (
+              <div className="mt-2 bg-background border border-border rounded-md shadow-lg max-h-64 overflow-y-auto">
+                {isLoading ? (
+                  <div className="flex items-center space-x-2 px-3 py-2 text-sm text-muted-foreground">
+                    <Spinner className="h-4 w-4" />
+                    <span>Searching...</span>
+                  </div>
+                ) : searchResults.length === 0 ? (
+                  <div className="px-3 py-2 text-sm text-muted-foreground">
+                    No results found.
+                  </div>
+                ) : (
+                  searchResults.map((user) => (
+                    <div
+                      key={user.id}
+                      onClick={() => {
+                        window.location.href = `/profile/${user.publicUuid}/${user.username}`;
+                        setIsOpen(false);
+                        setSearchQuery("");
+                        setIsSearchExpanded(false);
+                      }}
+                      className="flex items-center space-x-3 px-3 py-3 cursor-pointer hover:bg-accent"
+                    >
+                      <Image
+                        src={user.profileImageUrl || "/default_profile.jpg"}
+                        alt={`${user.firstName} ${user.lastName}`}
+                        width={40}
+                        height={40}
+                        className="rounded-full"
+                      />
+                      <div>
+                        <div className="font-medium">
+                          {user.firstName} {user.lastName}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          @{user.username}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </header>
 
       {/* Mobile Bottom Navigation */}

@@ -16,6 +16,7 @@ export const notificationTypeSchema = z.enum([
   "CONNECTION_REQUEST",
   "POST_LIKE",
   "POST_COMMENT",
+  "COMMENT_REPLY",
 ]);
 export type NotificationTypeValue = z.infer<typeof notificationTypeSchema>;
 

@@ -15,6 +15,7 @@ import { ImageIcon, VideoIcon, LinkIcon, PenTool } from "lucide-react";
 import { MediaPreview } from "./MediaPreview";
 import { LinkDialog } from "./LinkDialog";
 import { cn } from "@/lib/utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 
 interface PostCreationFormProps {
   onPostCreated?: (post: Post) => void;
@@ -98,7 +99,7 @@ export function PostCreationForm({ onPostCreated }: PostCreationFormProps) {
           fileName: file.name,
           fileType: file.type,
           fileSize: file.size,
-          userId: parseInt(session.user.id),
+          userId: requireSessionUserId(session),
         }),
       });
 
@@ -353,7 +354,7 @@ export function PostCreationForm({ onPostCreated }: PostCreationFormProps) {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-1">
                 {/* Photo Upload */}
-                <label className="flex items-center justify-center w-12 h-12 rounded-lg bg-blue-50 hover:bg-blue-100 cursor-pointer transition-colors group">
+                <label className="flex items-center justify-center w-12 h-12 rounded-lg bg-secondary/10 hover:bg-secondary/20 cursor-pointer transition-colors group">
                   <input
                     type="file"
                     accept="image/*"
@@ -365,7 +366,7 @@ export function PostCreationForm({ onPostCreated }: PostCreationFormProps) {
                     }}
                     className="hidden"
                   />
-                  <ImageIcon className="h-5 w-5 text-blue-600 group-hover:text-blue-700" />
+                  <ImageIcon className="h-5 w-5 text-secondary group-hover:text-secondary/80" />
                 </label>
 
                 {/* Divider */}
@@ -394,9 +395,9 @@ export function PostCreationForm({ onPostCreated }: PostCreationFormProps) {
                 <button
                   type="button"
                   onClick={() => setIsLinkDialogOpen(true)}
-                  className="flex items-center justify-center w-12 h-12 rounded-lg bg-green-50 hover:bg-green-100 transition-colors group"
+                  className="flex items-center justify-center w-12 h-12 rounded-lg bg-accent/10 hover:bg-accent/20 transition-colors group"
                 >
-                  <LinkIcon className="h-5 w-5 text-green-600 group-hover:text-green-700" />
+                  <LinkIcon className="h-5 w-5 text-accent group-hover:text-accent/80" />
                 </button>
               </div>
 

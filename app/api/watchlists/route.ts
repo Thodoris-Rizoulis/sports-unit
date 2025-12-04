@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/services/auth";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 import { WatchlistService } from "@/services/watchlists";
 import { createWatchlistSchema } from "@/types/watchlists";
 
@@ -16,9 +17,8 @@ export async function GET() {
       return createErrorResponse("Unauthorized", 401);
     }
 
-    const watchlists = await WatchlistService.getUserWatchlists(
-      parseInt(session.user.id)
-    );
+    const userId = requireSessionUserId(session);
+    const watchlists = await WatchlistService.getUserWatchlists(userId);
 
     return createSuccessResponse(watchlists);
   } catch (error) {
@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
       return createErrorResponse("Unauthorized", 401);
     }
 
+    const userId = requireSessionUserId(session);
     const body = await req.json();
 
     // Validate input
@@ -52,7 +53,7 @@ export async function POST(req: NextRequest) {
     }
 
     const watchlist = await WatchlistService.createWatchlist(
-      parseInt(session.user.id),
+      userId,
       validationResult.data
     );
 

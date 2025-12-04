@@ -10,6 +10,7 @@ import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/services/auth";
 import { NotificationService } from "@/services/notifications";
+import { requireSessionUserId } from "@/lib/auth-utils";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const userId = parseInt(session.user.id);
+  const userId = requireSessionUserId(session);
 
   // Create a readable stream for SSE
   const stream = new ReadableStream({

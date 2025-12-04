@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/services/auth";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { getSessionUserId, requireSessionUserId } from "@/lib/auth-utils";
 import { PostService } from "@/services/posts";
 import { createCommentInputSchema } from "@/types/posts";
 
@@ -18,7 +19,7 @@ export async function GET(
 
     // Get current user for liked status
     const session = await getServerSession(authOptions);
-    const userId = session?.user?.id ? parseInt(session.user.id) : undefined;
+    const userId = getSessionUserId(session) ?? undefined;
 
     const comments = await PostService.getComments(postId, userId);
     return createSuccessResponse({ comments });
@@ -39,6 +40,8 @@ export async function POST(
       return createErrorResponse("Unauthorized", 401);
     }
 
+    const userId = requireSessionUserId(session);
+
     const { id } = await params;
     const postId = parseInt(id);
     if (isNaN(postId)) {
@@ -50,11 +53,7 @@ export async function POST(
     const input = createCommentInputSchema.parse(body);
 
     // Add comment
-    const comment = await PostService.addComment(
-      postId,
-      parseInt(session.user.id),
-      input
-    );
+    const comment = await PostService.addComment(postId, userId, input);
 
     return createSuccessResponse({ comment }, 201);
   } catch (error) {

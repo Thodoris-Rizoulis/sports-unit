@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/services/auth";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { getSessionUserId } from "@/lib/auth-utils";
 import { getUserIdFromUuid } from "@/services/profile";
 import { PostService } from "@/services/posts";
 
@@ -23,9 +24,7 @@ export async function GET(
 
     // Get current user for isLiked/isSaved status
     const session = await getServerSession(authOptions);
-    const currentUserId = session?.user?.id
-      ? parseInt(session.user.id)
-      : undefined;
+    const currentUserId = getSessionUserId(session) ?? undefined;
 
     // Get query params
     const url = new URL(request.url);

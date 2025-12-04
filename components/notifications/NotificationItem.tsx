@@ -26,6 +26,7 @@ export function getNavigationUrl(notification: GroupedNotification): string {
       return `/profile/${notification.actor.publicUuid}/${notification.actor.username}`;
     case "POST_LIKE":
     case "POST_COMMENT":
+    case "COMMENT_REPLY":
       return notification.entityPublicUuid
         ? `/post/${notification.entityPublicUuid}`
         : "#";
@@ -45,6 +46,8 @@ function getActionText(type: NotificationTypeEnum): string {
       return "liked your post";
     case "POST_COMMENT":
       return "commented on your post";
+    case "COMMENT_REPLY":
+      return "replied to your comment";
     default:
       return "interacted with you";
   }

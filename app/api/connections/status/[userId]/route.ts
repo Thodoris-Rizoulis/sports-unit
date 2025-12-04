@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/services/auth";
 import { ConnectionService } from "@/services/connections";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 
 export async function GET(
   request: NextRequest,
@@ -15,13 +16,15 @@ export async function GET(
       return createErrorResponse("Unauthorized", 401);
     }
 
+    const currentUserId = requireSessionUserId(session);
+
     const targetUserId = parseInt(userId);
     if (isNaN(targetUserId)) {
       return createErrorResponse("Invalid user ID", 400);
     }
 
     const status = await ConnectionService.getConnectionStatus(
-      parseInt(session.user.id),
+      currentUserId,
       targetUserId
     );
 

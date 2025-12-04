@@ -222,7 +222,8 @@ export type PostMediaItem = {
 export type NotificationTypeEnum =
   | "CONNECTION_REQUEST"
   | "POST_LIKE"
-  | "POST_COMMENT";
+  | "POST_COMMENT"
+  | "COMMENT_REPLY";
 
 /**
  * Single notification for display

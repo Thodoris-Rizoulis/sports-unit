@@ -153,7 +153,7 @@ export function ProfileHero({
                     onChange={(e) => onFileChange(e, "cover")}
                     disabled={coverUpload.uploading}
                   />
-                  <div className="bg-white/90 hover:bg-white text-gray-900 font-medium px-4 py-2 rounded-lg inline-flex items-center transition-colors">
+                  <div className="bg-background/90 hover:bg-background text-foreground font-medium px-4 py-2 rounded-lg inline-flex items-center transition-colors">
                     {coverUpload.uploading ? "Uploading..." : "Change Cover"}
                   </div>
                 </label>
@@ -173,7 +173,7 @@ export function ProfileHero({
                   src={profileUpload.preview || "/default_profile.jpg"}
                   alt="Profile picture"
                 />
-                <AvatarFallback className="text-xl md:text-2xl bg-gray-100">
+                <AvatarFallback className="text-xl md:text-2xl bg-muted">
                   {activeProfile.firstName?.[0] ?? ""}
                   {activeProfile.lastName?.[0] ?? ""}
                 </AvatarFallback>
@@ -188,7 +188,7 @@ export function ProfileHero({
                         onChange={(e) => onFileChange(e, "profile")}
                         disabled={profileUpload.uploading}
                       />
-                      <div className="bg-white/90 hover:bg-white text-gray-900 font-medium rounded-full w-8 h-8 flex items-center justify-center transition-colors">
+                      <div className="bg-background/90 hover:bg-background text-foreground font-medium rounded-full w-8 h-8 flex items-center justify-center transition-colors">
                         {profileUpload.uploading ? "..." : "+"}
                       </div>
                     </label>
@@ -218,7 +218,7 @@ export function ProfileHero({
                   }
                   className="p-2 rounded-full bg-white/80 hover:bg-white"
                 >
-                  <Edit3 className="w-4 h-4 text-gray-700" />
+                  <Edit3 className="w-4 h-4 text-foreground" />
                 </Button>
               </div>
             )}
@@ -226,15 +226,15 @@ export function ProfileHero({
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
               <div className="flex-1">
                 <div className="mb-3">
-                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
+                  <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">
                     {activeProfile.firstName} {activeProfile.lastName}
                   </h1>
-                  <p className="text-lg text-gray-600">
+                  <p className="text-lg text-muted-foreground">
                     @{activeProfile.username}
                   </p>
                 </div>
                 {(activeProfile.teamName || activeProfile.location) && (
-                  <p className="text-gray-700 mb-3 flex items-center gap-2">
+                  <p className="text-foreground/80 mb-3 flex items-center gap-2">
                     {activeProfile.teamName && (
                       <span className="font-medium">
                         {activeProfile.teamName}
@@ -250,7 +250,7 @@ export function ProfileHero({
                 )}
 
                 {activeProfile.openToOpportunities && (
-                  <Badge className="bg-green-100 text-green-800 hover:bg-green-200 border-green-200 px-3 py-1 text-sm font-medium">
+                  <Badge className="bg-accent/10 text-accent hover:bg-accent/20 border-accent/30 px-3 py-1 text-sm font-medium">
                     <CheckCircle className="w-4 h-4 mr-1" />
                     Open to opportunities
                   </Badge>

@@ -9,6 +9,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/services/auth";
 import { MessagingService } from "@/services/messaging";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 
 /**
  * GET /api/messages/unread-count
@@ -25,7 +26,7 @@ export async function GET() {
       return createErrorResponse("Unauthorized", 401);
     }
 
-    const userId = parseInt(session.user.id);
+    const userId = requireSessionUserId(session);
     const count = await MessagingService.getUnreadCount(userId);
 
     return createSuccessResponse({ count });

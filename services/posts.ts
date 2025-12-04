@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { enforcePaginationLimit, enforcePaginationOffset } from "@/lib/utils";
 import {
   Post,
   PostComment,
@@ -112,7 +113,8 @@ export class PostService {
     userId: number,
     options: { limit?: number; offset?: number } = {}
   ): Promise<Post[]> {
-    const { limit = 20, offset = 0 } = options;
+    const limit = enforcePaginationLimit(options.limit);
+    const offset = enforcePaginationOffset(options.offset);
 
     // Get connected user IDs
     const connections = await prisma.connection.findMany({
@@ -274,6 +276,16 @@ export class PostService {
       select: { userId: true },
     });
 
+    // Get parent comment author if this is a reply
+    let parentCommentAuthorId: number | null = null;
+    if (input.parentCommentId) {
+      const parentComment = await prisma.postComment.findUnique({
+        where: { id: input.parentCommentId },
+        select: { userId: true },
+      });
+      parentCommentAuthorId = parentComment?.userId ?? null;
+    }
+
     const comment = await prisma.postComment.create({
       data: {
         postId,
@@ -299,12 +311,39 @@ export class PostService {
       },
     });
 
-    // Create notification for the post owner (if not self-commenting)
-    if (post && post.userId !== userId) {
+    // Notification logic:
+    // 1. POST_COMMENT → Post owner gets notified for ANY comment/reply on their post (not self)
+    // 2. COMMENT_REPLY → Comment owner gets notified when someone replies to their comment
+    // 3. Conflict: If post owner IS the parent comment author, only send POST_COMMENT (not both)
+
+    const postOwnerId = post?.userId;
+    const isCommenterPostOwner = postOwnerId === userId;
+    const isParentCommentByPostOwner = parentCommentAuthorId === postOwnerId;
+
+    // Send POST_COMMENT to post owner for any comment (if commenter is not the post owner)
+    if (postOwnerId && !isCommenterPostOwner) {
       await NotificationService.create({
-        recipientId: post.userId,
+        recipientId: postOwnerId,
         actorId: userId,
         type: "POST_COMMENT",
+        entityType: "post",
+        entityId: postId,
+      });
+    }
+
+    // Send COMMENT_REPLY to parent comment author when:
+    // - This IS a reply (has parentCommentId)
+    // - Parent comment author is NOT the current user (no self-notification)
+    // - Parent comment author is NOT the post owner (they already got POST_COMMENT above)
+    if (
+      parentCommentAuthorId !== null &&
+      parentCommentAuthorId !== userId &&
+      !isParentCommentByPostOwner
+    ) {
+      await NotificationService.create({
+        recipientId: parentCommentAuthorId,
+        actorId: userId,
+        type: "COMMENT_REPLY",
         entityType: "post",
         entityId: postId,
       });
@@ -513,7 +552,8 @@ export class PostService {
     userId: number,
     options: { limit?: number; offset?: number } = {}
   ): Promise<Post[]> {
-    const { limit = 20, offset = 0 } = options;
+    const limit = enforcePaginationLimit(options.limit);
+    const offset = enforcePaginationOffset(options.offset);
 
     const saves = await prisma.postSave.findMany({
       where: { userId },
@@ -585,7 +625,8 @@ export class PostService {
     currentUserId?: number,
     options: { limit?: number; offset?: number } = {}
   ): Promise<Post[]> {
-    const { limit = 20, offset = 0 } = options;
+    const limit = enforcePaginationLimit(options.limit);
+    const offset = enforcePaginationOffset(options.offset);
 
     const posts = await prisma.post.findMany({
       where: {
@@ -653,5 +694,293 @@ export class PostService {
       })),
       user: toUserSummary(p.user),
     }));
+  }
+
+  /**
+   * Update a post (only by the owner)
+   */
+  static async updatePost(
+    postId: number,
+    userId: number,
+    input: CreatePostInput
+  ): Promise<Post | null> {
+    // Verify ownership
+    const existingPost = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { userId: true },
+    });
+
+    if (!existingPost || existingPost.userId !== userId) {
+      return null;
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+      // Update post content
+      const post = await tx.post.update({
+        where: { id: postId },
+        data: {
+          content: input.content,
+          updatedAt: new Date(),
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              username: true,
+              publicUuid: true,
+              attributes: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                  profilePictureUrl: true,
+                },
+              },
+            },
+          },
+          _count: {
+            select: {
+              likes: true,
+              comments: true,
+            },
+          },
+        },
+      });
+
+      // Delete existing media and add new ones if provided
+      await tx.postMedia.deleteMany({ where: { postId } });
+
+      const mediaRecords: PostMediaItem[] = [];
+      if (input.media && input.media.length > 0) {
+        for (let i = 0; i < input.media.length; i++) {
+          const item = input.media[i];
+          const media = await tx.postMedia.create({
+            data: {
+              postId: post.id,
+              mediaType: item.type,
+              url: null,
+              key: item.file,
+              orderIndex: i,
+            },
+          });
+          mediaRecords.push({
+            id: media.id,
+            postId: media.postId,
+            mediaType: media.mediaType,
+            url: media.url,
+            key: media.key,
+            orderIndex: media.orderIndex,
+          });
+        }
+      }
+
+      return {
+        id: post.id,
+        publicUuid: post.publicUuid,
+        content: post.content,
+        createdAt: post.createdAt ?? new Date(),
+        updatedAt: post.updatedAt ?? new Date(),
+        likeCount: post._count.likes,
+        commentCount: post._count.comments,
+        isLiked: false,
+        isSaved: false,
+        media: mediaRecords,
+        user: toUserSummary(post.user),
+      };
+    });
+
+    // Update hashtags
+    await HashtagService.extractAndLinkHashtags(postId, input.content);
+
+    return result;
+  }
+
+  /**
+   * Delete a post (only by the owner)
+   * Returns true if deleted, false if not found or not authorized
+   */
+  static async deletePost(postId: number, userId: number): Promise<boolean> {
+    // Verify ownership
+    const existingPost = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { userId: true },
+    });
+
+    if (!existingPost || existingPost.userId !== userId) {
+      return false;
+    }
+
+    // Delete the post (cascades to media, likes, comments, saves, shares, hashtags)
+    await prisma.post.delete({ where: { id: postId } });
+
+    return true;
+  }
+
+  /**
+   * Update a comment (only by the comment owner)
+   */
+  static async updateComment(
+    commentId: number,
+    userId: number,
+    content: string
+  ): Promise<PostComment | null> {
+    // Verify ownership
+    const existingComment = await prisma.postComment.findUnique({
+      where: { id: commentId },
+      select: { userId: true },
+    });
+
+    if (!existingComment || existingComment.userId !== userId) {
+      return null;
+    }
+
+    const comment = await prisma.postComment.update({
+      where: { id: commentId },
+      data: { content },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            publicUuid: true,
+            attributes: {
+              select: {
+                firstName: true,
+                lastName: true,
+                profilePictureUrl: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: { likes: true },
+        },
+        likes: {
+          where: { userId },
+          select: { id: true },
+        },
+      },
+    });
+
+    return {
+      id: comment.id,
+      postId: comment.postId,
+      parentCommentId: comment.parentCommentId,
+      content: comment.content,
+      createdAt: comment.createdAt ?? new Date(),
+      likeCount: comment._count.likes,
+      isLiked: comment.likes.length > 0,
+      user: toUserSummary(comment.user),
+    };
+  }
+
+  /**
+   * Delete a comment
+   * User can delete their own comment from any post
+   * Post owner can delete any comment on their post
+   * Returns true if deleted, false if not found or not authorized
+   */
+  static async deleteComment(
+    commentId: number,
+    userId: number
+  ): Promise<boolean> {
+    // Get comment with post info
+    const comment = await prisma.postComment.findUnique({
+      where: { id: commentId },
+      select: {
+        userId: true,
+        post: {
+          select: { userId: true },
+        },
+      },
+    });
+
+    if (!comment) {
+      return false;
+    }
+
+    // Check authorization: either comment owner or post owner
+    const isCommentOwner = comment.userId === userId;
+    const isPostOwner = comment.post.userId === userId;
+
+    if (!isCommentOwner && !isPostOwner) {
+      return false;
+    }
+
+    // Delete the comment (cascades to likes and replies)
+    await prisma.postComment.delete({ where: { id: commentId } });
+
+    return true;
+  }
+
+  /**
+   * Get a single post by ID with user context
+   */
+  static async getPostById(
+    postId: number,
+    currentUserId?: number
+  ): Promise<Post | null> {
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            publicUuid: true,
+            attributes: {
+              select: {
+                firstName: true,
+                lastName: true,
+                profilePictureUrl: true,
+              },
+            },
+          },
+        },
+        media: {
+          orderBy: { orderIndex: "asc" },
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+          },
+        },
+        likes: currentUserId
+          ? {
+              where: { userId: currentUserId },
+              select: { id: true },
+            }
+          : false,
+        saves: currentUserId
+          ? {
+              where: { userId: currentUserId },
+              select: { id: true },
+            }
+          : false,
+      },
+    });
+
+    if (!post) return null;
+
+    return {
+      id: post.id,
+      publicUuid: post.publicUuid,
+      content: post.content,
+      createdAt: post.createdAt ?? new Date(),
+      updatedAt: post.updatedAt ?? new Date(),
+      likeCount: post._count.likes,
+      commentCount: post._count.comments,
+      isLiked: Array.isArray(post.likes) ? post.likes.length > 0 : false,
+      isSaved: Array.isArray(post.saves) ? post.saves.length > 0 : false,
+      media: post.media.map((m) => ({
+        id: m.id,
+        postId: m.postId,
+        mediaType: m.mediaType,
+        url: m.url,
+        key: m.key,
+        orderIndex: m.orderIndex,
+      })),
+      user: toUserSummary(post.user),
+    };
   }
 }

@@ -24,7 +24,7 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-background max-w-screen-2xl mx-auto">
+    <div className="flex min-h-screen bg-background max-w-screen-2xl mx-auto mb-16 md:mb-0">
       {/* Left Sidebar */}
       <aside className="hidden md:block w-72 p-4">
         <div className="sticky top-4 space-y-4">

@@ -5,6 +5,7 @@ import { ConnectionService } from "@/services/connections";
 import { connectionResponseSchema } from "@/types/connections";
 import { authOptions } from "@/services/auth";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 import prisma from "@/lib/prisma";
 
 // POST /api/connections/[id]/respond - Respond to a connection request
@@ -20,7 +21,7 @@ export async function POST(
       return createErrorResponse("Unauthorized", 401);
     }
 
-    const userId = parseInt(session.user.id);
+    const userId = requireSessionUserId(session);
     const connectionId = parseInt(id);
 
     if (isNaN(connectionId)) {

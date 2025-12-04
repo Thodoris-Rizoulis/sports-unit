@@ -81,7 +81,7 @@ export function AthleteMetricsSection({
                 }
                 variant="outline"
                 size="sm"
-                className="text-gray-700 hover:text-gray-900 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="text-muted-foreground hover:text-foreground hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
                 title={
                   currentlyEditing && currentlyEditing !== "metrics"
                     ? `Finish editing ${currentlyEditing} first`
@@ -95,11 +95,11 @@ export function AthleteMetricsSection({
         </CardHeader>
         <CardContent>
           {!hasMetrics && !isOwner ? (
-            <p className="text-gray-500 text-center py-4">
+            <p className="text-muted-foreground text-center py-4">
               No metrics recorded yet.
             </p>
           ) : !hasMetrics && isOwner ? (
-            <p className="text-gray-500 text-center py-4">
+            <p className="text-muted-foreground text-center py-4">
               Track your athletic performance by adding your metrics.
             </p>
           ) : (
@@ -108,7 +108,7 @@ export function AthleteMetricsSection({
               <div className="flex items-start gap-3">
                 <Zap className="w-5 h-5 text-yellow-500 mt-0.5" />
                 <div>
-                  <p className="text-sm text-gray-500">30m Sprint</p>
+                  <p className="text-sm text-muted-foreground">30m Sprint</p>
                   <p className="font-medium">
                     {formatMetric(metrics?.sprintSpeed30m ?? null, "s")}
                   </p>
@@ -119,7 +119,9 @@ export function AthleteMetricsSection({
               <div className="flex items-start gap-3">
                 <Timer className="w-5 h-5 text-blue-500 mt-0.5" />
                 <div>
-                  <p className="text-sm text-gray-500">Agility T-Test</p>
+                  <p className="text-sm text-muted-foreground">
+                    Agility T-Test
+                  </p>
                   <p className="font-medium">
                     {formatMetric(metrics?.agilityTTest ?? null, "s")}
                   </p>
@@ -130,7 +132,7 @@ export function AthleteMetricsSection({
               <div className="flex items-start gap-3">
                 <Gauge className="w-5 h-5 text-green-500 mt-0.5" />
                 <div>
-                  <p className="text-sm text-gray-500">Beep Test</p>
+                  <p className="text-sm text-muted-foreground">Beep Test</p>
                   <p className="font-medium">{formatBeepTest()}</p>
                 </div>
               </div>
@@ -139,7 +141,7 @@ export function AthleteMetricsSection({
               <div className="flex items-start gap-3">
                 <TrendingUp className="w-5 h-5 text-purple-500 mt-0.5" />
                 <div>
-                  <p className="text-sm text-gray-500">Vertical Jump</p>
+                  <p className="text-sm text-muted-foreground">Vertical Jump</p>
                   <p className="font-medium">
                     {formatMetric(metrics?.verticalJump ?? null, " cm")}
                   </p>

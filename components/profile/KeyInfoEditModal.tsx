@@ -211,7 +211,7 @@ export function KeyInfoEditModal({
                 </p>
               </div>
             ) : positionsLoading ? (
-              <div className="flex items-center gap-2 text-gray-500">
+              <div className="flex items-center gap-2 text-muted-foreground">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span className="text-sm">Loading positions...</span>
               </div>
@@ -220,7 +220,7 @@ export function KeyInfoEditModal({
                 {positions.map((position) => (
                   <label
                     key={position.id}
-                    className="flex items-center gap-2 p-2 rounded-md border cursor-pointer hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-2 p-2 rounded-md border cursor-pointer hover:bg-accent transition-colors"
                   >
                     <Checkbox
                       checked={selectedPositions.includes(position.id)}
@@ -236,12 +236,12 @@ export function KeyInfoEditModal({
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 No positions available for this sport.
               </p>
             )}
             {selectedPositions.length > 0 && (
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 {selectedPositions.length} of{" "}
                 {VALIDATION_CONSTANTS.SPORTS.MAX_POSITIONS} positions selected
               </p>

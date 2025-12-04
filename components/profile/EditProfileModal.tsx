@@ -170,7 +170,7 @@ export function EditProfileModal({
                 !form.formState.errors.username &&
                 watchedUsername &&
                 watchedUsername !== profile.username && (
-                  <div className="flex items-center gap-2 text-green-700">
+                  <div className="flex items-center gap-2 text-accent">
                     <CheckCircle className="w-4 h-4" />
                     <p className="text-sm">Username available</p>
                   </div>
@@ -233,7 +233,6 @@ export function EditProfileModal({
           <div className="flex gap-3 pt-4">
             <Button
               onClick={form.handleSubmit(onSubmit)}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
               disabled={
                 isSaving ||
                 Object.keys(form.formState.errors).length > 0 ||

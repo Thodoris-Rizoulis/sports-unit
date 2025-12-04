@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/services/auth";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 import { WatchlistService } from "@/services/watchlists";
 
 type RouteParams = {
@@ -19,6 +20,8 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       return createErrorResponse("Unauthorized", 401);
     }
 
+    const userId = requireSessionUserId(session);
+
     const { athleteId } = await params;
     const athleteIdNum = parseInt(athleteId);
 
@@ -28,7 +31,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
 
     const watchlistIds = await WatchlistService.getWatchlistsContainingAthlete(
       athleteIdNum,
-      parseInt(session.user.id)
+      userId
     );
 
     return createSuccessResponse({ watchlistIds });

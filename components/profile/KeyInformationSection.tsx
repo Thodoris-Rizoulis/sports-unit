@@ -129,7 +129,7 @@ export function KeyInformationSection({
                 }
                 variant="outline"
                 size="sm"
-                className="text-gray-700 hover:text-gray-900 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="text-muted-foreground hover:text-foreground hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
                 title={
                   currentlyEditing && currentlyEditing !== "keyInfo"
                     ? `Finish editing ${currentlyEditing} first`
@@ -145,13 +145,13 @@ export function KeyInformationSection({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Date of Birth */}
             <div className="flex items-start gap-3">
-              <Calendar className="w-5 h-5 text-gray-400 mt-0.5" />
+              <Calendar className="w-5 h-5 text-muted-foreground mt-0.5" />
               <div>
-                <p className="text-sm text-gray-500">Date of Birth</p>
+                <p className="text-sm text-muted-foreground">Date of Birth</p>
                 <p className="font-medium">
                   {formatDateOfBirth(profile.dateOfBirth)}
                   {age !== null && age > 0 && (
-                    <span className="text-gray-500 font-normal ml-1">
+                    <span className="text-muted-foreground font-normal ml-1">
                       ({age} years old)
                     </span>
                   )}
@@ -161,27 +161,27 @@ export function KeyInformationSection({
 
             {/* Height */}
             <div className="flex items-start gap-3">
-              <Ruler className="w-5 h-5 text-gray-400 mt-0.5" />
+              <Ruler className="w-5 h-5 text-muted-foreground mt-0.5" />
               <div>
-                <p className="text-sm text-gray-500">Height</p>
+                <p className="text-sm text-muted-foreground">Height</p>
                 <p className="font-medium">{formatHeight(profile.height)}</p>
               </div>
             </div>
 
             {/* Positions */}
             <div className="flex items-start gap-3">
-              <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
+              <MapPin className="w-5 h-5 text-muted-foreground mt-0.5" />
               <div>
-                <p className="text-sm text-gray-500">Positions</p>
+                <p className="text-sm text-muted-foreground">Positions</p>
                 <p className="font-medium">{getPositionNames()}</p>
               </div>
             </div>
 
             {/* Strong Foot */}
             <div className="flex items-start gap-3">
-              <Footprints className="w-5 h-5 text-gray-400 mt-0.5" />
+              <Footprints className="w-5 h-5 text-muted-foreground mt-0.5" />
               <div>
-                <p className="text-sm text-gray-500">Strong Foot</p>
+                <p className="text-sm text-muted-foreground">Strong Foot</p>
                 <p className="font-medium">
                   {formatStrongFoot(profile.strongFoot)}
                 </p>

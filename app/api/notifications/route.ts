@@ -11,6 +11,7 @@ import { authOptions } from "@/services/auth";
 import { NotificationService } from "@/services/notifications";
 import { getNotificationsQuerySchema } from "@/types/notifications";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,6 +19,8 @@ export async function GET(request: NextRequest) {
     if (!session?.user?.id) {
       return createErrorResponse("Unauthorized", 401);
     }
+
+    const userId = requireSessionUserId(session);
 
     const { searchParams } = new URL(request.url);
 
@@ -37,7 +40,6 @@ export async function GET(request: NextRequest) {
     }
 
     const { limit, cursor, grouped } = parseResult.data;
-    const userId = parseInt(session.user.id);
 
     const result = await NotificationService.getByUserId(userId, {
       limit,

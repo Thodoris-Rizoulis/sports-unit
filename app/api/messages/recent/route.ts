@@ -11,6 +11,7 @@ import { authOptions } from "@/services/auth";
 import { MessagingService } from "@/services/messaging";
 import { getRecentMessagesSchema } from "@/types/messaging";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 
 /**
  * GET /api/messages/recent
@@ -45,7 +46,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const userId = parseInt(session.user.id);
+    const userId = requireSessionUserId(session);
     const messages = await MessagingService.getRecentMessages(
       userId,
       parseResult.data.limit

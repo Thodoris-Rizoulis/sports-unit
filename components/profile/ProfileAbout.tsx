@@ -72,7 +72,7 @@ export function ProfileAbout({
                 }
                 variant="outline"
                 size="sm"
-                className="text-gray-700 hover:text-gray-900 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="text-muted-foreground hover:text-foreground hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
                 title={
                   currentlyEditing && currentlyEditing !== "about"
                     ? `Finish editing ${currentlyEditing} first`
@@ -86,7 +86,7 @@ export function ProfileAbout({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="prose prose-gray max-w-none">
-            <p className="text-gray-700 leading-relaxed text-base">
+            <p className="text-foreground/80 leading-relaxed text-base">
               {displayBio || "No bio available."}
             </p>
           </div>
@@ -108,7 +108,7 @@ export function ProfileAbout({
             <div className="space-y-2">
               <Label
                 htmlFor="bio"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-muted-foreground"
               >
                 Bio
               </Label>
@@ -119,7 +119,7 @@ export function ProfileAbout({
                 placeholder="Tell us about yourself..."
                 className="min-h-[120px] resize-none"
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Share your story, interests, and what makes you unique.
               </p>
             </div>
@@ -127,11 +127,7 @@ export function ProfileAbout({
 
           <DialogFooter>
             <div className="flex gap-3 pt-4">
-              <Button
-                onClick={handleSave}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-                disabled={isSaving}
-              >
+              <Button onClick={handleSave} disabled={isSaving}>
                 {isSaving ? "Saving..." : "Save Changes"}
               </Button>
               <Button

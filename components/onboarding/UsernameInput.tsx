@@ -41,11 +41,15 @@ export function UsernameInput({
         <p>3-20 characters, letters, numbers, and underscores only</p>
         {localValue && (
           <div className="flex gap-2 mt-1">
-            <span className={isValidLength ? "text-green-600" : "text-red-600"}>
+            <span
+              className={isValidLength ? "text-accent" : "text-destructive"}
+            >
               ✓ Length ({VALIDATION_CONSTANTS.USERNAME.MIN_LENGTH}-
               {VALIDATION_CONSTANTS.USERNAME.MAX_LENGTH} chars)
             </span>
-            <span className={isValidFormat ? "text-green-600" : "text-red-600"}>
+            <span
+              className={isValidFormat ? "text-accent" : "text-destructive"}
+            >
               ✓ Format (alphanumeric + _)
             </span>
           </div>

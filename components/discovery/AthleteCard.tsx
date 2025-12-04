@@ -134,7 +134,7 @@ export function AthleteCard({
               {athlete.openToOpportunities && (
                 <Badge
                   variant="outline"
-                  className="text-xs text-green-600 border-green-600"
+                  className="text-xs text-accent border-accent"
                 >
                   Open to Opportunities
                 </Badge>

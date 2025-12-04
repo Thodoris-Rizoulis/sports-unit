@@ -5,6 +5,47 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+// ========================================
+// Pagination Utilities
+// ========================================
+
+/** Maximum allowed limit for any paginated query */
+export const MAX_PAGINATION_LIMIT = 100;
+
+/** Default pagination limit */
+export const DEFAULT_PAGINATION_LIMIT = 20;
+
+/**
+ * Enforces pagination limits to prevent excessive data fetching.
+ * Clamps the requested limit between 1 and MAX_PAGINATION_LIMIT.
+ *
+ * @param limit - The requested limit
+ * @param defaultLimit - Optional default limit (defaults to 20)
+ * @returns A safe limit value
+ */
+export function enforcePaginationLimit(
+  limit?: number,
+  defaultLimit: number = DEFAULT_PAGINATION_LIMIT
+): number {
+  if (limit === undefined || limit === null) {
+    return defaultLimit;
+  }
+  return Math.max(1, Math.min(limit, MAX_PAGINATION_LIMIT));
+}
+
+/**
+ * Enforces offset to be non-negative.
+ *
+ * @param offset - The requested offset
+ * @returns A safe offset value (minimum 0)
+ */
+export function enforcePaginationOffset(offset?: number): number {
+  if (offset === undefined || offset === null) {
+    return 0;
+  }
+  return Math.max(0, offset);
+}
+
 export function getProfileUrl(profile: {
   publicUuid?: string;
   username: string;

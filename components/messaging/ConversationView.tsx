@@ -26,6 +26,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Loader2, WifiOff } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getSessionUserId } from "@/lib/auth-utils";
 import type { MessageUI, UserSummary } from "@/types/prisma";
 
 type UploadedMedia = {
@@ -57,7 +58,7 @@ export function ConversationView({
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const lastMessageCountRef = useRef(0);
 
-  const currentUserId = session?.user?.id ? parseInt(session.user.id) : null;
+  const currentUserId = getSessionUserId(session);
 
   // Fetch conversation with messages
   const {

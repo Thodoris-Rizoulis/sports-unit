@@ -2,10 +2,10 @@
 
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { PostItem } from "./PostItem";
 import { Loader2, Hash } from "lucide-react";
-import type { HashtagPostsResponse } from "@/types/prisma";
+import type { HashtagPostsResponse, Post } from "@/types/prisma";
 
 type HashtagFeedProps = {
   hashtag: string;
@@ -75,7 +75,25 @@ export function HashtagFeed({ hashtag }: HashtagFeedProps) {
 
   const posts = data?.pages.flatMap((page) => page.posts) ?? [];
 
-  if (posts.length === 0) {
+  // Local state for immediate UI updates
+  const [localPosts, setLocalPosts] = useState<Post[]>([]);
+
+  // Sync local state with fetched data
+  useEffect(() => {
+    setLocalPosts(posts);
+  }, [data]); // Only depend on data changes
+
+  const handlePostDeleted = useCallback((postId: number) => {
+    setLocalPosts((prev) => prev.filter((p) => p.id !== postId));
+  }, []);
+
+  const handlePostUpdated = useCallback((updatedPost: Post) => {
+    setLocalPosts((prev) =>
+      prev.map((p) => (p.id === updatedPost.id ? updatedPost : p))
+    );
+  }, []);
+
+  if (localPosts.length === 0 && !isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
         <Hash className="h-12 w-12 mb-4 opacity-50" />
@@ -89,8 +107,13 @@ export function HashtagFeed({ hashtag }: HashtagFeedProps) {
 
   return (
     <div className="space-y-4">
-      {posts.map((post) => (
-        <PostItem key={post.id} post={post} />
+      {localPosts.map((post) => (
+        <PostItem
+          key={post.id}
+          post={post}
+          onPostDeleted={handlePostDeleted}
+          onPostUpdated={handlePostUpdated}
+        />
       ))}
 
       {/* Infinite scroll trigger */}
@@ -100,7 +123,7 @@ export function HashtagFeed({ hashtag }: HashtagFeedProps) {
         )}
       </div>
 
-      {!hasNextPage && posts.length > 0 && (
+      {!hasNextPage && localPosts.length > 0 && (
         <p className="text-center text-muted-foreground text-sm py-4">
           No more posts
         </p>

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/services/auth";
 import { PostService } from "@/services/posts";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 
 export async function POST(
   request: NextRequest,
@@ -14,16 +15,15 @@ export async function POST(
       return createErrorResponse("Unauthorized", 401);
     }
 
+    const userId = requireSessionUserId(session);
+
     const { id } = await params;
     const postId = parseInt(id);
     if (isNaN(postId)) {
       return createErrorResponse("Invalid post ID", 400);
     }
 
-    const result = await PostService.toggleSave(
-      postId,
-      parseInt(session.user.id)
-    );
+    const result = await PostService.toggleSave(postId, userId);
 
     return createSuccessResponse({
       saved: result.saved,

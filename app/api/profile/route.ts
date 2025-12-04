@@ -6,6 +6,7 @@ import prisma from "@/lib/prisma";
 import { profilePartialUpdateSchema } from "@/types/profile";
 import { authOptions } from "@/services/auth";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 
 // GET /api/profile - Get current user's profile
 export async function GET() {
@@ -16,8 +17,10 @@ export async function GET() {
       return createErrorResponse("Unauthorized", 401);
     }
 
-    const userId = parseInt(session.user.id);
-    const profile = await UserService.getUserAttributes(userId);
+    const userId = requireSessionUserId(session);
+
+    // Fetch the full user profile (includes publicUuid and username for URL generation)
+    const profile = await UserService.getUserProfileByUserId(userId);
 
     if (!profile) {
       return createErrorResponse("Profile not found", 404);
@@ -39,7 +42,7 @@ export async function PUT(request: NextRequest) {
       return createErrorResponse("Unauthorized", 401);
     }
 
-    const userId = parseInt(session.user.id);
+    const userId = requireSessionUserId(session);
     const body = await request.json();
     const validatedData = profilePartialUpdateSchema.parse(body);
 

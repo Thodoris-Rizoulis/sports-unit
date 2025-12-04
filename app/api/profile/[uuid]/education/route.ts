@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/services/auth";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 import { getUserIdFromUuid } from "@/services/profile";
 import { EducationService } from "@/services/education";
 import { educationSchema } from "@/types/enhanced-profile";
@@ -45,6 +46,8 @@ export async function POST(
       return createErrorResponse("Unauthorized", 401);
     }
 
+    const sessionUserId = requireSessionUserId(session);
+
     const { uuid } = await params;
 
     const userId = await getUserIdFromUuid(uuid);
@@ -53,7 +56,7 @@ export async function POST(
     }
 
     // Check ownership
-    if (userId !== parseInt(session.user.id)) {
+    if (userId !== sessionUserId) {
       return createErrorResponse("Forbidden", 403);
     }
 

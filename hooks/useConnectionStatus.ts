@@ -89,3 +89,24 @@ export function useRemoveConnection() {
     },
   });
 }
+
+export function useCancelConnectionRequest() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (connectionId: number) => {
+      const res = await fetch(`/api/connections/${connectionId}/cancel`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to cancel connection request");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      // Invalidate all connection-related queries
+      qc.invalidateQueries({ queryKey: ["connection-status"] });
+      qc.invalidateQueries({ queryKey: ["connections"] });
+    },
+  });
+}

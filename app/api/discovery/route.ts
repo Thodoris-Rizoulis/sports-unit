@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/services/auth";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 import { DiscoveryService } from "@/services/discovery";
 import { discoveryFiltersSchema } from "@/types/discovery";
 import { z } from "zod";
@@ -101,9 +102,10 @@ export async function GET(req: NextRequest) {
     const filters = validationResult.data;
 
     // Search for athletes
+    const sessionUserId = requireSessionUserId(session);
     const results = await DiscoveryService.searchAthletes(
       filters,
-      parseInt(session.user.id)
+      sessionUserId
     );
 
     return createSuccessResponse(results);

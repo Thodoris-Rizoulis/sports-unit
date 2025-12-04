@@ -10,6 +10,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/services/auth";
 import { MessagingService } from "@/services/messaging";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 
 type RouteParams = {
   params: Promise<{ id: string }>;
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return createErrorResponse("Invalid conversation ID", 400);
     }
 
-    const userId = parseInt(session.user.id);
+    const userId = requireSessionUserId(session);
     await MessagingService.markAsRead(conversationId, userId);
 
     return createSuccessResponse({ success: true });

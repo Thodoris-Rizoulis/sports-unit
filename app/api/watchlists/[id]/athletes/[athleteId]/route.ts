@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/services/auth";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 import { WatchlistService } from "@/services/watchlists";
 
 type RouteParams = {
@@ -19,6 +20,8 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
       return createErrorResponse("Unauthorized", 401);
     }
 
+    const userId = requireSessionUserId(session);
+
     const { id, athleteId } = await params;
     const watchlistId = parseInt(id);
     const athleteIdNum = parseInt(athleteId);
@@ -30,7 +33,7 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
     const removed = await WatchlistService.removeAthleteFromWatchlist(
       watchlistId,
       athleteIdNum,
-      parseInt(session.user.id)
+      userId
     );
 
     if (!removed) {

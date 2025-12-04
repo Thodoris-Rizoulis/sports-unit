@@ -86,7 +86,9 @@ export function ConnectionsList({
           <CardTitle>{title}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8 text-gray-500">{emptyMessage}</div>
+          <div className="text-center py-8 text-muted-foreground">
+            {emptyMessage}
+          </div>
         </CardContent>
       </Card>
     );
@@ -118,7 +120,7 @@ export function ConnectionsList({
                       publicUuid: connection.user.publicUuid,
                       username: connection.user.username,
                     })}
-                    className="font-medium text-blue-600 hover:underline"
+                    className="font-medium text-primary hover:underline"
                   >
                     @{connection.user.username}
                   </Link>

@@ -50,7 +50,7 @@ export function CertificationsSection({
               }
               variant="outline"
               size="sm"
-              className="text-gray-700 hover:text-gray-900 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-muted-foreground hover:text-foreground hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
               title={
                 currentlyEditing &&
                 !currentlyEditing?.startsWith("certification")
@@ -66,7 +66,7 @@ export function CertificationsSection({
       <CardContent>
         {!hasCertifications ? (
           <div className="text-center py-6">
-            <p className="text-gray-500">
+            <p className="text-muted-foreground">
               {isOwner
                 ? "Add your licenses and certifications."
                 : "No certifications added yet."}
@@ -108,18 +108,20 @@ function CertificationItem({
   onDelete: () => void;
 }) {
   return (
-    <div className="flex items-start justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+    <div className="flex items-start justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors">
       <div className="flex-1">
-        <h4 className="font-semibold text-gray-900">{certification.title}</h4>
+        <h4 className="font-semibold text-foreground">{certification.title}</h4>
         {certification.organization && (
-          <p className="flex items-center gap-1 text-gray-700 mt-1">
-            <Building2 className="w-4 h-4 text-gray-400" />
+          <p className="flex items-center gap-1 text-foreground/80 mt-1">
+            <Building2 className="w-4 h-4 text-muted-foreground" />
             {certification.organization}
           </p>
         )}
-        <p className="text-sm text-gray-500 mt-2">{certification.year}</p>
+        <p className="text-sm text-muted-foreground mt-2">
+          {certification.year}
+        </p>
         {certification.description && (
-          <p className="text-sm text-gray-600 mt-2">
+          <p className="text-sm text-muted-foreground mt-2">
             {certification.description}
           </p>
         )}
@@ -134,7 +136,7 @@ function CertificationItem({
               currentlyEditing !== null &&
               !currentlyEditing?.startsWith("certification")
             }
-            className="text-gray-500 hover:text-gray-700"
+            className="text-muted-foreground hover:text-foreground"
           >
             <Edit3 className="w-4 h-4" />
           </Button>
@@ -146,7 +148,7 @@ function CertificationItem({
               currentlyEditing !== null &&
               !currentlyEditing?.startsWith("certification")
             }
-            className="text-gray-500 hover:text-red-600"
+            className="text-muted-foreground hover:text-destructive"
           >
             <Trash2 className="w-4 h-4" />
           </Button>

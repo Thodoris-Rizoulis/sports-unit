@@ -16,6 +16,7 @@ import { ConversationList } from "@/components/messaging/ConversationList";
 import { ConversationView } from "@/components/messaging/ConversationView";
 import { useMessageSocket } from "@/hooks/useMessaging";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { getSessionUserId } from "@/lib/auth-utils";
 import { MessageSquare, Loader2 } from "lucide-react";
 import type { ConversationUI } from "@/types/prisma";
 
@@ -35,7 +36,7 @@ function InboxContent() {
   const { isConnected, joinConversation, leaveConversation } = useMessageSocket(
     {
       enabled: status === "authenticated" && !!session?.user?.id,
-      userId: session?.user?.id ? parseInt(session.user.id) : undefined,
+      userId: getSessionUserId(session) ?? undefined,
       sessionToken: session?.user?.id, // Simplified - in production use actual session token
       onError: (error) => {
         console.error("[inbox] WebSocket error:", error);
@@ -96,7 +97,7 @@ function InboxContent() {
   }
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex">
+    <div className="h-[calc(100vh-4rem)] md:h-[calc(100vh-4rem)] flex">
       {/* Conversation List - Always visible on desktop, hidden on mobile when conversation selected */}
       <div
         className={`${isMobile ? "w-full" : "w-80 lg:w-96 border-r"} ${

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { FileText, ChevronRight } from "lucide-react";
 import { RecentActivitySectionProps } from "@/types/components";
 import { useRecentPosts } from "@/hooks/useUserPosts";
 import { PostItem } from "@/components/posts/PostItem";
+import type { Post } from "@/types/prisma";
 
 // Generate slug from profile name
 function generateSlug(firstName: string, lastName: string): string {
@@ -23,8 +25,26 @@ export function RecentActivitySection({
 }: RecentActivitySectionProps) {
   const { data, isLoading } = useRecentPosts(profile.publicUuid);
 
-  const posts = data?.pages?.[0]?.posts || [];
-  const hasPosts = posts.length > 0;
+  // Local state for immediate UI updates
+  const [localPosts, setLocalPosts] = useState<Post[]>([]);
+
+  // Sync local state with fetched data
+  useEffect(() => {
+    const fetchedPosts = data?.pages?.[0]?.posts || [];
+    setLocalPosts(fetchedPosts);
+  }, [data]);
+
+  const handlePostDeleted = useCallback((postId: number) => {
+    setLocalPosts((prev) => prev.filter((p) => p.id !== postId));
+  }, []);
+
+  const handlePostUpdated = useCallback((updatedPost: Post) => {
+    setLocalPosts((prev) =>
+      prev.map((p) => (p.id === updatedPost.id ? updatedPost : p))
+    );
+  }, []);
+
+  const hasPosts = localPosts.length > 0;
   const slug = generateSlug(profile.firstName, profile.lastName);
 
   if (isLoading) {
@@ -42,7 +62,7 @@ export function RecentActivitySection({
           {hasPosts && (
             <Link
               href={`/profile/${profile.publicUuid}/${slug}/posts`}
-              className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium"
+              className="flex items-center gap-1 text-sm text-primary hover:text-primary/80 font-medium"
             >
               See All
               <ChevronRight className="w-4 h-4" />
@@ -53,7 +73,7 @@ export function RecentActivitySection({
       <CardContent>
         {!hasPosts ? (
           <div className="text-center py-8">
-            <p className="text-gray-500">
+            <p className="text-muted-foreground">
               {isOwner ? "You haven't posted anything yet." : "No posts yet."}
             </p>
             {isOwner && (
@@ -66,8 +86,13 @@ export function RecentActivitySection({
           </div>
         ) : (
           <div className="space-y-4">
-            {posts.slice(0, 2).map((post) => (
-              <PostItem key={post.publicUuid} post={post} />
+            {localPosts.slice(0, 2).map((post) => (
+              <PostItem
+                key={post.publicUuid}
+                post={post}
+                onPostDeleted={handlePostDeleted}
+                onPostUpdated={handlePostUpdated}
+              />
             ))}
           </div>
         )}

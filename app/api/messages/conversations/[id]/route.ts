@@ -12,6 +12,7 @@ import { authOptions } from "@/services/auth";
 import { MessagingService } from "@/services/messaging";
 import { getConversationSchema, sendMessageSchema } from "@/types/messaging";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 
 type RouteParams = {
   params: Promise<{ id: string }>;
@@ -59,7 +60,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const userId = parseInt(session.user.id);
+    const userId = requireSessionUserId(session);
     const result = await MessagingService.getMessages(
       conversationId,
       userId,
@@ -123,7 +124,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const userId = parseInt(session.user.id);
+    const userId = requireSessionUserId(session);
     const message = await MessagingService.sendMessage(
       conversationId,
       userId,

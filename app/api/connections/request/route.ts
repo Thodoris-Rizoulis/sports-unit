@@ -5,6 +5,7 @@ import { ConnectionService } from "@/services/connections";
 import { connectionRequestSchema } from "@/types/connections";
 import { authOptions } from "@/services/auth";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 
 // POST /api/connections/request - Send a connection request
 export async function POST(request: NextRequest) {
@@ -15,7 +16,7 @@ export async function POST(request: NextRequest) {
       return createErrorResponse("Unauthorized", 401);
     }
 
-    const requesterId = parseInt(session.user.id);
+    const requesterId = requireSessionUserId(session);
     const body = await request.json();
 
     // Validate request body

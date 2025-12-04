@@ -15,6 +15,7 @@ import {
   getOrCreateConversationSchema,
 } from "@/types/messaging";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 
 /**
  * GET /api/messages/conversations
@@ -53,7 +54,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const userId = parseInt(session.user.id);
+    const userId = requireSessionUserId(session);
     const result = await MessagingService.getConversations(
       userId,
       parseResult.data
@@ -101,7 +102,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const currentUserId = parseInt(session.user.id);
+    const currentUserId = requireSessionUserId(session);
     const { userId: otherUserId } = parseResult.data;
 
     // Prevent messaging yourself

@@ -48,8 +48,8 @@ export default function PostPage() {
       <SessionGuard>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-            <p className="mt-2 text-gray-600">Loading post...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-2 text-muted-foreground">Loading post...</p>
           </div>
         </div>
       </SessionGuard>
@@ -63,7 +63,7 @@ export default function PostPage() {
           <Card className="max-w-md">
             <CardContent className="p-6 text-center">
               <h2 className="text-xl font-semibold mb-2">Post Not Found</h2>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 {error ||
                   "The post you're looking for doesn't exist or has been removed."}
               </p>
@@ -78,8 +78,8 @@ export default function PostPage() {
     <SessionGuard>
       <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Post</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-foreground mb-2">Post</h1>
+          <p className="text-muted-foreground">
             Shared post from {session?.user?.name}
           </p>
         </div>

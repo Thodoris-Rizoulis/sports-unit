@@ -11,8 +11,12 @@ export default function Network() {
     <SessionGuard>
       <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Network</h1>
-          <p className="text-gray-600">Manage your connections and network</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            My Network
+          </h1>
+          <p className="text-muted-foreground">
+            Manage your connections and network
+          </p>
         </div>
 
         <div className="space-y-8">

@@ -86,6 +86,49 @@ export const heightField = z
   .optional();
 
 // ========================================
+// Pagination Schemas
+// ========================================
+
+/** Default pagination limits */
+export const PAGINATION_DEFAULTS = {
+  DEFAULT_LIMIT: 20,
+  MAX_LIMIT: 100,
+  DEFAULT_OFFSET: 0,
+} as const;
+
+/** Schema for limit query parameter with enforcement */
+export const limitSchema = z.coerce
+  .number()
+  .int()
+  .min(1, "Limit must be at least 1")
+  .max(
+    PAGINATION_DEFAULTS.MAX_LIMIT,
+    `Limit cannot exceed ${PAGINATION_DEFAULTS.MAX_LIMIT}`
+  )
+  .default(PAGINATION_DEFAULTS.DEFAULT_LIMIT);
+
+/** Schema for offset query parameter */
+export const offsetSchema = z.coerce
+  .number()
+  .int()
+  .min(0, "Offset cannot be negative")
+  .default(PAGINATION_DEFAULTS.DEFAULT_OFFSET);
+
+/** Schema for cursor-based pagination */
+export const cursorSchema = z.coerce.number().int().positive().optional();
+
+/** Schema for page-based pagination */
+export const pageSchema = z.coerce.number().int().min(1).default(1);
+
+/** Combined pagination query schema */
+export const paginationQuerySchema = z.object({
+  limit: limitSchema,
+  offset: offsetSchema,
+});
+
+export type PaginationQuery = z.infer<typeof paginationQuerySchema>;
+
+// ========================================
 // Other Types
 // ========================================
 

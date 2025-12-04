@@ -1,11 +1,18 @@
 import { Button } from "@/components/ui/button";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   useConnectionStatus,
   useSendConnectionRequest,
+  useCancelConnectionRequest,
 } from "@/hooks/useConnectionStatus";
 import { ConnectionRequestsModal } from "./ConnectionRequestsModal";
-import { Loader2, UserPlus, UserCheck, UserX } from "lucide-react";
-import { useState } from "react";
+import { Loader2, UserPlus, UserCheck, Clock, X } from "lucide-react";
+import { useState, useEffect } from "react";
 
 interface ConnectionButtonProps {
   targetUserId: number;
@@ -18,7 +25,23 @@ export function ConnectionButton({
 }: ConnectionButtonProps) {
   const { data: status, isLoading, error } = useConnectionStatus(targetUserId);
   const sendRequestMutation = useSendConnectionRequest();
+  const cancelRequestMutation = useCancelConnectionRequest();
   const [showModal, setShowModal] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [canSelect, setCanSelect] = useState(false);
+
+  // When menu opens, wait a bit before allowing selections
+  useEffect(() => {
+    if (menuOpen) {
+      setCanSelect(false);
+      const timer = setTimeout(() => {
+        setCanSelect(true);
+      }, 150);
+      return () => clearTimeout(timer);
+    } else {
+      setCanSelect(false);
+    }
+  }, [menuOpen]);
 
   if (isLoading) {
     return (
@@ -38,6 +61,24 @@ export function ConnectionButton({
 
   const handleConnect = () => {
     sendRequestMutation.mutate(targetUserId);
+  };
+
+  const handleCancelRequest = () => {
+    if (status?.connectionId) {
+      cancelRequestMutation.mutate(status.connectionId);
+      setMenuOpen(false);
+    }
+  };
+
+  const handleSelect = (callback: () => void) => (e: Event) => {
+    e.preventDefault();
+    if (!canSelect) {
+      return;
+    }
+    setMenuOpen(false);
+    requestAnimationFrame(() => {
+      callback();
+    });
   };
 
   switch (status?.status) {
@@ -61,10 +102,32 @@ export function ConnectionButton({
 
     case "pending_sent":
       return (
-        <Button variant="secondary" size="sm" disabled className={className}>
-          <UserCheck className="h-4 w-4 mr-2" />
-          Request Sent
-        </Button>
+        <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen} modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="secondary"
+              size="sm"
+              className={className}
+              disabled={cancelRequestMutation.isPending}
+            >
+              {cancelRequestMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Clock className="h-4 w-4 mr-2" />
+              )}
+              Request Sent
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onSelect={handleSelect(handleCancelRequest)}
+              className="text-destructive focus:text-destructive"
+            >
+              <X className="h-4 w-4 mr-2" />
+              Cancel Request
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       );
 
     case "pending_received":

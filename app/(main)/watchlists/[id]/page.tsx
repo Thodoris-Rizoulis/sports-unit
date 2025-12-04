@@ -225,7 +225,7 @@ export default function WatchlistDetailPage({
   if (isNaN(watchlistId)) {
     return (
       <SessionGuard>
-        <div className="container max-w-4xl mx-auto px-4 py-6">
+        <div className="container max-w-4xl mx-auto px-4 py-6 pb-24 md:pb-6">
           <div className="text-center py-16">
             <h3 className="text-lg font-semibold">Invalid Watchlist</h3>
             <Button asChild className="mt-4">
@@ -239,7 +239,7 @@ export default function WatchlistDetailPage({
 
   return (
     <SessionGuard>
-      <div className="container max-w-4xl mx-auto px-4 py-6">
+      <div className="container max-w-4xl mx-auto px-4 py-6 pb-24 md:pb-6">
         <Suspense fallback={<WatchlistDetailLoading />}>
           <WatchlistDetailContent watchlistId={watchlistId} />
         </Suspense>

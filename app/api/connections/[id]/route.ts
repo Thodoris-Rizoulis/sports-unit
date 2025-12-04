@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/services/auth";
 import { ConnectionService } from "@/services/connections";
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils";
+import { requireSessionUserId } from "@/lib/auth-utils";
 
 export async function DELETE(
   request: NextRequest,
@@ -14,16 +15,15 @@ export async function DELETE(
       return createErrorResponse("Unauthorized", 401);
     }
 
+    const userId = requireSessionUserId(session);
+
     const { id } = await params;
     const connectionId = parseInt(id);
     if (isNaN(connectionId)) {
       return createErrorResponse("Invalid connection ID", 400);
     }
 
-    await ConnectionService.removeConnection(
-      connectionId,
-      parseInt(session.user.id)
-    );
+    await ConnectionService.removeConnection(connectionId, userId);
 
     return createSuccessResponse({
       message: "Connection removed successfully",
