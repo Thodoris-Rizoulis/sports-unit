@@ -18,14 +18,15 @@ export function CertificationsSection({
   currentlyEditing,
   onSetEditing,
 }: CertificationsSectionProps) {
+  // Hook must be called before any conditional returns
+  const { data: certifications, isLoading } = useCertifications(
+    profile.publicUuid
+  );
+
   // Only show for coaches
   if (profile.roleName !== "coach") {
     return null;
   }
-
-  const { data: certifications, isLoading } = useCertifications(
-    profile.publicUuid
-  );
 
   const hasCertifications = certifications && certifications.length > 0;
 
