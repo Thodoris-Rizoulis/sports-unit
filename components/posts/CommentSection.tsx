@@ -209,8 +209,8 @@ function CommentItem({
             </AvatarFallback>
           </Avatar>
         </Link>
-        <div className="flex-1">
-          <div className="bg-muted rounded-lg px-3 py-2 relative">
+        <div className="flex-1 min-w-0">
+          <div className="bg-muted rounded-lg px-3 py-2 relative overflow-hidden">
             <div className="flex items-start justify-between">
               <Link
                 href={profileUrl}

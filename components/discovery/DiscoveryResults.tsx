@@ -139,8 +139,8 @@ export function DiscoveryResults({
         {[...Array(5)].map((_, i) => (
           <div key={i} className="p-4 border rounded-lg">
             <div className="flex items-start gap-4">
-              <Skeleton className="w-16 h-16 rounded-full" />
-              <div className="flex-1 space-y-2">
+              <Skeleton className="w-16 h-16 rounded-full flex-shrink-0" />
+              <div className="flex-1 min-w-0 space-y-2">
                 <Skeleton className="h-5 w-40" />
                 <Skeleton className="h-4 w-24" />
                 <div className="flex gap-2">

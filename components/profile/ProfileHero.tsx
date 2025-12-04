@@ -224,7 +224,7 @@ export function ProfileHero({
             )}
 
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <div className="mb-3">
                   <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">
                     {activeProfile.firstName} {activeProfile.lastName}

@@ -295,7 +295,7 @@ export function ConversationView({
             onMediaRemoved={handleMediaRemoved}
             disabled={sendMessage.isPending}
           />
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <MessageInput
               onSend={handleSend}
               disabled={false}
