@@ -314,13 +314,13 @@ export function DiscoveryFilters({ className }: DiscoveryFiltersProps) {
     router.push("/discovery", { scroll: false });
   };
 
-  // Count active filters
+  // Count active filters (only count truthy values, not empty strings or false)
   const activeFilterCount = [
     sportId,
     positionIds.length > 0 ? positionIds : undefined,
     strongFoot,
-    openToOpportunities,
-    location,
+    openToOpportunities === true ? true : undefined, // Only count when explicitly true
+    location ? location : undefined, // Don't count empty string
     heightRange[0] !== null || heightRange[1] !== null
       ? heightRange
       : undefined,

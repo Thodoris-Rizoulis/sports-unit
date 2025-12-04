@@ -61,8 +61,8 @@ export function useDiscovery() {
     currentFilters.strongFoot = strongFoot as "right" | "left" | "both";
 
   const openToOpportunities = searchParams.get("openToOpportunities");
-  if (openToOpportunities)
-    currentFilters.openToOpportunities = openToOpportunities === "true";
+  // Only count openToOpportunities when explicitly true
+  if (openToOpportunities === "true") currentFilters.openToOpportunities = true;
 
   const location = searchParams.get("location");
   if (location) currentFilters.location = location;
