@@ -20,7 +20,7 @@ export function AthleteMetricsSection({
   onSetEditing,
 }: AthleteMetricsSectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   // Hook must be called before any conditional returns
   const { data: metrics, isLoading } = useAthleteMetrics(profile.publicUuid);
 

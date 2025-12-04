@@ -309,7 +309,7 @@ export function PostCreationForm({ onPostCreated }: PostCreationFormProps) {
   return (
     <Card
       ref={cardRef}
-      className="border-border/50 backdrop-blur-sm shadow-sm rounded-2xl overflow-hidden"
+      className="border-border/50 backdrop-blur-sm shadow-sm rounded-2xl overflow-hidden w-full"
     >
       <CardContent className="p-0">
         <form
@@ -323,7 +323,7 @@ export function PostCreationForm({ onPostCreated }: PostCreationFormProps) {
           onDrop={handleDrop}
         >
           {/* Text Input Area */}
-          <div className="p-6 border-b-0">
+          <div className="p-4 md:p-6 border-b-0">
             <div className="relative">
               <Textarea
                 id="content"
@@ -345,13 +345,13 @@ export function PostCreationForm({ onPostCreated }: PostCreationFormProps) {
           {/* Media/Attachment Bar */}
           <div
             className={cn(
-              "px-6 py-4 transition-all duration-300 overflow-hidden",
+              "px-4 md:px-6 py-4 transition-all duration-300 overflow-hidden",
               showButtons || selectedFiles.length > 0
-                ? "opacity-100 max-h-96"
+                ? "opacity-100 max-h-[500px]"
                 : "opacity-0 max-h-0"
             )}
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <div className="flex items-center space-x-1">
                 {/* Photo Upload */}
                 <label className="flex items-center justify-center w-12 h-12 rounded-lg bg-secondary/10 hover:bg-secondary/20 cursor-pointer transition-colors group">

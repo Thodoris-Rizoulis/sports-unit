@@ -12,7 +12,7 @@ export function TextWithLinks({ text, className }: TextWithLinksProps) {
   const parts = parseTextWithLinks(text);
 
   return (
-    <span className={className}>
+    <span className={`break-words ${className || ""}`}>
       {parts.map((part, index) => {
         if (part.type === "link") {
           return (
@@ -21,7 +21,7 @@ export function TextWithLinks({ text, className }: TextWithLinksProps) {
               href={part.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-primary hover:text-primary/80 underline underline-offset-2"
+              className="text-primary hover:text-primary/80 underline underline-offset-2 break-all"
             >
               {part.content}
             </a>

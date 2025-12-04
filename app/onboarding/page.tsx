@@ -22,7 +22,7 @@ export default function Onboarding() {
       if (response.ok) {
         // Clear onboarding data from localStorage
         localStorage.removeItem("onboarding-data");
-        
+
         // Update session first to refresh the token for proxy
         console.log("Updating session first");
         await update();

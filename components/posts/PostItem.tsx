@@ -114,11 +114,11 @@ export const PostItem = memo(function PostItem({
 
   return (
     <>
-      <Card className="transition-all duration-200 hover:shadow-md border-border/50 backdrop-blur-sm">
-        <CardContent className="p-6">
-          <div className="flex items-start space-x-4">
-            <Link href={profileUrl}>
-              <Avatar className="h-12 w-12 ring-2 ring-primary/10 hover:ring-primary/20 transition-all duration-200">
+      <Card className="transition-all duration-200 hover:shadow-md border-border/50 backdrop-blur-sm overflow-hidden">
+        <CardContent className="p-4 md:p-6">
+          <div className="flex items-start space-x-3 md:space-x-4">
+            <Link href={profileUrl} className="flex-shrink-0">
+              <Avatar className="h-10 w-10 md:h-12 md:w-12 ring-2 ring-primary/10 hover:ring-primary/20 transition-all duration-200">
                 <AvatarImage
                   src={currentPost.user.profileImageUrl || undefined}
                   alt={userName}
@@ -129,7 +129,7 @@ export const PostItem = memo(function PostItem({
                 </AvatarFallback>
               </Avatar>
             </Link>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 overflow-hidden">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center space-x-2">
                   <Link
@@ -178,7 +178,7 @@ export const PostItem = memo(function PostItem({
               </div>
               <div className="space-y-4">
                 {currentPost.content && (
-                  <div className="text-foreground leading-relaxed whitespace-pre-wrap">
+                  <div className="text-foreground leading-relaxed whitespace-pre-wrap break-words">
                     <TextWithLinks text={currentPost.content} />
                   </div>
                 )}
