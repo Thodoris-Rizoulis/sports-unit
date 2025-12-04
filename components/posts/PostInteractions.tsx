@@ -122,7 +122,7 @@ export function PostInteractions({
   };
 
   return (
-    <div className="flex items-center justify-between md:justify-start md:space-x-4 mt-3 pt-3 border-t border-border/50">
+    <div className="flex items-center justify-around md:justify-start md:gap-4 mt-3 pt-3 border-t border-border/50">
       <Button
         variant="ghost"
         size="sm"
@@ -132,7 +132,7 @@ export function PostInteractions({
           liked ? `Unlike post (${likes} likes)` : `Like post (${likes} likes)`
         }
         aria-pressed={liked}
-        className={`flex items-center space-x-1 px-2 md:px-3 transition-all duration-200 hover:scale-105 active:scale-95 ${
+        className={`flex-1 md:flex-none flex items-center justify-center space-x-1 px-2 md:px-3 transition-all duration-200 hover:scale-105 active:scale-95 ${
           liked
             ? "text-destructive hover:text-destructive/80"
             : "hover:text-primary/70"
@@ -151,7 +151,7 @@ export function PostInteractions({
       <Button
         variant="ghost"
         size="sm"
-        className="flex items-center space-x-1 px-2 md:px-3 transition-all duration-200 hover:scale-105 active:scale-95 hover:text-primary"
+        className="flex-1 md:flex-none flex items-center justify-center space-x-1 px-2 md:px-3 transition-all duration-200 hover:scale-105 active:scale-95 hover:text-primary"
         onClick={onCommentClick}
         aria-label={`View comments${
           initialComments > 0 ? ` (${initialComments})` : ""
@@ -164,7 +164,7 @@ export function PostInteractions({
       <Button
         variant="ghost"
         size="sm"
-        className="flex items-center space-x-1 px-2 md:px-3 transition-all duration-200 hover:scale-105 active:scale-95 hover:text-primary"
+        className="flex-1 md:flex-none flex items-center justify-center space-x-1 px-2 md:px-3 transition-all duration-200 hover:scale-105 active:scale-95 hover:text-primary"
         onClick={handleShare}
         disabled={!postUuid}
         aria-label="Share post"
@@ -180,7 +180,7 @@ export function PostInteractions({
         disabled={loading}
         aria-label={saved ? "Remove from saved posts" : "Save post"}
         aria-pressed={saved}
-        className={`flex items-center space-x-1 px-2 md:px-3 transition-all duration-200 hover:scale-105 active:scale-95 ${
+        className={`flex-1 md:flex-none flex items-center justify-center space-x-1 px-2 md:px-3 transition-all duration-200 hover:scale-105 active:scale-95 ${
           saved ? "text-secondary" : "hover:text-primary"
         }`}
       >
